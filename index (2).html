@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OBSIDIAN — Detailing / Protection / Modification</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   OBSIDIAN — DESIGN TOKENS
+   ============================================================ */
+:root{
+  --ink:#0a0b0d;
+  --ink-2:#111318;
+  --graphite:#16181d;
+  --graphite-2:#1d2027;
+  --line:#2a2d33;
+  --line-soft:rgba(237,237,232,0.1);
+  --paper:#edede8;
+  --paper-dim:#a8a9a4;
+  --paper-faint:#6b6d70;
+  --brass:#b08d57;
+  --brass-bright:#d8b578;
+  --heat-1:#5b7fb0;
+  --heat-2:#b08d57;
+  --heat-3:#c0554a;
+  --heat-gradient:linear-gradient(90deg,var(--heat-1),var(--heat-2) 50%,var(--heat-3));
+  --ease-panel:cubic-bezier(.16,1,.3,1);
+  --ease-soft:cubic-bezier(.22,.61,.36,1);
+  --dur-1:0.6s;
+  --dur-2:0.9s;
+  --container:1400px;
+  --edge:clamp(20px,5vw,64px);
+}
+
+*{margin:0;padding:0;box-sizing:border-box;}
+html{background:var(--ink);scroll-behavior:smooth;}
+html,body{overflow-x:hidden;}
+body{
+  background:var(--ink);
+  color:var(--paper);
+  font-family:'Space Grotesk',sans-serif;
+  font-weight:400;
+  line-height:1.4;
+  -webkit-font-smoothing:antialiased;
+  cursor:default;
+}
+img{display:block;max-width:100%;height:auto;}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;background:none;border:none;color:inherit;cursor:pointer;}
+input,select,textarea{font-family:inherit;}
+::selection{background:var(--brass);color:var(--ink);}
+
+.mono{font-family:'IBM Plex Mono',monospace;}
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:0.22em;
+  text-transform:uppercase;
+  color:var(--paper-dim);
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+.eyebrow::before{
+  content:'';
+  width:16px;height:1px;
+  background:var(--brass);
+  display:inline-block;
+}
+.container{
+  width:100%;
+  max-width:var(--container);
+  margin:0 auto;
+  padding:0 var(--edge);
+}
+.hairline{
+  height:1px;
+  width:100%;
+  background:var(--line);
+}
+.reveal-mask{overflow:hidden;display:block;}
+.reveal-mask > *{display:block;will-change:transform;}
+
+/* ============================================================
+   CUSTOM CURSOR
+   ============================================================ */
+.cursor-dot,.cursor-ring{
+  position:fixed;top:0;left:0;
+  pointer-events:none;
+  z-index:9999;
+  border-radius:50%;
+  transform:translate(-50%,-50%);
+  mix-blend-mode:difference;
+}
+.cursor-dot{
+  width:6px;height:6px;
+  background:var(--paper);
+}
+.cursor-ring{
+  width:38px;height:38px;
+  border:1px solid var(--paper);
+  transition:width .25s var(--ease-soft),height .25s var(--ease-soft),
+             border-color .25s ease, background .25s ease;
+  display:flex;align-items:center;justify-content:center;
+}
+.cursor-ring span{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:9px;
+  letter-spacing:.12em;
+  opacity:0;
+  transition:opacity .2s ease;
+  white-space:nowrap;
+  color:var(--ink);
+}
+.cursor-ring.on{
+  width:78px;height:78px;
+  background:var(--paper);
+  border-color:var(--paper);
+}
+.cursor-ring.on span{opacity:1;}
+@media (hover:none), (pointer:coarse){
+  .cursor-dot,.cursor-ring{display:none;}
+}
+
+/* ============================================================
+   LOADER
+   ============================================================ */
+#loader{
+  position:fixed;inset:0;
+  background:var(--ink);
+  z-index:10000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:22px;
+}
+#loader .mark{
+  font-size:clamp(28px,4vw,40px);
+  letter-spacing:0.05em;
+  font-weight:600;
+}
+#loader .bar-track{
+  width:220px;height:1px;
+  background:var(--line);
+  position:relative;
+  overflow:hidden;
+}
+#loader .bar-fill{
+  position:absolute;left:0;top:0;bottom:0;
+  width:0%;
+  background:var(--paper);
+}
+#loader .count{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:.2em;
+  color:var(--paper-faint);
+}
+#loader.done{
+  animation:loaderOut .7s var(--ease-panel) forwards;
+}
+@keyframes loaderOut{
+  to{opacity:0;visibility:hidden;}
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+header{
+  position:fixed;top:0;left:0;right:0;
+  z-index:500;
+  padding:26px var(--edge);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:padding .4s var(--ease-soft),background .4s var(--ease-soft),
+             backdrop-filter .4s ease, border-color .4s ease;
+  border-bottom:1px solid transparent;
+}
+header.scrolled{
+  padding:14px var(--edge);
+  background:rgba(10,11,13,0.72);
+  backdrop-filter:blur(14px) saturate(140%);
+  border-bottom:1px solid var(--line-soft);
+}
+.logo{
+  font-size:20px;
+  font-weight:600;
+  letter-spacing:0.04em;
+  display:flex;align-items:center;gap:8px;
+  transition:transform .4s var(--ease-soft);
+}
+.logo .dot{width:6px;height:6px;background:var(--brass);border-radius:50%;}
+header.scrolled .logo{transform:scale(0.86);transform-origin:left center;}
+
+nav.primary-nav{
+  display:flex;gap:36px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+}
+nav.primary-nav a{
+  position:relative;
+  padding-bottom:4px;
+  color:var(--paper-dim);
+  transition:color .3s ease;
+}
+nav.primary-nav a::after{
+  content:'';
+  position:absolute;left:0;right:100%;bottom:0;height:1px;
+  background:var(--heat-gradient);
+  transition:right .35s var(--ease-panel);
+}
+nav.primary-nav a:hover,
+nav.primary-nav a.active{color:var(--paper);}
+nav.primary-nav a:hover::after,
+nav.primary-nav a.active::after{right:0;}
+
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  padding:13px 22px;
+  border:1px solid var(--paper);
+  color:var(--paper);
+  position:relative;
+  overflow:hidden;
+  transition:color .35s ease, border-color .35s ease;
+}
+.btn::before{
+  content:'';
+  position:absolute;inset:0;
+  background:var(--paper);
+  transform:translateY(101%);
+  transition:transform .4s var(--ease-panel);
+  z-index:-1;
+}
+.btn:hover{color:var(--ink);}
+.btn:hover::before{transform:translateY(0);}
+.btn.ghost{border-color:var(--line);color:var(--paper-dim);}
+.btn.ghost:hover{color:var(--ink);border-color:var(--paper);}
+.btn.solid{background:var(--paper);color:var(--ink);border-color:var(--paper);}
+.btn.solid::before{background:var(--ink);}
+.btn.solid:hover{color:var(--paper);}
+
+.mobile-menu-btn{display:none;}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+#hero{
+  position:relative;
+  height:100vh;
+  min-height:640px;
+  overflow:hidden;
+  background:var(--ink);
+}
+#hero .hero-media{
+  position:absolute;inset:0;
+  overflow:hidden;
+}
+#hero .hero-media img{
+  position:absolute;inset:0;
+  width:100%;height:100%;object-fit:cover;object-position:60% 55%;
+  transform:scale(1.0);
+  filter:brightness(.62) saturate(1.05);
+  opacity:0;
+  transition:opacity 1.6s var(--ease-panel);
+}
+#hero.ready .hero-media img{opacity:1;}
+#hero .sweep{
+  position:absolute;inset:0;
+  background:linear-gradient(100deg,transparent 30%,rgba(237,237,232,.16) 45%,transparent 60%);
+  transform:translateX(-120%);
+  mix-blend-mode:overlay;
+  pointer-events:none;
+}
+#hero.ready .sweep{
+  animation:sweepAcross 1.4s .55s var(--ease-panel) forwards;
+}
+@keyframes sweepAcross{to{transform:translateX(120%);}}
+#hero .grad-bottom{
+  position:absolute;inset:0;
+  background:linear-gradient(to bottom, rgba(10,11,13,0.15) 0%, rgba(10,11,13,0.05) 40%, rgba(10,11,13,0.75) 100%);
+}
+#hero .grad-scroll{
+  position:absolute;inset:0;
+  background:var(--ink);
+  opacity:0;
+}
+#hero .hero-content{
+  position:relative;z-index:2;
+  height:100%;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 var(--edge) 88px;
+}
+#hero .hero-eyebrow{
+  opacity:0;transform:translateY(14px);
+  margin-bottom:22px;
+}
+#hero.ready .hero-eyebrow{
+  animation:fadeUp .8s 1.25s var(--ease-panel) forwards;
+}
+#hero h1{
+  font-size:clamp(48px,9.6vw,148px);
+  font-weight:600;
+  line-height:.94;
+  letter-spacing:-0.01em;
+  text-transform:uppercase;
+  max-width:14ch;
+}
+#hero h1 .line{overflow:hidden;}
+#hero h1 .line span{
+  display:inline-block;
+  transform:translateY(105%);
+}
+#hero.ready h1 .line:nth-child(1) span{animation:lineUp .9s 1.3s var(--ease-panel) forwards;}
+#hero.ready h1 .line:nth-child(2) span{animation:lineUp .9s 1.42s var(--ease-panel) forwards;}
+#hero.ready h1 .line:nth-child(3) span{animation:lineUp .9s 1.54s var(--ease-panel) forwards;}
+@keyframes lineUp{to{transform:translateY(0);}}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
+
+#hero .hero-foot{
+  display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:28px;
+  margin-top:40px;
+  opacity:0;transform:translateY(14px);
+}
+#hero.ready .hero-foot{animation:fadeUp .8s 1.9s var(--ease-panel) forwards;}
+#hero .hero-actions{display:flex;align-items:center;gap:22px;flex-wrap:wrap;}
+.explore-link{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--paper-dim);
+  display:inline-flex;align-items:center;gap:8px;
+  border-bottom:1px solid var(--line);
+  padding-bottom:4px;
+  transition:color .3s ease, border-color .3s ease;
+}
+.explore-link:hover{color:var(--paper);border-color:var(--paper);}
+
+#hero .scroll-cue{
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;letter-spacing:.2em;
+  color:var(--paper-faint);
+}
+#hero .scroll-cue .stem{
+  width:1px;height:34px;
+  background:linear-gradient(to bottom, var(--paper-faint), transparent);
+  position:relative;
+  overflow:hidden;
+}
+#hero .scroll-cue .stem::after{
+  content:'';
+  position:absolute;left:0;top:-100%;width:100%;height:100%;
+  background:var(--paper);
+  animation:cueDrop 1.8s ease-in-out infinite;
+}
+@keyframes cueDrop{
+  0%{top:-100%;}
+  60%{top:100%;}
+  100%{top:100%;}
+}
+
+/* ============================================================
+   SECTION SHELL
+   ============================================================ */
+section{position:relative;}
+.pad-y{padding:min(18vh,180px) 0;}
+.section-head{
+  display:flex;justify-content:space-between;align-items:flex-end;
+  gap:40px;flex-wrap:wrap;
+  margin-bottom:64px;
+}
+.section-head h2{
+  font-size:clamp(32px,5vw,64px);
+  font-weight:600;
+  text-transform:uppercase;
+  line-height:1.02;
+  letter-spacing:-0.01em;
+}
+.section-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;color:var(--paper-faint);letter-spacing:.1em;
+}
+.lede{
+  max-width:46ch;
+  color:var(--paper-dim);
+  font-size:17px;
+  line-height:1.6;
+}
+
+/* ============================================================
+   YOUR CAR DESERVES MORE
+   ============================================================ */
+#deserve{
+  height:280vh;
+  background:var(--ink);
+}
+#deserve .pin-wrap{
+  position:sticky;top:0;
+  height:100vh;
+  display:flex;flex-direction:column;justify-content:center;
+  padding:0 var(--edge);
+  overflow:hidden;
+}
+#deserve .stack{
+  display:flex;flex-direction:column;
+  gap:clamp(4px,1vw,10px);
+}
+#deserve .word-row{overflow:hidden;}
+#deserve .word{
+  font-size:clamp(46px,10vw,150px);
+  font-weight:600;
+  text-transform:uppercase;
+  line-height:1;
+  letter-spacing:-0.01em;
+  color:var(--paper-faint);
+  transform:translateY(100%);
+  display:block;
+}
+#deserve .word.hl{color:var(--paper);}
+#deserve .sub{
+  position:absolute;
+  bottom:64px;left:var(--edge);right:var(--edge);
+  max-width:44ch;
+  font-size:15px;
+  color:var(--paper-dim);
+  opacity:0;
+  display:flex;gap:14px;align-items:baseline;
+}
+
+/* ============================================================
+   BEFORE / AFTER
+   ============================================================ */
+#transform{
+  height:220vh;
+  background:var(--ink);
+}
+#transform .pin-wrap{
+  position:sticky;top:0;height:100vh;
+  display:flex;flex-direction:column;
+  padding-top:min(14vh,120px);
+}
+#transform .ba-head{
+  padding:0 var(--edge);
+  margin-bottom:28px;
+}
+.ba-frame{
+  position:relative;
+  flex:1;
+  margin:0 var(--edge) 0;
+  overflow:hidden;
+  cursor:ew-resize;
+  border:1px solid var(--line);
+}
+.ba-frame img{
+  position:absolute;inset:0;
+  width:100%;height:100%;object-fit:cover;
+}
+.ba-frame .layer-before{filter:saturate(.35) contrast(.85) brightness(.72) blur(.4px);}
+.ba-frame .layer-after{
+  clip-path:inset(0 0 0 var(--reveal,50%));
+}
+.ba-frame .handle{
+  position:absolute;top:0;bottom:0;
+  left:var(--reveal,50%);
+  width:1px;background:var(--paper);
+  transform:translateX(-0.5px);
+}
+.ba-frame .handle .grip{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  width:52px;height:52px;
+  border-radius:50%;
+  background:var(--paper);
+  display:flex;align-items:center;justify-content:center;
+  gap:4px;
+}
+.ba-frame .handle .grip svg{width:12px;height:12px;}
+.ba-tag{
+  position:absolute;top:24px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;letter-spacing:.18em;
+  padding:8px 14px;
+  border:1px solid rgba(237,237,232,.4);
+  background:rgba(10,11,13,.4);
+  backdrop-filter:blur(6px);
+}
+.ba-tag.before{left:24px;}
+.ba-tag.after{right:24px;}
+
+/* ============================================================
+   SERVICES
+   ============================================================ */
+#services{background:var(--ink);}
+.service-list{border-top:1px solid var(--line);}
+.service-row{
+  position:relative;
+  border-bottom:1px solid var(--line);
+  padding:26px 0;
+  display:grid;
+  grid-template-columns:70px 1fr auto;
+  align-items:center;
+  gap:24px;
+  cursor:pointer;
+  transition:padding .4s var(--ease-soft);
+}
+.service-row .s-num{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;color:var(--paper-faint);
+}
+.service-row .s-title{
+  font-size:clamp(24px,4vw,46px);
+  font-weight:500;
+  text-transform:uppercase;
+  color:var(--paper-dim);
+  transition:color .4s ease, transform .4s var(--ease-soft);
+  display:flex;flex-direction:column;
+  gap:6px;
+}
+.service-row .s-desc{
+  font-size:13px;color:var(--paper-faint);
+  font-weight:400;text-transform:none;letter-spacing:0;
+  max-height:0;opacity:0;overflow:hidden;
+  transition:max-height .4s var(--ease-soft), opacity .3s ease;
+}
+.service-row .s-arrow{
+  width:44px;height:44px;border:1px solid var(--line);
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform .4s var(--ease-panel), border-color .4s ease, background .4s ease;
+}
+.service-row .s-arrow svg{transition:transform .4s var(--ease-panel);}
+.service-row:hover{padding:38px 0;}
+.service-row:hover .s-title{color:var(--paper);transform:translateX(6px);}
+.service-row:hover .s-desc{max-height:60px;opacity:1;margin-top:2px;}
+.service-row:hover .s-arrow{transform:translate(6px,-6px);border-color:var(--paper);background:var(--paper);}
+.service-row:hover .s-arrow svg{transform:rotate(45deg);}
+.service-row:hover .s-arrow svg path{stroke:var(--ink);}
+
+.service-preview{
+  position:fixed;
+  top:0;left:0;
+  width:340px;height:220px;
+  pointer-events:none;
+  z-index:60;
+  overflow:hidden;
+  opacity:0;
+  transform:scale(.92);
+  transition:opacity .35s var(--ease-soft), transform .35s var(--ease-soft);
+}
+.service-preview.on{opacity:1;transform:scale(1);}
+.service-preview img{
+  width:100%;height:100%;object-fit:cover;
+  filter:brightness(.85);
+}
+@media(hover:none){.service-preview{display:none;}}
+
+/* ============================================================
+   PROCESS
+   ============================================================ */
+#process{background:var(--graphite);}
+#process .pin-wrap{
+  position:sticky;top:0;
+  height:100vh;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+}
+#process .proc-left{padding:0 var(--edge);}
+#process .proc-steps{margin-top:40px;}
+#process .proc-step{
+  display:flex;align-items:baseline;gap:18px;
+  padding:14px 0;
+  opacity:.35;
+  transition:opacity .4s ease;
+}
+#process .proc-step.active{opacity:1;}
+#process .proc-step .p-num{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--brass);}
+#process .proc-step .p-name{font-size:clamp(20px,2.6vw,32px);font-weight:500;text-transform:uppercase;}
+#process .proc-desc{
+  margin-top:28px;max-width:38ch;
+  font-size:14px;color:var(--paper-dim);
+  min-height:60px;
+}
+#process .proc-right{
+  position:relative;height:78vh;margin:0 var(--edge) 0 0;
+  overflow:hidden;
+}
+#process .proc-right img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  opacity:0;transform:scale(1.06);
+  transition:opacity 1s var(--ease-panel), transform 1.2s var(--ease-panel);
+}
+#process .proc-right img.active{opacity:1;transform:scale(1);}
+
+/* ============================================================
+   PAINT CORRECTION
+   ============================================================ */
+#paint{
+  height:280vh;
+  background:var(--ink);
+}
+#paint .pin-wrap{
+  position:sticky;top:0;height:100vh;
+  display:flex;align-items:center;
+}
+#paint .paint-media{
+  position:absolute;inset:0;
+}
+#paint .paint-media img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:grayscale(.65) contrast(.8) brightness(.55) blur(1.5px);
+}
+#paint .paint-media .swirl-overlay{
+  position:absolute;inset:0;
+  background-image:repeating-radial-gradient(circle at 30% 40%, rgba(237,237,232,.05) 0px, transparent 2px, transparent 6px);
+  mix-blend-mode:overlay;
+  opacity:.8;
+}
+#paint .paint-media::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(to right, rgba(10,11,13,.85), rgba(10,11,13,.2) 60%);
+}
+#paint .paint-content{
+  position:relative;z-index:2;
+  padding:0 var(--edge);
+  max-width:640px;
+}
+#paint h2{
+  font-size:clamp(38px,6vw,84px);
+  font-weight:600;text-transform:uppercase;line-height:1;
+}
+#paint .paint-labels{
+  display:flex;gap:0;margin-top:44px;
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+}
+#paint .paint-labels span{
+  padding:10px 18px 10px 0;margin-right:18px;
+  border-bottom:2px solid var(--line);
+  color:var(--paper-faint);
+  transition:color .5s ease, border-color .5s ease;
+}
+#paint .paint-labels span.active{color:var(--paper);border-color:var(--brass);}
+
+/* ============================================================
+   CERAMIC
+   ============================================================ */
+#ceramic{
+  height:240vh;background:var(--ink);
+}
+#ceramic .pin-wrap{
+  position:sticky;top:0;height:100vh;
+  overflow:hidden;
+}
+#ceramic .cer-media{position:absolute;inset:0;}
+#ceramic .cer-media img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:saturate(.5) brightness(.6) contrast(.9);
+  transition:filter .1s linear;
+}
+#ceramic .cer-media::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(to top, rgba(10,11,13,.9), transparent 55%);
+}
+#ceramic .specular{
+  position:absolute;top:10%;left:-30%;
+  width:60%;height:80%;
+  background:linear-gradient(120deg, transparent 40%, rgba(255,255,255,.35) 48%, transparent 56%);
+  filter:blur(6px);
+  opacity:0;
+  pointer-events:none;
+}
+#ceramic .cer-content{
+  position:relative;z-index:2;height:100%;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 var(--edge) 90px;
+}
+#ceramic h2{
+  font-size:clamp(38px,6.4vw,92px);
+  font-weight:600;text-transform:uppercase;line-height:.98;
+}
+#ceramic .cer-tags{
+  display:flex;flex-wrap:wrap;gap:12px;margin-top:38px;
+}
+#ceramic .cer-tag{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  padding:10px 16px;
+  border:1px solid var(--line);
+  opacity:0;transform:translateY(10px);
+  transition:opacity .5s var(--ease-soft), transform .5s var(--ease-soft), border-color .5s ease;
+}
+#ceramic .cer-tag.on{opacity:1;transform:translateY(0);border-color:var(--brass);}
+
+/* ============================================================
+   PPF
+   ============================================================ */
+#ppf{background:var(--graphite);}
+#ppf .ppf-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;
+}
+#ppf .ppf-media{
+  position:relative;
+  aspect-ratio:4/3;
+  overflow:hidden;
+}
+#ppf .ppf-media img{width:100%;height:100%;object-fit:cover;filter:brightness(.8);}
+.hotspot{
+  position:absolute;
+  width:16px;height:16px;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+}
+.hotspot .ring{
+  position:absolute;inset:0;
+  border:1px solid var(--paper);
+  border-radius:50%;
+  animation:pulseRing 2.4s ease-out infinite;
+}
+.hotspot .core{
+  position:absolute;inset:5px;
+  background:var(--paper);
+  border-radius:50%;
+}
+.hotspot .tag{
+  position:absolute;bottom:calc(100% + 12px);left:50%;
+  transform:translateX(-50%) translateY(6px);
+  background:var(--ink);
+  border:1px solid var(--line);
+  padding:8px 12px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  white-space:nowrap;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s ease, transform .3s ease;
+}
+.hotspot:hover .tag{opacity:1;transform:translateX(-50%) translateY(0);}
+.hotspot:hover .core{background:var(--brass);}
+@keyframes pulseRing{
+  0%{transform:scale(1);opacity:.9;}
+  100%{transform:scale(2.6);opacity:0;}
+}
+#ppf .ppf-text h2{
+  font-size:clamp(32px,4.6vw,58px);
+  font-weight:600;text-transform:uppercase;line-height:1.05;
+}
+#ppf .ppf-text h2 .dim{color:var(--paper-faint);}
+#ppf .ppf-text p{margin-top:22px;color:var(--paper-dim);max-width:40ch;font-size:15px;}
+
+/* ============================================================
+   MODIFICATION — HORIZONTAL SCROLL
+   ============================================================ */
+#mod{background:var(--ink);}
+#mod .mod-head{padding:0 var(--edge);margin-bottom:56px;}
+#mod-pin{
+  height:340vh;
+}
+#mod-pin .pin-wrap{
+  position:sticky;top:0;height:100vh;
+  display:flex;align-items:center;
+  overflow:hidden;
+}
+#mod .mod-track{
+  display:flex;gap:28px;
+  padding-left:var(--edge);
+  will-change:transform;
+}
+.mod-card{
+  position:relative;
+  flex:0 0 auto;
+  width:min(78vw,760px);
+  height:64vh;
+  overflow:hidden;
+}
+.mod-card img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+  filter:brightness(.72);
+  transform:scale(1.02);
+}
+.mod-card .mod-info{
+  position:absolute;left:0;right:0;bottom:0;
+  padding:28px;
+  display:flex;justify-content:space-between;align-items:flex-end;
+}
+.mod-card h3{
+  font-size:clamp(24px,3vw,38px);
+  font-weight:600;text-transform:uppercase;
+}
+.mod-card .mod-tags{
+  display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;max-width:80%;
+}
+.mod-card .mod-tags span{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  padding:6px 10px;border:1px solid rgba(237,237,232,.35);
+}
+.mod-card .mod-idx{
+  font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);
+}
+@media (max-width:860px){
+  #mod-pin{height:auto;}
+  #mod-pin .pin-wrap{position:static;height:auto;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+  #mod .mod-track{transform:none !important;}
+  .mod-card{scroll-snap-align:start;width:86vw;height:56vh;}
+}
+
+/* ============================================================
+   CONFIGURATOR
+   ============================================================ */
+#config{background:var(--graphite);}
+.config-grid{
+  display:grid;grid-template-columns:1.1fr 0.9fr;gap:60px;align-items:center;
+}
+.config-media{
+  position:relative;aspect-ratio:16/11;overflow:hidden;background:var(--ink);
+}
+.config-media img{
+  width:100%;height:100%;object-fit:cover;
+  transition:filter .5s var(--ease-soft);
+}
+.config-media .spec-code{
+  position:absolute;bottom:18px;left:18px;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;
+  color:var(--paper-dim);
+  background:rgba(10,11,13,.5);padding:6px 10px;backdrop-filter:blur(4px);
+}
+.config-panel .cfg-group{margin-bottom:30px;}
+.config-panel .cfg-label{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+  color:var(--paper-faint);text-transform:uppercase;margin-bottom:12px;display:block;
+}
+.cfg-options{display:flex;flex-wrap:wrap;gap:10px;}
+.cfg-option{
+  padding:10px 16px;
+  border:1px solid var(--line);
+  font-size:13px;letter-spacing:.02em;
+  transition:border-color .3s ease, background .3s ease, color .3s ease;
+}
+.cfg-option:hover{border-color:var(--paper-dim);}
+.cfg-option.active{
+  background:var(--paper);color:var(--ink);border-color:var(--paper);
+}
+.config-panel .cfg-readout{
+  margin-top:34px;padding-top:24px;border-top:1px solid var(--line);
+  font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--paper-dim);
+  display:flex;flex-direction:column;gap:8px;
+}
+.config-panel .cfg-readout .row{display:flex;justify-content:space-between;gap:12px;}
+.config-panel .cfg-readout .row b{color:var(--paper);font-weight:500;}
+
+/* ============================================================
+   OUR BUILDS
+   ============================================================ */
+#builds{background:var(--ink);}
+.builds-grid{display:flex;flex-direction:column;gap:min(14vh,120px);}
+.build-item{display:grid;gap:36px;align-items:end;}
+.build-item.layout-a{grid-template-columns:1.5fr 1fr;}
+.build-item.layout-b{grid-template-columns:1fr 1.5fr;}
+.build-item.layout-b .build-media{order:2;}
+.build-item.layout-full{grid-template-columns:1fr;}
+.build-media{position:relative;overflow:hidden;aspect-ratio:4/3;}
+.build-item.layout-full .build-media{aspect-ratio:21/9;}
+.build-media img{
+  width:100%;height:100%;object-fit:cover;
+  transform:scale(1.08);
+  transition:transform 1.1s var(--ease-panel);
+}
+.build-media:hover img{transform:scale(1);}
+.build-meta{padding-bottom:8px;}
+.build-meta .b-idx{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--paper-faint);}
+.build-meta h3{font-size:clamp(24px,3.2vw,44px);font-weight:600;text-transform:uppercase;margin-top:10px;}
+.build-meta .b-tags{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--brass);letter-spacing:.08em;}
+
+/* ============================================================
+   STUDIO — HORIZONTAL GALLERY
+   ============================================================ */
+#studio{background:var(--graphite);overflow:hidden;}
+#studio .studio-head{padding:0 var(--edge);margin-bottom:50px;}
+.studio-scroll{
+  display:flex;gap:18px;
+  overflow-x:auto;
+  padding:0 var(--edge) 20px;
+  scroll-snap-type:x proximity;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.studio-scroll::-webkit-scrollbar{display:none;}
+.studio-item{
+  flex:0 0 auto;
+  scroll-snap-align:start;
+  overflow:hidden;
+  position:relative;
+}
+.studio-item img{width:100%;height:100%;object-fit:cover;will-change:transform;}
+.studio-item.size-lg{width:min(52vw,620px);height:60vh;}
+.studio-item.size-md{width:min(34vw,420px);height:44vh;align-self:flex-end;}
+.studio-item.size-sm{width:min(24vw,300px);height:34vh;align-self:center;}
+.studio-scroll{align-items:flex-start;}
+.studio-item .cap{
+  position:absolute;left:16px;bottom:16px;
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--paper-dim);
+}
+
+/* ============================================================
+   CRAFTSMANSHIP
+   ============================================================ */
+#craft{
+  position:relative;
+  min-height:100vh;
+  display:flex;align-items:center;
+  overflow:hidden;
+}
+#craft .craft-bg{position:absolute;inset:0;}
+#craft .craft-bg img{width:100%;height:100%;object-fit:cover;filter:brightness(.28) saturate(.7);}
+#craft .craft-bg::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(180deg, rgba(10,11,13,.5), rgba(10,11,13,.75));
+}
+#craft .craft-content{position:relative;z-index:2;padding:min(16vh,140px) var(--edge);}
+#craft h2{
+  font-size:clamp(30px,5.6vw,76px);
+  font-weight:600;text-transform:uppercase;line-height:1.14;max-width:16ch;
+}
+#craft .craft-line{overflow:hidden;}
+#craft .craft-line span{display:inline-block;transform:translateY(110%);opacity:0;}
+
+/* ============================================================
+   REVIEWS
+   ============================================================ */
+#reviews{background:var(--ink);}
+.reviews-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--line);
+  border:1px solid var(--line);
+}
+.review-card{background:var(--ink);padding:42px 34px;display:flex;flex-direction:column;gap:22px;}
+.review-card .stars{letter-spacing:2px;color:var(--brass);font-size:14px;}
+.review-card p{font-size:16px;line-height:1.55;}
+.review-card .who{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.08em;
+  color:var(--paper-faint);text-transform:uppercase;
+  margin-top:auto;padding-top:8px;border-top:1px solid var(--line);
+}
+@media(max-width:860px){.reviews-grid{grid-template-columns:1fr;}}
+
+/* ============================================================
+   BOOKING
+   ============================================================ */
+#booking{background:var(--graphite);}
+.booking-shell{
+  display:grid;grid-template-columns:0.9fr 1.1fr;gap:70px;
+}
+.booking-intro h2{
+  font-size:clamp(32px,5vw,58px);font-weight:600;text-transform:uppercase;line-height:1.05;
+}
+.booking-intro p{margin-top:22px;color:var(--paper-dim);max-width:40ch;}
+.booking-contacts{margin-top:44px;display:flex;flex-direction:column;gap:14px;}
+.booking-contacts a{
+  font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.04em;
+  display:flex;align-items:center;gap:10px;color:var(--paper-dim);
+  transition:color .3s ease;
+}
+.booking-contacts a:hover{color:var(--paper);}
+
+.tab-switch{display:flex;gap:0;margin-bottom:34px;border-bottom:1px solid var(--line);}
+.tab-switch button{
+  padding:14px 0;margin-right:36px;
+  font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--paper-faint);position:relative;
+}
+.tab-switch button::after{
+  content:'';position:absolute;left:0;right:100%;bottom:-1px;height:2px;background:var(--heat-gradient);
+  transition:right .35s var(--ease-panel);
+}
+.tab-switch button.active{color:var(--paper);}
+.tab-switch button.active::after{right:0;}
+
+.form-panel{display:none;}
+.form-panel.active{display:block;animation:formIn .5s var(--ease-soft);}
+@keyframes formIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px;}
+.field{display:flex;flex-direction:column;gap:8px;}
+.field.full{grid-column:1/-1;}
+.field label{
+  font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--paper-faint);
+}
+.field input,.field select,.field textarea{
+  background:transparent;
+  border:none;border-bottom:1px solid var(--line);
+  padding:10px 0;color:var(--paper);font-size:15px;
+  transition:border-color .3s ease;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--paper);
+}
+.field select option{background:var(--graphite);color:var(--paper);}
+.field.upload{
+  border:1px dashed var(--line);padding:22px;align-items:center;text-align:center;gap:6px;
+  cursor:pointer;transition:border-color .3s ease;
+}
+.field.upload:hover{border-color:var(--brass);}
+.field.upload .u-title{font-size:13px;color:var(--paper-dim);}
+.field.upload .u-sub{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--paper-faint);}
+.form-submit{margin-top:32px;display:flex;align-items:center;gap:18px;}
+.form-note{font-size:12px;color:var(--paper-faint);}
+.form-success{
+  display:none;
+  padding:26px;border:1px solid var(--brass);
+  font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.04em;color:var(--paper);
+}
+.form-success.on{display:block;animation:formIn .5s var(--ease-soft);}
+
+/* ============================================================
+   FINAL CTA
+   ============================================================ */
+#finalcta{
+  position:relative;height:100vh;min-height:600px;
+  display:flex;align-items:flex-end;
+  overflow:hidden;
+}
+#finalcta .fc-media{position:absolute;inset:0;}
+#finalcta .fc-media img{
+  width:100%;height:100%;object-fit:cover;
+  filter:brightness(.4);
+  transform:scale(1.08);
+}
+#finalcta .fc-media::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 50% 100%, rgba(10,11,13,.2), rgba(10,11,13,.92) 78%);
+}
+#finalcta .fc-content{
+  position:relative;z-index:2;padding:0 var(--edge) 100px;width:100%;
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:34px;
+}
+#finalcta h2{
+  font-size:clamp(40px,8vw,120px);
+  font-weight:600;text-transform:uppercase;line-height:.94;
+}
+#finalcta .fc-actions{display:flex;gap:18px;flex-wrap:wrap;}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+footer{background:var(--ink);border-top:1px solid var(--line);padding:min(10vh,90px) 0 30px;}
+.footer-top{
+  display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;margin-bottom:min(14vh,120px);
+}
+.footer-brand .logo{margin-bottom:18px;}
+.footer-brand p{color:var(--paper-dim);font-size:14px;max-width:32ch;}
+.footer-col h4{
+  font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--paper-faint);margin-bottom:18px;
+}
+.footer-col a,.footer-col p{
+  display:block;font-size:14px;color:var(--paper-dim);margin-bottom:10px;
+  transition:color .3s ease;
+}
+.footer-col a:hover{color:var(--paper);}
+.footer-bottom{
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;
+  border-top:1px solid var(--line);padding-top:34px;
+}
+.footer-bottom .final-line{
+  font-size:clamp(22px,3vw,36px);font-weight:600;text-transform:uppercase;
+}
+.footer-bottom .copy{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--paper-faint);}
+
+/* sticky mobile book bar */
+.mobile-book{
+  display:none;
+  position:fixed;left:0;right:0;bottom:0;z-index:400;
+  padding:12px var(--edge);
+  background:rgba(10,11,13,.9);
+  backdrop-filter:blur(10px);
+  border-top:1px solid var(--line-soft);
+}
+.mobile-book .btn{width:100%;justify-content:center;}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:980px){
+  nav.primary-nav{display:none;}
+  .mobile-menu-btn{display:block;}
+  #process .pin-wrap{grid-template-columns:1fr;height:auto;position:relative;padding:60px 0;gap:40px;}
+  #process .proc-right{height:46vh;margin:0 var(--edge);}
+  #ppf .ppf-grid,.config-grid,.booking-shell{grid-template-columns:1fr;}
+  #ppf .ppf-media{order:-1;}
+  .build-item.layout-a,.build-item.layout-b{grid-template-columns:1fr;}
+  .build-item.layout-b .build-media{order:0;}
+  .footer-top{grid-template-columns:1fr 1fr;row-gap:40px;}
+  .mobile-book{display:block;}
+  body{padding-bottom:64px;}
+}
+@media (max-width:600px){
+  .form-grid{grid-template-columns:1fr;}
+  .footer-top{grid-template-columns:1fr;}
+  #hero .hero-foot{align-items:flex-start;}
+  .reviews-grid{grid-template-columns:1fr;}
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;scroll-behavior:auto !important;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="mark">OBSIDIAN</div>
+  <div class="bar-track"><div class="bar-fill" id="loaderBar"></div></div>
+  <div class="count mono"><span id="loaderCount">00</span> — 100</div>
+</div>
+
+<!-- CURSOR -->
+<div class="cursor-dot"></div>
+<div class="cursor-ring"><span></span></div>
+
+<!-- HEADER -->
+<header id="siteHeader">
+  <a href="#hero" class="logo"><span class="dot"></span>OBSIDIAN</a>
+  <nav class="primary-nav">
+    <a href="#builds" data-nav>Work</a>
+    <a href="#services" data-nav>Services</a>
+    <a href="#ppf" data-nav>Protection</a>
+    <a href="#mod" data-nav>Modification</a>
+    <a href="#studio" data-nav>Studio</a>
+  </nav>
+  <a href="#booking" class="btn solid" data-cursor="BOOK">Book Now</a>
+</header>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-media" id="heroMedia">
+    <img src="https://images.unsplash.com/photo-1628519592419-bf288f08cef5?w=2400&q=80&auto=format&fit=crop" alt="Black Porsche 911 in cinematic light" id="heroImg">
+    <div class="sweep"></div>
+    <div class="grad-bottom"></div>
+    <div class="grad-scroll" id="heroFade"></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow eyebrow">Detailing · Protection · Modification</div>
+    <h1 id="heroHeadline">
+      <span class="line"><span>PRECISION</span></span>
+      <span class="line"><span>IN EVERY</span></span>
+      <span class="line"><span>PANEL.</span></span>
+    </h1>
+    <div class="hero-foot">
+      <div class="hero-actions">
+        <a href="#booking" class="btn solid" data-cursor="BOOK">Book Your Build →</a>
+        <a href="#builds" class="explore-link" data-cursor="VIEW">Explore The Work</a>
+      </div>
+      <div class="scroll-cue"><span>SCROLL</span><div class="stem"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- YOUR CAR DESERVES MORE -->
+<section id="deserve">
+  <div class="pin-wrap">
+    <div class="stack">
+      <div class="word-row"><span class="word" id="w1">YOUR CAR</span></div>
+      <div class="word-row"><span class="word" id="w2">DESERVES</span></div>
+      <div class="word-row"><span class="word" id="w3">MORE.</span></div>
+    </div>
+    <div class="sub mono" id="deserveSub">
+      <span style="color:var(--brass);">—</span>
+      <span>Most cars are washed. Ours are engineered back to their factory intent, panel by panel, then protected so that standard never fades.</span>
+    </div>
+  </div>
+</section>
+
+<!-- BEFORE / AFTER -->
+<section id="transform">
+  <div class="pin-wrap">
+    <div class="ba-head">
+      <div class="eyebrow">Results</div>
+      <h2 style="font-size:clamp(32px,5vw,64px);font-weight:600;text-transform:uppercase;margin-top:14px;">From Ordinary<br>To Obsessed.</h2>
+    </div>
+    <div class="ba-frame" id="baFrame">
+      <img class="layer-before" src="https://images.unsplash.com/photo-1611820972863-59eaff523aba?w=1800&q=80&auto=format&fit=crop" alt="Before paint correction">
+      <div class="layer-after">
+        <img src="https://images.unsplash.com/photo-1611820972863-59eaff523aba?w=1800&q=80&auto=format&fit=crop" alt="After paint correction, deep gloss finish">
+      </div>
+      <div class="ba-tag before mono">BEFORE</div>
+      <div class="ba-tag after mono">AFTER</div>
+      <div class="handle" id="baHandle">
+        <div class="grip">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M8 6L2 12L8 18M16 6L22 12L16 18" stroke="#0a0b0d" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services" class="pad-y">
+  <div class="container">
+    <div class="section-head">
+      <h2>What We Do.</h2>
+      <p class="lede">Eight disciplines, one standard. Every service is performed to a written specification — not a guess.</p>
+    </div>
+  </div>
+  <div class="container">
+    <div class="service-list" id="serviceList">
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1762933855598-273a51b47649?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">01</span>
+        <span class="s-title">Detailing<span class="s-desc">Hand wash, decontamination and interior recondition to a showroom standard.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1621712151262-60bd142ba19f?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">02</span>
+        <span class="s-title">Paint Correction<span class="s-desc">Multi-stage machine polishing to remove swirls, oxidation and haze.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">03</span>
+        <span class="s-title">Ceramic Coating<span class="s-desc">Multi-year SiO2 protection with hydrophobic gloss that resists the elements.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1640342980686-b709f2f68d84?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">04</span>
+        <span class="s-title">PPF<span class="s-desc">Self-healing film protects against stone chips, abrasion and UV fade.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1722753960458-7a476665feb3?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">05</span>
+        <span class="s-title">Vinyl Wrap<span class="s-desc">Colour change and satin finishes, cut and wrapped panel by panel.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1601278840447-9af5ac4ed157?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">06</span>
+        <span class="s-title">Window Tint<span class="s-desc">Ceramic film tint for heat rejection, glare control and privacy.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1623564493214-6137dff043ad?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">07</span>
+        <span class="s-title">Wheels<span class="s-desc">Refinishing, ceramic coating and forged upgrades to spec.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+      <div class="service-row" data-img="https://images.unsplash.com/photo-1570980404730-a0e14fef178f?w=900&q=80&auto=format&fit=crop">
+        <span class="s-num mono">08</span>
+        <span class="s-title">Modification<span class="s-desc">Suspension, aero and styling builds planned around your spec.</span></span>
+        <span class="s-arrow"><svg viewBox="0 0 24 24" width="16" height="16" fill="none"><path d="M5 19L19 5M19 5H8M19 5V16" stroke="#edede8" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="service-preview" id="servicePreview"><img id="servicePreviewImg" src="" alt=""></div>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="pin-wrap">
+    <div class="proc-left">
+      <div class="eyebrow">Method</div>
+      <h2 style="font-size:clamp(30px,4vw,52px);font-weight:600;text-transform:uppercase;margin-top:14px;">The Process</h2>
+      <div class="proc-steps" id="procSteps">
+        <div class="proc-step active" data-desc="Snow foam pre-wash lifts loose contamination before anything touches the paint.">
+          <span class="p-num mono">01</span><span class="p-name">Foam</span>
+        </div>
+        <div class="proc-step" data-desc="Iron and tar removal, then a clay bar pass to leave the surface glass-smooth.">
+          <span class="p-num mono">02</span><span class="p-name">Decontamination</span>
+        </div>
+        <div class="proc-step" data-desc="Paint depth readings and swirl mapping under raking light set the correction plan.">
+          <span class="p-num mono">03</span><span class="p-name">Inspection</span>
+        </div>
+        <div class="proc-step" data-desc="Multi-stage machine polishing removes defects and restores true clarity.">
+          <span class="p-num mono">04</span><span class="p-name">Correction</span>
+        </div>
+        <div class="proc-step" data-desc="A finishing polish refines the surface to maximum gloss and depth.">
+          <span class="p-num mono">05</span><span class="p-name">Finishing</span>
+        </div>
+        <div class="proc-step" data-desc="Ceramic coating or PPF locks the result in for years, not weeks.">
+          <span class="p-num mono">06</span><span class="p-name">Protection</span>
+        </div>
+      </div>
+      <p class="proc-desc mono" id="procDesc">Snow foam pre-wash lifts loose contamination before anything touches the paint.</p>
+    </div>
+    <div class="proc-right" id="procRight">
+      <img class="active" src="https://images.unsplash.com/photo-1762933855598-273a51b47649?w=1400&q=80&auto=format&fit=crop" alt="Foam wash">
+      <img src="https://images.unsplash.com/photo-1653749573430-3ed4b826222c?w=1400&q=80&auto=format&fit=crop" alt="Decontamination detail">
+      <img src="https://images.unsplash.com/photo-1578478412827-8c0ec4fdde15?w=1400&q=80&auto=format&fit=crop" alt="Inspection">
+      <img src="https://images.unsplash.com/photo-1621712151262-60bd142ba19f?w=1400&q=80&auto=format&fit=crop" alt="Correction">
+      <img src="https://images.unsplash.com/photo-1611820972863-59eaff523aba?w=1400&q=80&auto=format&fit=crop" alt="Finishing">
+      <img src="https://images.unsplash.com/photo-1653749576894-3a571fa4ca07?w=1400&q=80&auto=format&fit=crop" alt="Protection">
+    </div>
+  </div>
+</section>
+
+<!-- PAINT CORRECTION -->
+<section id="paint">
+  <div class="pin-wrap">
+    <div class="paint-media">
+      <img id="paintImg" src="https://images.unsplash.com/photo-1621712151262-60bd142ba19f?w=2000&q=80&auto=format&fit=crop" alt="Paint correction macro">
+      <div class="swirl-overlay" id="swirlOverlay"></div>
+    </div>
+    <div class="paint-content">
+      <div class="eyebrow">Correction</div>
+      <h2 style="margin-top:14px;">Remove The<br>Imperfections.</h2>
+      <div class="paint-labels" id="paintLabels">
+        <span class="active">DEFECTS</span>
+        <span>CORRECTION</span>
+        <span>PERFECTION</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CERAMIC -->
+<section id="ceramic">
+  <div class="pin-wrap">
+    <div class="cer-media">
+      <img id="ceramicImg" src="https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=2000&q=80&auto=format&fit=crop" alt="Ceramic coated paint gloss">
+      <div class="specular" id="specular"></div>
+    </div>
+    <div class="cer-content">
+      <div class="eyebrow">Ceramic Coating</div>
+      <h2 style="margin-top:14px;">Gloss That<br>Lasts.</h2>
+      <div class="cer-tags" id="cerTags">
+        <span class="cer-tag">Hydrophobic</span>
+        <span class="cer-tag">UV Protection</span>
+        <span class="cer-tag">Gloss</span>
+        <span class="cer-tag">Easy Maintenance</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PPF -->
+<section id="ppf" class="pad-y">
+  <div class="container">
+    <div class="ppf-grid">
+      <div class="ppf-media">
+        <img src="https://images.unsplash.com/photo-1640342980686-b709f2f68d84?w=1400&q=80&auto=format&fit=crop" alt="Vehicle for PPF hotspots">
+        <div class="hotspot" style="top:38%;left:30%;" data-label="Hood"><div class="ring"></div><div class="core"></div><div class="tag mono">Hood — Full Front</div></div>
+        <div class="hotspot" style="top:64%;left:78%;" data-label="Bumper"><div class="ring"></div><div class="core"></div><div class="tag mono">Bumper — Impact Zone</div></div>
+        <div class="hotspot" style="top:30%;left:58%;" data-label="Mirror"><div class="ring"></div><div class="core"></div><div class="tag mono">Mirror — Chip Guard</div></div>
+        <div class="hotspot" style="top:58%;left:20%;" data-label="Fender"><div class="ring"></div><div class="core"></div><div class="tag mono">Fender — Rock Chip Zone</div></div>
+      </div>
+      <div class="ppf-text">
+        <div class="eyebrow">Paint Protection Film</div>
+        <h2 style="margin-top:16px;"><span class="dim">Invisible</span> Protection.<br>Visible Confidence.</h2>
+        <p>A self-healing urethane film absorbs stone chips, abrasion and UV before they reach your clear coat — applied invisibly across the panels that take the most impact.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODIFICATION -->
+<section id="mod" class="pad-y">
+  <div class="mod-head">
+    <div class="section-head" style="margin-bottom:0;">
+      <h2>Make It<br>Yours.</h2>
+      <p class="lede">Suspension, wheels, wraps and aero — modification builds planned around the way you actually drive.</p>
+    </div>
+  </div>
+  <div id="mod-pin">
+    <div class="pin-wrap">
+      <div class="mod-track" id="modTrack">
+        <div class="mod-card">
+          <img src="https://images.unsplash.com/photo-1601278840447-9af5ac4ed157?w=1600&q=80&auto=format&fit=crop" alt="BMW M3 modification build">
+          <div class="mod-info">
+            <div><h3>BMW M3</h3><div class="mod-tags"><span>PPF</span><span>Forged Wheels</span><span>Lowering</span><span>Ceramic</span></div></div>
+            <span class="mod-idx mono">01 / 03</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <img src="https://images.unsplash.com/photo-1653749576894-3a571fa4ca07?w=1600&q=80&auto=format&fit=crop" alt="Porsche 911 modification build">
+          <div class="mod-info">
+            <div><h3>Porsche 911</h3><div class="mod-tags"><span>Satin Wrap</span><span>Wheel Refinish</span><span>Ceramic</span></div></div>
+            <span class="mod-idx mono">02 / 03</span>
+          </div>
+        </div>
+        <div class="mod-card">
+          <img src="https://images.unsplash.com/photo-1611820972863-59eaff523aba?w=1600&q=80&auto=format&fit=crop" alt="Ferrari 458 modification build">
+          <div class="mod-info">
+            <div><h3>Ferrari 458</h3><div class="mod-tags"><span>Full Detail</span><span>Window Tint</span><span>Ceramic</span></div></div>
+            <span class="mod-idx mono">03 / 03</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONFIGURATOR -->
+<section id="config" class="pad-y">
+  <div class="container">
+    <div class="section-head">
+      <h2>Build Your Spec.</h2>
+      <p class="lede">A working starting point for your quote — final spec is always confirmed in person.</p>
+    </div>
+    <div class="config-grid">
+      <div class="config-media">
+        <img id="configImg" src="https://images.unsplash.com/photo-1601278840447-9af5ac4ed157?w=1600&q=80&auto=format&fit=crop" alt="Configurator vehicle preview">
+        <div class="spec-code mono" id="specCode">BMW-M-GLOSS-CER-OEM</div>
+      </div>
+      <div class="config-panel">
+        <div class="cfg-group">
+          <span class="cfg-label">Vehicle</span>
+          <div class="cfg-options" data-group="vehicle">
+            <div class="cfg-option active" data-value="BMW" data-img="https://images.unsplash.com/photo-1601278840447-9af5ac4ed157?w=1600&q=80&auto=format&fit=crop">BMW M3</div>
+            <div class="cfg-option" data-value="POR" data-img="https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=1600&q=80&auto=format&fit=crop">Porsche 911</div>
+            <div class="cfg-option" data-value="AMG" data-img="https://images.unsplash.com/photo-1584060622420-0673aad46076?w=1600&q=80&auto=format&fit=crop">Mercedes‑AMG</div>
+          </div>
+        </div>
+        <div class="cfg-group">
+          <span class="cfg-label">Finish</span>
+          <div class="cfg-options" data-group="finish">
+            <div class="cfg-option active" data-value="GLOSS" data-filter="none">Gloss</div>
+            <div class="cfg-option" data-value="SATIN" data-filter="saturate(.75) contrast(.92) brightness(.97)">Satin</div>
+            <div class="cfg-option" data-value="MATTE" data-filter="saturate(.4) contrast(.85) brightness(.9)">Matte</div>
+          </div>
+        </div>
+        <div class="cfg-group">
+          <span class="cfg-label">Protection</span>
+          <div class="cfg-options" data-group="protection">
+            <div class="cfg-option" data-value="PPF">PPF</div>
+            <div class="cfg-option active" data-value="CER">Ceramic</div>
+            <div class="cfg-option" data-value="BOTH">Both</div>
+          </div>
+        </div>
+        <div class="cfg-group">
+          <span class="cfg-label">Wheels</span>
+          <div class="cfg-options" data-group="wheels">
+            <div class="cfg-option active" data-value="OEM">OEM+</div>
+            <div class="cfg-option" data-value="FORGED">Forged</div>
+            <div class="cfg-option" data-value="PERF">Performance</div>
+          </div>
+        </div>
+        <div class="cfg-readout mono" id="cfgReadout">
+          <div class="row"><span>Vehicle</span><b id="rVehicle">BMW M3</b></div>
+          <div class="row"><span>Finish</span><b id="rFinish">Gloss</b></div>
+          <div class="row"><span>Protection</span><b id="rProtection">Ceramic</b></div>
+          <div class="row"><span>Wheels</span><b id="rWheels">OEM+</b></div>
+        </div>
+        <a href="#booking" class="btn solid" style="margin-top:28px;" data-cursor="BOOK">Request This Spec →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- OUR BUILDS -->
+<section id="builds" class="pad-y">
+  <div class="container">
+    <div class="section-head">
+      <h2>Our Builds.</h2>
+      <p class="lede">A selection of finished work — full detail, protection and modification, start to end.</p>
+    </div>
+    <div class="builds-grid">
+      <div class="build-item layout-a">
+        <div class="build-media" data-cursor="EXPLORE"><img src="https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=1400&q=80&auto=format&fit=crop" alt="Porsche 911 project build"></div>
+        <div class="build-meta">
+          <span class="b-idx mono">Project 01</span>
+          <h3>Porsche 911</h3>
+          <div class="b-tags mono">Ceramic + PPF</div>
+        </div>
+      </div>
+      <div class="build-item layout-b">
+        <div class="build-media" data-cursor="EXPLORE"><img src="https://images.unsplash.com/photo-1623564493214-6137dff043ad?w=1400&q=80&auto=format&fit=crop" alt="BMW M4 wheel detail"></div>
+        <div class="build-meta">
+          <span class="b-idx mono">Project 02</span>
+          <h3>BMW M4</h3>
+          <div class="b-tags mono">Full Detail + Wheels</div>
+        </div>
+      </div>
+      <div class="build-item layout-full">
+        <div class="build-media" data-cursor="EXPLORE"><img src="https://images.unsplash.com/photo-1584060622420-0673aad46076?w=2000&q=80&auto=format&fit=crop" alt="Mercedes AMG full protection build"></div>
+        <div class="build-meta">
+          <span class="b-idx mono">Project 03</span>
+          <h3>Mercedes‑AMG</h3>
+          <div class="b-tags mono">Full Protection</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STUDIO -->
+<section id="studio" class="pad-y">
+  <div class="studio-head">
+    <div class="section-head" style="margin-bottom:0;">
+      <h2>The Studio.</h2>
+      <p class="lede">Climate-controlled bays, calibrated lighting and the tools to see what a wash bay never will.</p>
+    </div>
+  </div>
+  <div class="studio-scroll" id="studioScroll">
+    <div class="studio-item size-lg"><img src="https://images.unsplash.com/photo-1712319850454-f4ba54e9208d?w=1400&q=80&auto=format&fit=crop" alt="Detailing bay"><div class="cap mono">Bay 01</div></div>
+    <div class="studio-item size-md"><img src="https://images.unsplash.com/photo-1762933855598-273a51b47649?w=1000&q=80&auto=format&fit=crop" alt="Wash process"><div class="cap mono">Pre-Wash</div></div>
+    <div class="studio-item size-sm"><img src="https://images.unsplash.com/photo-1653749573430-3ed4b826222c?w=800&q=80&auto=format&fit=crop" alt="Detail macro"><div class="cap mono">Inspection</div></div>
+    <div class="studio-item size-md"><img src="https://images.unsplash.com/photo-1668639235092-301730d1b72e?w=1000&q=80&auto=format&fit=crop" alt="Wheel refinishing"><div class="cap mono">Wheel Bay</div></div>
+    <div class="studio-item size-lg"><img src="https://images.unsplash.com/photo-1760130426888-7c15a56a7f2b?w=1400&q=80&auto=format&fit=crop" alt="Interior detailing"><div class="cap mono">Interior Suite</div></div>
+  </div>
+</section>
+
+<!-- CRAFTSMANSHIP -->
+<section id="craft">
+  <div class="craft-bg"><img src="https://images.unsplash.com/photo-1661336878257-1c51b5af959a?w=2000&q=80&auto=format&fit=crop" alt="Steering wheel stitching detail"></div>
+  <div class="craft-content">
+    <div class="eyebrow" style="margin-bottom:22px;">Craft</div>
+    <h2>
+      <span class="craft-line"><span>Machines can polish.</span></span>
+      <span class="craft-line"><span>Craftsmen know</span></span>
+      <span class="craft-line"><span>when to stop.</span></span>
+    </h2>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews" class="pad-y">
+  <div class="container">
+    <div class="section-head">
+      <h2>Trusted By Owners.</h2>
+    </div>
+    <div class="reviews-grid">
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p>The car looked better than the day I bought it. The correction work alone was worth the trip.</p>
+        <div class="who mono">M. Okafor — BMW M4</div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p>PPF and ceramic were applied with a precision I haven't seen anywhere else. Zero orange peel, zero fuss.</p>
+        <div class="who mono">R. Duarte — Porsche 911</div>
+      </div>
+      <div class="review-card">
+        <div class="stars">★★★★★</div>
+        <p>They planned the whole build around how I actually drive the car, not just what looks good in photos.</p>
+        <div class="who mono">S. Patel — Range Rover Sport</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BOOKING -->
+<section id="booking" class="pad-y">
+  <div class="container">
+    <div class="booking-shell">
+      <div class="booking-intro">
+        <div class="eyebrow">Enquire</div>
+        <h2 style="margin-top:16px;">Ready For The<br>Transformation?</h2>
+        <p>Book a fixed-scope service, or send us your vehicle and vision for a tailored quote.</p>
+        <div class="booking-contacts">
+          <a href="#" data-cursor="BOOK">WhatsApp — Message The Studio</a>
+          <a href="#">studio@obsidian-detailing.com</a>
+          <a href="#">Google Maps — Get Directions</a>
+        </div>
+      </div>
+      <div>
+        <div class="tab-switch">
+          <button class="active" data-tab="service">Book A Service</button>
+          <button data-tab="quote">Request A Quote</button>
+        </div>
+
+        <form class="form-panel active" id="panel-service" onsubmit="return false;">
+          <div class="form-grid">
+            <div class="field"><label>Vehicle</label><input type="text" placeholder="e.g. BMW M4 Competition"></div>
+            <div class="field">
+              <label>Service</label>
+              <select><option>Detailing</option><option>Paint Correction</option><option>Ceramic Coating</option><option>PPF</option><option>Vinyl Wrap</option><option>Window Tint</option><option>Wheels</option><option>Modification</option></select>
+            </div>
+            <div class="field">
+              <label>Package</label>
+              <select><option>Essential</option><option>Signature</option><option>Full Transformation</option></select>
+            </div>
+            <div class="field"><label>Preferred Date</label><input type="date"></div>
+            <div class="field"><label>Preferred Time</label><input type="time"></div>
+            <div class="field"><label>Contact</label><input type="text" placeholder="Phone or email"></div>
+          </div>
+          <div class="form-submit">
+            <button class="btn solid" id="submitService" data-cursor="BOOK">Submit Booking Request</button>
+            <span class="form-note">We'll confirm availability within one business day.</span>
+          </div>
+          <div class="form-success mono" id="successService">Request received — a member of the studio will confirm your slot shortly.</div>
+        </form>
+
+        <form class="form-panel" id="panel-quote" onsubmit="return false;">
+          <div class="form-grid">
+            <div class="field"><label>Make</label><input type="text" placeholder="e.g. Porsche"></div>
+            <div class="field"><label>Model</label><input type="text" placeholder="e.g. 911 Carrera S"></div>
+            <div class="field"><label>Year</label><input type="text" placeholder="e.g. 2024"></div>
+            <div class="field">
+              <label>Budget Range</label>
+              <select><option>Under $1,000</option><option>$1,000 – $3,000</option><option>$3,000 – $8,000</option><option>$8,000+</option></select>
+            </div>
+            <div class="field full">
+              <label>Services Of Interest</label>
+              <input type="text" placeholder="e.g. Full PPF, ceramic, forged wheels">
+            </div>
+            <div class="field full upload" id="uploadField">
+              <span class="u-title">Upload Vehicle Photos</span>
+              <span class="u-sub mono">EXTERIOR · PAINT DEFECTS · WHEELS · INTERIOR</span>
+              <input type="file" multiple style="display:none;" id="uploadInput">
+            </div>
+          </div>
+          <div class="form-submit">
+            <button class="btn solid" id="submitQuote" data-cursor="BOOK">Submit Quote Request</button>
+            <span class="form-note">Photos help us scope the build accurately before you arrive.</span>
+          </div>
+          <div class="form-success mono" id="successQuote">Request received — expect a tailored quote within one business day.</div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section id="finalcta">
+  <div class="fc-media">
+    <img id="fcImg" src="https://images.unsplash.com/photo-1599949117092-4323ac1789f9?w=2200&q=80&auto=format&fit=crop" alt="Vehicle emerging from shadow">
+  </div>
+  <div class="fc-content">
+    <h2>Built To Be Seen.<br>Protected To Last.</h2>
+    <div class="fc-actions">
+      <a href="#booking" class="btn solid" data-cursor="BOOK">Book Now</a>
+      <a href="#builds" class="btn ghost" data-cursor="VIEW">View Builds</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="logo"><span class="dot"></span>OBSIDIAN</div>
+        <p>A premium detailing, protection and modification studio — built around precision, not shortcuts.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Studio</h4>
+        <a href="#services">Detailing</a>
+        <a href="#ppf">Protection</a>
+        <a href="#mod">Modification</a>
+        <a href="#builds">Our Work</a>
+      </div>
+      <div class="footer-col">
+        <h4>Visit</h4>
+        <p>Unit 4, Industrial Quarter</p>
+        <p>Open Tue – Sat, 9:00 – 18:00</p>
+        <a href="#">Get Directions</a>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <a href="#">WhatsApp</a>
+        <a href="#">Instagram</a>
+        <a href="#booking">Book Now</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="final-line">Your Car. Our Craft.</div>
+      <div class="copy mono">© OBSIDIAN STUDIO — ALL RIGHTS RESERVED</div>
+    </div>
+  </div>
+</footer>
+
+<div class="mobile-book"><a href="#booking" class="btn solid">Book Now</a></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

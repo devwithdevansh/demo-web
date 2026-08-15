@@ -1,0 +1,35 @@
+/* The dot itself. mix-blend-mode: difference means it auto-inverts whatever
+   is beneath it, so it reads correctly over the dark hero, light sections,
+   text, and images without any manual color-switching logic. */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  margin-top: -8px;
+  border-radius: 50%;
+  background: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 9999;
+  transition:
+    width 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+    margin 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.custom-cursor--active {
+  width: 56px;
+  height: 56px;
+  margin-left: -28px;
+  margin-top: -28px;
+}
+
+/* Only hide the native cursor once CustomCursor has confirmed a fine
+   pointer + no reduced-motion preference, via the class it toggles on <html>. */
+html.has-custom-cursor,
+html.has-custom-cursor * {
+  cursor: none !important;
+}

@@ -1,0 +1,37 @@
+.reserve-band {
+  background: var(--ember);
+  color: var(--char);
+  background-image: radial-gradient(circle at 15% 30%, rgba(255, 255, 255, 0.14), transparent 45%);
+}
+
+.reserve-band-inner {
+  padding: 64px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.reserve-band h2 {
+  font-size: clamp(26px, 3.4vw, 36px);
+  color: var(--char);
+}
+
+.reserve-band p {
+  margin-top: 10px;
+  max-width: 480px;
+  color: rgba(23, 19, 15, 0.78);
+  font-size: 15.5px;
+}
+
+.reserve-band-btn {
+  border-color: rgba(23, 19, 15, 0.4);
+  color: var(--char);
+  flex-shrink: 0;
+}
+.reserve-band-btn:hover {
+  border-color: var(--char);
+  background: var(--char);
+  color: var(--cream-text);
+}

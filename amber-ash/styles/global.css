@@ -1,0 +1,258 @@
+/* =========================================================
+   AMBER & ASH — design tokens
+   A live-fire kitchen & bar. The palette reads like a hearth
+   room at night: charcoal walls, brass fixtures, an ember glow.
+   ========================================================= */
+
+:root {
+  /* --- color --- */
+  --char: #17130f;        /* primary dark background */
+  --char-soft: #1e1913;   /* slightly lifted dark panel */
+  --ash: #2a2320;         /* card / panel background on dark */
+  --ash-line: #3c332c;    /* hairline borders on dark */
+  --ember: #e1521e;       /* primary accent — flame */
+  --ember-dim: #b23f16;   /* pressed / dark variant of ember */
+  --gold: #c9a15a;        /* secondary accent — brass */
+  --gold-soft: #d8bd8b;   /* lighter brass for small text on dark */
+  --smoke: #efe8db;       /* paper / light background */
+  --smoke-dim: #e4dac7;   /* slightly darker paper for cards */
+  --ink: #1c1712;         /* primary text on light paper */
+  --ink-soft: #55493c;    /* secondary text on light paper */
+  --cream-text: #f4ede1;  /* primary text on dark */
+  --cream-text-soft: #c9beac; /* secondary text on dark */
+
+  /* --- type --- */
+  --font-display: "Fraunces", "Iowan Old Style", serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+  /* --- layout --- */
+  --maxw: 1180px;
+  --radius: 3px;
+  --nav-h: 84px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--smoke);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+h1, h2, h3, h4 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+p {
+  margin: 0;
+}
+
+/* visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+}
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 32px;
+}
+
+/* --- eyebrow / mono labels, used sparingly as menu-ticket style markers --- */
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow--ember { color: var(--ember); }
+.eyebrow--gold { color: var(--gold); }
+.eyebrow--soft { color: var(--cream-text-soft); }
+.eyebrow--inkSoft { color: var(--ink-soft); }
+
+.eyebrow::before {
+  content: "";
+  width: 20px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+/* --- buttons --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 28px;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+.btn:hover {
+  transform: translateY(-1px);
+}
+.btn--magnetic {
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+.btn-primary {
+  background: var(--ember);
+  color: var(--smoke);
+}
+.btn-primary:hover {
+  background: #ee5f28;
+}
+.btn-outline-dark {
+  border-color: var(--ash-line);
+  color: var(--cream-text);
+  background: transparent;
+}
+.btn-outline-dark:hover {
+  border-color: var(--gold);
+  color: var(--gold-soft);
+}
+.btn-outline-light {
+  border-color: rgba(28, 23, 18, 0.25);
+  color: var(--ink);
+  background: transparent;
+}
+.btn-outline-light:hover {
+  border-color: var(--ember);
+  color: var(--ember-dim);
+}
+.btn-ghost {
+  color: var(--ink);
+  padding: 15px 4px;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- flame divider: the recurring signature glyph --- */
+.flame-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin: 0 auto;
+}
+.flame-divider .line {
+  height: 1px;
+  width: 64px;
+  background: linear-gradient(90deg, transparent, currentColor);
+}
+.flame-divider .line.right {
+  background: linear-gradient(90deg, currentColor, transparent);
+}
+.flame-divider svg { width: 16px; height: 16px; }
+
+/* --- section rhythm --- */
+.section {
+  padding: 108px 0;
+}
+.section--tight {
+  padding: 72px 0;
+}
+.section--dark {
+  background: var(--char);
+  color: var(--cream-text);
+}
+.section--ash {
+  background: var(--char-soft);
+  color: var(--cream-text);
+}
+
+.section-head {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 56px;
+}
+.section-head h2 {
+  font-size: clamp(32px, 4vw, 44px);
+  margin-top: 18px;
+  font-weight: 500;
+}
+.section-head p {
+  margin-top: 16px;
+  color: var(--ink-soft);
+  font-size: 16.5px;
+}
+.section--dark .section-head p,
+.section--ash .section-head p {
+  color: var(--cream-text-soft);
+}
+
+/* page hero offset for fixed nav */
+.page-body {
+  padding-top: var(--nav-h);
+}
+
+::selection {
+  background: var(--ember);
+  color: var(--smoke);
+}

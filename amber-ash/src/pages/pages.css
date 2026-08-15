@@ -1,0 +1,23 @@
+.page-hero {
+  background: var(--char);
+  color: var(--cream-text);
+  padding: calc(var(--nav-h) + 76px) 0 72px;
+  background-image:
+    radial-gradient(circle at 82% 0%, rgba(225, 82, 30, 0.22), transparent 40%);
+}
+
+.page-hero .eyebrow { margin-bottom: 18px; }
+
+.page-hero h1 {
+  font-size: clamp(40px, 6vw, 62px);
+  max-width: 700px;
+  line-height: 1.05;
+}
+
+.page-hero p {
+  margin-top: 20px;
+  max-width: 520px;
+  font-size: 16.5px;
+  color: var(--cream-text-soft);
+  line-height: 1.7;
+}

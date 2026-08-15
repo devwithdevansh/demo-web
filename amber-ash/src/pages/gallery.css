@@ -1,0 +1,98 @@
+.masonry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-rows: 130px;
+  gap: 16px;
+}
+
+.masonry-item {
+  border: none;
+  padding: 0;
+  background: var(--ash);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: pointer;
+  grid-row: span 2;
+}
+.masonry-item.span-tall { grid-row: span 3; }
+.masonry-item.span-wide { grid-column: span 2; grid-row: span 2; }
+.masonry-item.span-reg { grid-row: span 2; }
+
+.masonry-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease, filter 0.3s ease;
+}
+.masonry-item:hover img {
+  transform: scale(1.06);
+  filter: brightness(1.05);
+}
+
+@media (max-width: 900px) {
+  .masonry { grid-template-columns: repeat(2, 1fr); }
+  .masonry-item.span-wide { grid-column: span 2; }
+}
+@media (max-width: 520px) {
+  .masonry { grid-template-columns: 1fr; }
+  .masonry-item.span-wide { grid-column: span 1; }
+}
+
+/* lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: rgba(23, 19, 15, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+.lightbox img {
+  max-width: 88vw;
+  max-height: 84vh;
+  object-fit: contain;
+  border-radius: var(--radius);
+}
+.lightbox-close {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  background: none;
+  border: 1px solid var(--ash-line);
+  color: var(--cream-text);
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 15px;
+}
+.lightbox-close:hover {
+  border-color: var(--ember);
+  color: var(--ember);
+}
+.lightbox-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: 1px solid var(--ash-line);
+  color: var(--cream-text);
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+}
+.lightbox-nav:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.lightbox-nav.prev { left: 24px; }
+.lightbox-nav.next { right: 24px; }
+
+@media (max-width: 640px) {
+  .lightbox-nav { width: 38px; height: 38px; font-size: 20px; }
+  .lightbox-nav.prev { left: 10px; }
+  .lightbox-nav.next { right: 10px; }
+}
