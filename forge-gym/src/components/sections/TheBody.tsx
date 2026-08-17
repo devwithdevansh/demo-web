@@ -71,7 +71,7 @@ export function TheBody() {
               key={index} 
               className="absolute inset-0"
               style={{ opacity: index === 0 ? 1 : 0 }}
-              ref={(el) => (imageRefs.current[index] = el)}
+              ref={(el) => { imageRefs.current[index] = el; }}
             >
               <Img 
                 src={src} 
@@ -95,7 +95,7 @@ export function TheBody() {
             {WORDS.map((word, index) => (
               <h2
                 key={index}
-                ref={(el) => (wordRefs.current[index] = el)}
+                ref={(el) => { wordRefs.current[index] = el; }}
                 className="absolute font-display text-[15vw] leading-none text-bone lg:text-[10vw]"
                 style={{ 
                   opacity: index === 0 ? 1 : 0,
