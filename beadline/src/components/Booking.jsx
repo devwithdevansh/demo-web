@@ -1,0 +1,86 @@
+import { useEffect, useState } from 'react';
+import { services, sizes, WHATSAPP_NUMBER, PHONE_DISPLAY } from '../content';
+
+const today = () => new Date().toISOString().slice(0, 10);
+const empty = { name: '', phone: '', car: '', service: services[3].name, size: sizes[1], date: '', pickup: true };
+
+function validate(f) {
+  const e = {};
+  if (!f.name.trim()) e.name = 'Add your name.';
+  if (!/^[6-9]\d{9}$/.test(f.phone.replace(/\D/g, '').slice(-10))) e.phone = 'Enter a 10-digit mobile number.';
+  if (!f.car.trim()) e.car = 'Tell us the car, for example “Creta 2022, white”.';
+  if (!f.date) e.date = 'Choose a date.';
+  else if (f.date < today()) e.date = 'Pick today or a later date.';
+  return e;
+}
+
+export default function Booking() {
+  const [f, setF] = useState(empty);
+  const [errors, setErrors] = useState({});
+  const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    const onPick = (e) => setF((s) => ({ ...s, service: e.detail }));
+    window.addEventListener('pick-service', onPick);
+    return () => window.removeEventListener('pick-service', onPick);
+  }, []);
+
+  const set = (k) => (e) => setF({ ...f, [k]: e.target.type === 'checkbox' ? e.target.checked : e.target.value });
+
+  const submit = (e) => {
+    e.preventDefault();
+    const errs = validate(f);
+    setErrors(errs);
+    if (Object.keys(errs).length) {
+      document.getElementById(Object.keys(errs)[0])?.focus();
+      return;
+    }
+    const msg = `Hi Beadline, I'd like to book.\nName: ${f.name}\nPhone: ${f.phone}\nCar: ${f.car} (${f.size})\nService: ${f.service}\nDate: ${f.date}\nPickup: ${f.pickup ? 'Yes please' : 'I will drop it off'}`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+    setSent(true);
+  };
+
+  const field = (id, label, input) => (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      {input}
+      <p id={`e-${id}`} className="err">{errors[id]}</p>
+    </div>
+  );
+
+  return (
+    <section id="book" className="bg-[#103a5c] text-[#f3f5f6] wrap py-[clamp(96px,16vh,180px)] grid lg:grid-cols-[1fr_1.3fr] gap-12 lg:gap-[6vw]">
+      <div>
+        <h2 className="wide d2 m-0 max-w-[10ch]">Book a slot</h2>
+        <p className="lede mt-6 mb-0 opacity-80">Send your details on WhatsApp. We reply within an hour during studio hours with a confirmed time.</p>
+        <p className="mt-6 opacity-80">Rather call? <a className="link" href={`tel:${PHONE_DISPLAY.replace(/\s/g, '')}`}>{PHONE_DISPLAY}</a></p>
+      </div>
+
+      {sent ? (
+        <div role="status" className="self-center">
+          <p className="wide d3 m-0">Request opened in WhatsApp.</p>
+          <p className="mt-4 opacity-80 max-w-[42ch]">Press send in WhatsApp to reach us. If it didn’t open, call {PHONE_DISPLAY}.</p>
+          <button className="link mt-6 cursor-pointer" onClick={() => { setSent(false); setF(empty); }}>Start a new booking</button>
+        </div>
+      ) : (
+        <form noValidate onSubmit={submit} className="grid sm:grid-cols-2 gap-x-5 gap-y-2">
+          {field('name', 'Your name', <input id="name" autoComplete="name" value={f.name} onChange={set('name')} aria-invalid={!!errors.name} aria-describedby="e-name" />)}
+          {field('phone', 'Mobile number', <input id="phone" type="tel" inputMode="tel" autoComplete="tel" value={f.phone} onChange={set('phone')} aria-invalid={!!errors.phone} aria-describedby="e-phone" />)}
+          <div className="sm:col-span-2">
+            {field('car', 'Car model and colour', <input id="car" value={f.car} onChange={set('car')} placeholder="Creta 2022, white" aria-invalid={!!errors.car} aria-describedby="e-car" />)}
+          </div>
+          {field('service', 'Service', <select id="service" value={f.service} onChange={set('service')}>{services.map((s) => <option key={s.name}>{s.name}</option>)}</select>)}
+          {field('size', 'Car size', <select id="size" value={f.size} onChange={set('size')}>{sizes.map((s) => <option key={s}>{s}</option>)}</select>)}
+          {field('date', 'Preferred date', <input id="date" type="date" min={today()} value={f.date} onChange={set('date')} aria-invalid={!!errors.date} aria-describedby="e-date" />)}
+          <label className="flex items-center gap-3 self-center cursor-pointer min-h-[52px]">
+            <input type="checkbox" checked={f.pickup} onChange={set('pickup')} className="w-5 h-5 accent-[#3fa9d9]" />
+            Pick up my car
+          </label>
+          <div className="sm:col-span-2 mt-4">
+            <button type="submit" className="btn light">Send on WhatsApp</button>
+          </div>
+        </form>
+      )}
+    </section>
+  );
+}
