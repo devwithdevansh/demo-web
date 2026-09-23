@@ -5,8 +5,9 @@
 //
 // Every site is ported in full into this same app (see src/sites/boond
 // and src/sites/kavach) and reached by an internal hash route, `route` —
-// no external URLs, no separate deployments to keep track of. Kohinoor's
-// own entry uses `route: 'home'` and its card reads "You are here".
+// no external URLs, no separate deployments to keep track of. The catalog
+// itself is the front door (`#` or `#/catalog`); Kohinoor's own homepage is
+// just another card here, opened at `#/kohinoor` like any other.
 // ─────────────────────────────────────────────────────────────
 
 export const catalogSites = [
@@ -17,7 +18,7 @@ export const catalogSites = [
     theme:
       'High-contrast dark mode for a premium ceramic/PPF brand. Brass accents and a warm-to-cool "heat gradient" (blue → brass → red) stand in for paint-correction heat mapping. Custom cursor, interactive configurator, before/after slider.',
     stack: ['React 19', 'Vite', 'Tailwind 4', 'Framer Motion', 'GSAP', 'Lenis'],
-    route: 'home',
+    route: 'kohinoor',
     palette: [
       { name: 'Ink', hex: '#0a0b0d', role: 'Background' },
       { name: 'Graphite', hex: '#16181d', role: 'Panels' },

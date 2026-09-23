@@ -24,8 +24,20 @@ import Booking from './components/Booking';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 
-const ROUTES = { '#/catalog': 'catalog', '#/boond': 'boond', '#/kavach': 'kavach' };
-const routeFromHash = () => ROUTES[window.location.hash] || 'home';
+// The catalog is the front door -- no hash lands there. Kohinoor's own
+// homepage is just one more studio site now, reached at '#/kohinoor' like
+// Boond and Kavach are at their own hashes, not the thing you see by
+// default. Every ported page also has its OWN same-page anchors (Boond and
+// Kavach's "Book a slot" both point at '#book', Kohinoor's nav uses '#hero'
+// / '#services' / etc.) -- those aren't page routes, so routeFromHash
+// returns null for them and the hashchange handler leaves the current page
+// alone, letting the browser's native anchor-scroll do its job instead of
+// yanking the user back to the catalog or the homepage mid-scroll.
+const ROUTES = { '#/catalog': 'catalog', '#/kohinoor': 'home', '#/boond': 'boond', '#/kavach': 'kavach' };
+const routeFromHash = () => {
+  if (window.location.hash === '') return 'catalog';
+  return ROUTES[window.location.hash] ?? null;
+};
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -33,10 +45,13 @@ function App() {
   // work on whatever static host already serves this site, and every other
   // studio site lives here as one more page, not a link out to a separate
   // deployment -- see src/sites/*.
-  const [route, setRoute] = useState(routeFromHash);
+  const [route, setRoute] = useState(() => routeFromHash() ?? 'catalog');
 
   useEffect(() => {
-    const onHashChange = () => setRoute(routeFromHash());
+    const onHashChange = () => {
+      const next = routeFromHash();
+      if (next) setRoute(next);
+    };
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);

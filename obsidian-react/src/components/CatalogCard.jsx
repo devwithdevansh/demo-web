@@ -33,8 +33,6 @@ function Swatch({ color }) {
 }
 
 export default function CatalogCard({ site, onNavigate }) {
-  const isHere = site.route === 'home';
-
   return (
     <article className="bg-[var(--graphite)] border border-[var(--line)] rounded-[20px] overflow-hidden flex flex-col transition-colors duration-300 hover:border-[var(--line-soft)]">
       <div
@@ -47,13 +45,9 @@ export default function CatalogCard({ site, onNavigate }) {
         >
           Palette preview
         </span>
-        <span
-          className={`absolute top-[16px] right-[16px] inline-flex items-center gap-[6px] font-mono text-[10px] font-bold uppercase tracking-[.05em] px-[11px] py-[5px] rounded-full ${
-            isHere ? 'bg-[rgba(176,141,87,.2)] text-[var(--brass-bright)]' : 'bg-[rgba(111,227,164,.15)] text-[#6fe3a4]'
-          }`}
-        >
+        <span className="absolute top-[16px] right-[16px] inline-flex items-center gap-[6px] font-mono text-[10px] font-bold uppercase tracking-[.05em] px-[11px] py-[5px] rounded-full bg-[rgba(111,227,164,.15)] text-[#6fe3a4]">
           <span className="w-[6px] h-[6px] rounded-full bg-current" />
-          {isHere ? 'You are here' : 'Included in this site'}
+          Included in this site
         </span>
         <span
           className="text-center leading-[0.95] select-none"
@@ -100,7 +94,7 @@ export default function CatalogCard({ site, onNavigate }) {
 
         <div className="mt-auto pt-[2px]">
           <button type="button" onClick={() => onNavigate(site.route)} className="btn solid w-full justify-center">
-            {isHere ? 'Back to homepage' : `Open ${site.name}`} &rarr;
+            Open {site.name} &rarr;
           </button>
         </div>
       </div>

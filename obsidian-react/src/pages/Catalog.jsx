@@ -13,35 +13,30 @@ const STATS = [
   { num: '08+6', label: 'Palettes and type pairings to try in the lab below' },
 ];
 
-// A menu of every studio site in the portfolio -- palette, type and theme
-// for each, one click from the Kohinoor homepage. Lives at the #/catalog
-// hash route (see App.jsx) so it needs no server-side rewrite rule to work
-// on whatever static host is already serving this site. Built to be walked
-// through on a tablet in person, so layout, grids and touch targets below
-// are tuned for that width range specifically, not just squeezed mobile.
+// The front door of the whole portfolio -- palette, type and theme for
+// every studio site, one click away from here (see App.jsx: no hash, or
+// any unrecognised hash, lands on this page). No server-side rewrite rule
+// needed on whatever static host serves this site, since it's all just
+// window.location.hash. Built to be walked through on a tablet in person,
+// so layout, grids and touch targets below are tuned for that width range
+// specifically, not just squeezed mobile.
 export default function Catalog() {
   const [theme, setTheme] = useState('dark');
-  const goHome = () => { window.location.hash = ''; };
-  const navigate = (route) => { window.location.hash = route === 'home' ? '' : `#/${route}`; };
+  const navigate = (route) => { window.location.hash = `#/${route}`; };
 
   return (
     <div className="catalog-page min-h-screen bg-[var(--ink)] text-[var(--paper)] transition-colors duration-300" data-theme={theme}>
       <header className="px-[var(--edge)] py-[26px] flex items-center justify-between gap-[16px] border-b border-[var(--line-soft)]">
-        <a href="#" onClick={(e) => { e.preventDefault(); goHome(); }} className="text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] shrink-0">
+        <a href="#/kohinoor" className="text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] shrink-0">
           <span className="w-[6px] h-[6px] bg-[var(--brass)] rounded-full" />KOHINOOR
         </a>
-        <div className="flex items-center gap-[16px]">
-          <div className="theme-toggle" role="radiogroup" aria-label="Catalog page theme">
-            <button type="button" role="radio" aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}>
-              <Moon size={12} /> Dark
-            </button>
-            <button type="button" role="radio" aria-pressed={theme === 'light'} onClick={() => setTheme('light')}>
-              <Sun size={12} /> Light
-            </button>
-          </div>
-          <a href="#" onClick={(e) => { e.preventDefault(); goHome(); }} className="hidden sm:inline font-mono text-[11px] tracking-[.14em] uppercase text-[var(--paper-dim)] hover:text-[var(--paper)] transition-colors duration-300">
-            &larr; Back to site
-          </a>
+        <div className="theme-toggle" role="radiogroup" aria-label="Catalog page theme">
+          <button type="button" role="radio" aria-pressed={theme === 'dark'} onClick={() => setTheme('dark')}>
+            <Moon size={12} /> Dark
+          </button>
+          <button type="button" role="radio" aria-pressed={theme === 'light'} onClick={() => setTheme('light')}>
+            <Sun size={12} /> Light
+          </button>
         </div>
       </header>
 
