@@ -13,7 +13,7 @@ export const sites = [
     theme:
       'High-contrast dark mode for a premium ceramic/PPF brand. Brass accents and a warm-to-cool "heat gradient" (blue → brass → red) stand in for paint-correction heat mapping. Custom cursor, interactive configurator, before/after slider.',
     stack: ['React 19', 'Vite', 'Tailwind 4', 'Framer Motion', 'GSAP', 'Lenis'],
-    url: null, // TODO: paste the live URL
+    url: 'https://obsidian-react.onrender.com',
     localPath: 'obsidian-react',
     palette: [
       { name: 'Ink', hex: '#0a0b0d', role: 'Background' },

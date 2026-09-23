@@ -18,7 +18,7 @@ export const catalogSites = [
       'High-contrast dark mode for a premium ceramic/PPF brand. Brass accents and a warm-to-cool "heat gradient" (blue → brass → red) stand in for paint-correction heat mapping. Custom cursor, interactive configurator, before/after slider.',
     stack: ['React 19', 'Vite', 'Tailwind 4', 'Framer Motion', 'GSAP', 'Lenis'],
     isSelf: true,
-    external: null,
+    external: 'https://obsidian-react.onrender.com', // not used while isSelf is true, kept for reference
     palette: [
       { name: 'Ink', hex: '#0a0b0d', role: 'Background' },
       { name: 'Graphite', hex: '#16181d', role: 'Panels' },
