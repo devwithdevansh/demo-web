@@ -10,8 +10,8 @@ export const USE_LOCAL = false;
 
 export const BRAND = 'Kavach';
 export const TAGLINE = 'Car Detailing & Paint Protection Studio';
-export const WHATSAPP_NUMBER = '919999999999'; // country code + number, no "+"
-export const PHONE_DISPLAY = '+91 98765 43210';
+export const WHATSAPP_NUMBER = '919687629341'; // country code + number, no "+"
+export const PHONE_DISPLAY = '+91 96876 29341';
 export const EMAIL = 'studio@kavach.in';
 export const INSTAGRAM = 'https://instagram.com';
 
