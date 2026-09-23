@@ -3,10 +3,10 @@
 // Hex values and font stacks are copied straight from each project's own
 // src/index.css — nothing here is approximated.
 //
-// `external` is this project's own live URL for every OTHER site; leave it
-// null until that site is deployed and the card shows "Not deployed yet"
-// instead of a link. Obsidian's own entry has `isSelf: true` instead and
-// links back to this site's own homepage.
+// Every site is ported in full into this same app (see src/sites/beadline
+// and src/sites/lacquer) and reached by an internal hash route, `route` —
+// no external URLs, no separate deployments to keep track of. Obsidian's
+// own entry uses `route: 'home'` and its card reads "You are here".
 // ─────────────────────────────────────────────────────────────
 
 export const catalogSites = [
@@ -17,8 +17,7 @@ export const catalogSites = [
     theme:
       'High-contrast dark mode for a premium ceramic/PPF brand. Brass accents and a warm-to-cool "heat gradient" (blue → brass → red) stand in for paint-correction heat mapping. Custom cursor, interactive configurator, before/after slider.',
     stack: ['React 19', 'Vite', 'Tailwind 4', 'Framer Motion', 'GSAP', 'Lenis'],
-    isSelf: true,
-    external: 'https://obsidian-react.onrender.com', // not used while isSelf is true, kept for reference
+    route: 'home',
     palette: [
       { name: 'Ink', hex: '#0a0b0d', role: 'Background' },
       { name: 'Graphite', hex: '#16181d', role: 'Panels' },
@@ -44,8 +43,7 @@ export const catalogSites = [
     theme:
       'Light, editorial and confident: foam-white background, near-black ink, one signal blue ("bead") for water and links. Built around one gimmick — a squeegee pass wipes dust off the hero car as you scroll — carried through in the type: Archivo’s width axis stretches from narrow service names to wide, heavy headlines.',
     stack: ['React 19', 'Vite', 'Tailwind 4', 'GSAP', 'Lenis', 'Leaflet'],
-    isSelf: false,
-    external: null, // TODO: paste the live URL
+    route: 'beadline',
     palette: [
       { name: 'Foam', hex: '#f3f5f6', role: 'Background' },
       { name: 'Asphalt', hex: '#16191c', role: 'Text / dark sections' },
@@ -67,8 +65,7 @@ export const catalogSites = [
     theme:
       'Dark, warm and atmospheric: the hero is a dusty car floating on drifting amber/teal smoke, wiped clean by a scroll-driven squeegee pass. Amber ("lacquer") for warmth and CTAs, teal ("ceramic") for the water/coating motif. A Studio Locator with a live map and per-studio open/closed status is the centrepiece.',
     stack: ['React 19', 'Vite', 'Tailwind 4', 'GSAP', 'Lenis', 'Leaflet'],
-    isSelf: false,
-    external: null, // TODO: paste the live URL
+    route: 'lacquer',
     palette: [
       { name: 'Ink', hex: '#08090a', role: 'Background' },
       { name: 'Panel', hex: '#16181b', role: 'Cards' },

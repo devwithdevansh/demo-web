@@ -7,7 +7,7 @@ import CatalogCard from '../components/CatalogCard';
 // on whatever static host is already serving this site.
 export default function Catalog() {
   const goHome = () => { window.location.hash = ''; };
-  const liveCount = catalogSites.filter((s) => s.isSelf || s.external).length;
+  const navigate = (route) => { window.location.hash = route === 'home' ? '' : `#/${route}`; };
 
   return (
     <div className="min-h-screen bg-[var(--ink)] text-[var(--paper)]">
@@ -29,15 +29,14 @@ export default function Catalog() {
             </h1>
             <p className="mt-[20px] mb-0 max-w-[62ch] text-[15px] md:text-[17px] text-[var(--paper-dim)] leading-[1.6]">
               Every site in this portfolio is its own build — its own palette, its own type
-              system, its own signature scroll effect — not a reskin of the others.
-              {' '}{liveCount} of {catalogSites.length} {liveCount === 1 ? 'is' : 'are'} live right now.
-              Click any swatch to copy its hex.
+              system, its own signature scroll effect — not a reskin of the others. All
+              {' '}{catalogSites.length} live in this one deployment. Click any swatch to copy its hex.
             </p>
           </section>
 
           <section className="pb-[clamp(64px,10vw,110px)] grid md:grid-cols-3 gap-[24px]">
             {catalogSites.map((site) => (
-              <CatalogCard key={site.id} site={site} onBackHome={goHome} />
+              <CatalogCard key={site.id} site={site} onNavigate={navigate} />
             ))}
           </section>
         </div>

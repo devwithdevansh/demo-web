@@ -32,8 +32,8 @@ function Swatch({ color }) {
   );
 }
 
-export default function CatalogCard({ site, onBackHome }) {
-  const isLive = !site.isSelf && !!site.external;
+export default function CatalogCard({ site, onNavigate }) {
+  const isHere = site.route === 'home';
 
   return (
     <article className="bg-[var(--graphite)] border border-[var(--line)] rounded-[20px] overflow-hidden flex flex-col transition-colors duration-300 hover:border-[var(--line-soft)]">
@@ -49,11 +49,11 @@ export default function CatalogCard({ site, onBackHome }) {
         </span>
         <span
           className={`absolute top-[16px] right-[16px] inline-flex items-center gap-[6px] font-mono text-[10px] font-bold uppercase tracking-[.05em] px-[11px] py-[5px] rounded-full ${
-            site.isSelf ? 'bg-[rgba(176,141,87,.2)] text-[var(--brass-bright)]' : isLive ? 'bg-[rgba(111,227,164,.15)] text-[#6fe3a4]' : 'bg-[rgba(237,237,232,.08)] text-[var(--paper-dim)]'
+            isHere ? 'bg-[rgba(176,141,87,.2)] text-[var(--brass-bright)]' : 'bg-[rgba(111,227,164,.15)] text-[#6fe3a4]'
           }`}
         >
           <span className="w-[6px] h-[6px] rounded-full bg-current" />
-          {site.isSelf ? 'You are here' : isLive ? 'Live' : 'Local build'}
+          {isHere ? 'You are here' : 'Included in this site'}
         </span>
         <span
           className="text-center leading-[0.95] select-none"
@@ -99,13 +99,9 @@ export default function CatalogCard({ site, onBackHome }) {
         </div>
 
         <div className="mt-auto pt-[2px]">
-          {site.isSelf ? (
-            <button type="button" onClick={onBackHome} className="btn solid w-full justify-center">Back to homepage</button>
-          ) : isLive ? (
-            <a href={site.external} target="_blank" rel="noreferrer" className="btn solid w-full justify-center">Visit live site &rarr;</a>
-          ) : (
-            <div className="btn ghost w-full justify-center opacity-60 pointer-events-none">Not deployed yet</div>
-          )}
+          <button type="button" onClick={() => onNavigate(site.route)} className="btn solid w-full justify-center">
+            {isHere ? 'Back to homepage' : `Open ${site.name}`} &rarr;
+          </button>
         </div>
       </div>
     </article>

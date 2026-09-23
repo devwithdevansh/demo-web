@@ -3,6 +3,8 @@ import Loader from './components/Loader';
 import Cursor from './components/Cursor';
 import AmbientSpotlight from './components/AmbientSpotlight';
 import Catalog from './pages/Catalog';
+import BeadlinePage from './sites/beadline/BeadlinePage';
+import LacquerPage from './sites/lacquer/LacquerPage';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Statement from './components/Statement';
@@ -22,15 +24,19 @@ import Booking from './components/Booking';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 
+const ROUTES = { '#/catalog': 'catalog', '#/beadline': 'beadline', '#/lacquer': 'lacquer' };
+const routeFromHash = () => ROUTES[window.location.hash] || 'home';
+
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
   // A plain hash route, not react-router: it needs no server rewrite rule to
-  // work on whatever static host already serves this site, and the catalog
-  // is one extra page, not a second app.
-  const [route, setRoute] = useState(() => (window.location.hash === '#/catalog' ? 'catalog' : 'home'));
+  // work on whatever static host already serves this site, and every other
+  // studio site lives here as one more page, not a link out to a separate
+  // deployment -- see src/sites/*.
+  const [route, setRoute] = useState(routeFromHash);
 
   useEffect(() => {
-    const onHashChange = () => setRoute(window.location.hash === '#/catalog' ? 'catalog' : 'home');
+    const onHashChange = () => setRoute(routeFromHash());
     window.addEventListener('hashchange', onHashChange);
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
@@ -44,6 +50,9 @@ function App() {
       </>
     );
   }
+
+  if (route === 'beadline') return <BeadlinePage />;
+  if (route === 'lacquer') return <LacquerPage />;
 
   return (
     <>
