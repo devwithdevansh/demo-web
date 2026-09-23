@@ -1,13 +1,13 @@
-/* Ported from ../../../../beadline/src/index.css, scoped under
-   .beadline-scope so its tokens and classes never leak into (or collide
-   with) Obsidian's or Lacquer's -- see BeadlinePage.jsx. Tailwind's own
+/* Ported from ../../../../beadline/src/index.css (Beadline's original name), scoped under
+   .boond-scope so its tokens and classes never leak into (or collide
+   with) Kohinoor's or Kavach's -- see BoondPage.jsx. Tailwind's own
    utilities are already imported once, globally, by the app's main
    index.css, so that import is not repeated here. */
 
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 
-.beadline-scope {
+.boond-scope {
   --foam: #f3f5f6;
   --asphalt: #16191c;
   --clearcoat: #103a5c;

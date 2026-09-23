@@ -44,7 +44,7 @@ export default function Loader({ onComplete }) {
       className="fixed inset-0 bg-[var(--ink)] z-[10000] flex flex-col items-center justify-center gap-[22px]"
     >
       <div className="text-[clamp(28px,4vw,40px)] tracking-[0.05em] font-semibold">
-        OBSIDIAN
+        KOHINOOR
       </div>
       <div className="w-[220px] h-[1px] bg-[var(--line)] relative overflow-hidden">
         <div ref={barRef} className="absolute left-0 top-0 bottom-0 w-0 bg-[var(--paper)]"></div>

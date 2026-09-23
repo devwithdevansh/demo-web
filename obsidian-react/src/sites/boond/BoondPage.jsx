@@ -11,20 +11,20 @@ import Work from './components/Work';
 import Reviews from './components/Reviews';
 import Booking from './components/Booking';
 import Footer from './components/Footer';
-import './beadline.css';
+import './boond.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // Leaflet is the heaviest dependency, so the map loads in its own chunk.
 const Visit = lazy(() => import('./components/Visit'));
 
-// Beadline, ported in full from its own project (see ../../../../beadline)
+// Boond, ported in full from its own project (see ../../../../beadline (original) or ../../../../obsidian-react/src/sites/boond (this copy))
 // so it lives inside the same Obsidian deployment instead of a separate
-// hosted URL. `.beadline-scope` on the wrapper redefines every CSS custom
+// hosted URL. `.boond-scope` on the wrapper redefines every CSS custom
 // property this site uses (--foam, --asphalt, --bead, ...) for everything
 // inside it, so it renders with its own real palette and type instead of
-// inheriting Obsidian's -- see beadline.css.
-export default function BeadlinePage() {
+// inheriting Obsidian's -- see boond.css.
+export default function BoondPage() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const lenis = new Lenis({ duration: 1.1, anchors: { offset: -72 } });
@@ -39,14 +39,14 @@ export default function BeadlinePage() {
       lenis.destroy();
       window.removeEventListener('load', refresh);
       // Every ScrollTrigger/pin this page created must go with it, or a
-      // leftover pin-spacer from Beadline's hero would misplace scroll on
+      // leftover pin-spacer from this page's hero would misplace scroll on
       // whichever page (Home, Lacquer, ...) mounts next.
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, []);
 
   return (
-    <div className="beadline-scope">
+    <div className="boond-scope">
       <a href="#services" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[70] btn">Skip to content</a>
       <Header />
       <main>

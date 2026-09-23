@@ -3,8 +3,8 @@ import Loader from './components/Loader';
 import Cursor from './components/Cursor';
 import AmbientSpotlight from './components/AmbientSpotlight';
 import Catalog from './pages/Catalog';
-import BeadlinePage from './sites/beadline/BeadlinePage';
-import LacquerPage from './sites/lacquer/LacquerPage';
+import BoondPage from './sites/boond/BoondPage';
+import KavachPage from './sites/kavach/KavachPage';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Statement from './components/Statement';
@@ -24,7 +24,7 @@ import Booking from './components/Booking';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 
-const ROUTES = { '#/catalog': 'catalog', '#/beadline': 'beadline', '#/lacquer': 'lacquer' };
+const ROUTES = { '#/catalog': 'catalog', '#/boond': 'boond', '#/kavach': 'kavach' };
 const routeFromHash = () => ROUTES[window.location.hash] || 'home';
 
 function App() {
@@ -51,8 +51,8 @@ function App() {
     );
   }
 
-  if (route === 'beadline') return <BeadlinePage />;
-  if (route === 'lacquer') return <LacquerPage />;
+  if (route === 'boond') return <BoondPage />;
+  if (route === 'kavach') return <KavachPage />;
 
   return (
     <>

@@ -8,11 +8,11 @@
 
 export const USE_LOCAL = false;
 
-export const BRAND = 'Lacquer';
+export const BRAND = 'Kavach';
 export const TAGLINE = 'Car Detailing & Paint Protection Studio';
 export const WHATSAPP_NUMBER = '919999999999'; // country code + number, no "+"
 export const PHONE_DISPLAY = '+91 98765 43210';
-export const EMAIL = 'studio@lacquer.in';
+export const EMAIL = 'studio@kavach.in';
 export const INSTAGRAM = 'https://instagram.com';
 
 const U = (id, w = 2000) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&q=75`;
@@ -126,7 +126,7 @@ export const workTags = ['All', 'Ceramic', 'PPF', 'Correction', 'Wheels', 'Inter
 export const studios = [
   {
     id: 'ahmedabad',
-    name: 'Lacquer Studio — SG Highway, Ahmedabad',
+    name: 'Kavach Studio — SG Highway, Ahmedabad',
     city: 'Ahmedabad',
     area: 'SG Highway',
     address: ['Shed 4, Iscon Cross Road', 'SG Highway, Ahmedabad, Gujarat 380054'],
@@ -139,7 +139,7 @@ export const studios = [
   },
   {
     id: 'surat',
-    name: 'Lacquer Studio — Adajan, Surat',
+    name: 'Kavach Studio — Adajan, Surat',
     city: 'Surat',
     area: 'Adajan',
     address: ['Devbhumi Complex, Nr. Yogi Complex', 'Below Sardar Bridge, Adajan, Surat, Gujarat 395009'],
@@ -152,7 +152,7 @@ export const studios = [
   },
   {
     id: 'vadodara',
-    name: 'Lacquer Studio — Alkapuri, Vadodara',
+    name: 'Kavach Studio — Alkapuri, Vadodara',
     city: 'Vadodara',
     area: 'Alkapuri',
     address: ['2nd Floor, Siddharth Complex', 'RC Dutt Road, Alkapuri, Vadodara, Gujarat 390007'],

@@ -15,20 +15,20 @@ import Gallery from './components/Gallery';
 import Reviews from './components/Reviews';
 import Booking from './components/Booking';
 import Footer from './components/Footer';
-import './lacquer.css';
+import './kavach.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 // Leaflet is the heaviest dependency, so the studio map loads in its own chunk.
 const Locator = lazy(() => import('./components/Locator'));
 
-// Lacquer, ported in full from its own project (see ../../../../lacquer) so
+// Kavach, ported in full from its own project (see ../../../../lacquer (original) or ../../../../obsidian-react/src/sites/kavach (this copy)) so
 // it lives inside the same Obsidian deployment instead of a separate hosted
-// URL. `.lacquer-scope` on the wrapper redefines every CSS custom property
+// URL. `.kavach-scope` on the wrapper redefines every CSS custom property
 // this site uses (--ink, --paper, --lacquer, --ceramic, ...) for everything
 // inside it, so it renders with its own real palette and type instead of
-// inheriting Obsidian's -- see lacquer.css.
-export default function LacquerPage() {
+// inheriting Obsidian's -- see kavach.css.
+export default function KavachPage() {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const lenis = new Lenis({ duration: 1.1, anchors: { offset: -76 } });
@@ -43,14 +43,14 @@ export default function LacquerPage() {
       lenis.destroy();
       window.removeEventListener('load', refresh);
       // Every ScrollTrigger/pin this page created must go with it, or a
-      // leftover pin-spacer from Lacquer's hero would misplace scroll on
+      // leftover pin-spacer from this page's hero would misplace scroll on
       // whichever page (Home, Beadline, ...) mounts next.
       ScrollTrigger.getAll().forEach((st) => st.kill());
     };
   }, []);
 
   return (
-    <div className="lacquer-scope">
+    <div className="kavach-scope">
       <a href="#services" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[90] btn solid">Skip to content</a>
       <Cursor />
       <Header />

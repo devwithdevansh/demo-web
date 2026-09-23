@@ -1,0 +1,52 @@
+/* The catalog page reuses Kohinoor's own global tokens (--ink, --paper,
+   --graphite, --line, --brass, ...) by default, since it's presented as
+   part of the same site. This block only overrides those SAME variable
+   names, scoped to the catalog's own wrapper, when its light toggle is on
+   -- Kohinoor's actual homepage (and every ported site's own scope) is
+   untouched either way. */
+.catalog-page[data-theme='light'] {
+  --ink: #f5f1e8;
+  --graphite: #eae5d8;
+  --graphite-2: #ddd6c4;
+  --line: rgba(20, 18, 12, 0.14);
+  --line-soft: rgba(20, 18, 12, 0.07);
+  --paper: #17150f;
+  --paper-dim: #5c5747;
+  --paper-faint: #8a8471;
+  --brass: #8a6329;
+  --brass-bright: #a97a2f;
+}
+
+.theme-toggle {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--graphite);
+}
+.theme-toggle button {
+  display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent;
+  color: var(--paper-dim); font: 600 11px/1 var(--font-mono, monospace); letter-spacing: .06em; text-transform: uppercase;
+  padding: 7px 12px; border-radius: 999px; cursor: pointer; transition: background .25s, color .25s;
+}
+.theme-toggle button[aria-pressed='true'] { background: var(--brass); color: var(--ink); }
+
+/* Design Lab */
+.lab-preview {
+  border-radius: 20px; padding: clamp(28px, 4vw, 48px); border: 1px solid var(--line);
+  transition: background .3s, color .3s;
+}
+.lab-swatch-trio {
+  display: flex; height: 40px; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.08);
+}
+.lab-swatch-trio span { flex: 1; }
+.lab-option {
+  border: 1px solid var(--line); border-radius: 14px; padding: 12px; text-align: left; cursor: pointer;
+  background: var(--graphite); transition: border-color .25s, transform .2s;
+}
+.lab-option:hover { transform: translateY(-2px); }
+.lab-option[aria-pressed='true'] { border-color: var(--brass); }
+.lab-color-field { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.lab-color-field input[type='color'] {
+  width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--line); padding: 0; cursor: pointer;
+  background: none;
+}
+.lab-color-field input[type='color']::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
+.lab-color-field input[type='color']::-webkit-color-swatch { border: 0; border-radius: 50%; }

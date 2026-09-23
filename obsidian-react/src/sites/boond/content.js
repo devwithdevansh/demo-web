@@ -8,10 +8,10 @@
 
 export const USE_LOCAL = false;
 
-export const BRAND = 'Beadline';
+export const BRAND = 'Boond';
 export const WHATSAPP_NUMBER = '919999999999'; // country code + number, no "+"
 export const PHONE_DISPLAY = '+91 99999 99999';
-export const EMAIL = 'hello@beadline.in';
+export const EMAIL = 'hello@boond.in';
 export const ADDRESS = ['Shed 14, Kalawad Road', 'Rajkot, Gujarat 360005'];
 export const HOURS = 'Mon to Sat, 9 am to 8 pm. Sunday by appointment.';
 

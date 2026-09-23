@@ -6,7 +6,7 @@ export default function Footer() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr] gap-[40px] mb-[min(14vh,120px)]">
             <div className="footer-brand">
               <div className="text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] mb-[18px]">
-                <span className="w-[6px] h-[6px] bg-[var(--brass)] rounded-full"></span>OBSIDIAN
+                <span className="w-[6px] h-[6px] bg-[var(--brass)] rounded-full"></span>KOHINOOR
               </div>
               <p className="text-[var(--paper-dim)] text-[14px] max-w-[32ch]">
                 A premium detailing, protection and modification studio — built around precision, not shortcuts.
@@ -39,7 +39,7 @@ export default function Footer() {
           
           <div className="flex justify-between items-end flex-wrap gap-[20px] border-t border-[var(--line)] pt-[34px]">
             <div className="text-[clamp(22px,3vw,36px)] font-semibold uppercase">Your Car. Our Craft.</div>
-            <div className="font-mono text-[11px] text-[var(--paper-faint)]">© OBSIDIAN STUDIO — ALL RIGHTS RESERVED</div>
+            <div className="font-mono text-[11px] text-[var(--paper-faint)]">© KOHINOOR STUDIO — ALL RIGHTS RESERVED</div>
           </div>
         </div>
       </footer>

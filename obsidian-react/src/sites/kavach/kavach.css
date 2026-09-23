@@ -1,13 +1,13 @@
-/* Ported from ../../../../lacquer/src/index.css, scoped under
-   .lacquer-scope so its tokens and classes never leak into (or collide
-   with) Obsidian's or Beadline's -- see LacquerPage.jsx. Tailwind's own
+/* Ported from ../../../../kavach/src/index.css, scoped under
+   .kavach-scope so its tokens and classes never leak into (or collide
+   with) Obsidian's or Beadline's -- see KavachPage.jsx. Tailwind's own
    utilities are already imported once, globally, by the app's main
    index.css, so that import is not repeated here. */
 
 html.lenis, html.lenis body { height: auto; }
 .lenis.lenis-smooth { scroll-behavior: auto !important; }
 
-.lacquer-scope {
+.kavach-scope {
   --ink: #08090a;
   --ink-2: #111214;
   --panel: #16181b;
@@ -116,11 +116,11 @@ html.lenis, html.lenis body { height: auto; }
 
   /* Rotating trust badge -- pure CSS 3D coin spin */
   .coin { perspective: 700px; }
-  .coin-face { transform-style: preserve-3d; animation: lacquer-spin 9s linear infinite; }
+  .coin-face { transform-style: preserve-3d; animation: kavach-spin 9s linear infinite; }
 
   /* Marquee ticker */
   .marquee { overflow: hidden; }
-  .marquee-track { display: flex; width: max-content; animation: lacquer-marquee 32s linear infinite; }
+  .marquee-track { display: flex; width: max-content; animation: kavach-marquee 32s linear infinite; }
   .marquee:hover .marquee-track { animation-play-state: paused; }
 
   /* Hero product stage -- the car floats on the dark backdrop instead of
@@ -152,9 +152,9 @@ html.lenis, html.lenis body { height: auto; }
      so they read as light haze rather than solid shapes. */
   .smoke-field { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
   .smoke-blob { position: absolute; border-radius: 50%; filter: blur(52px); mix-blend-mode: screen; will-change: transform; }
-  .smoke-1 { width: 58vw; height: 58vw; max-width: 520px; max-height: 520px; left: -6%; top: 8%; opacity: .8; background: radial-gradient(circle, rgba(232,160,90,.7), transparent 68%); animation: lacquer-drift1 22s ease-in-out infinite; }
-  .smoke-2 { width: 46vw; height: 46vw; max-width: 420px; max-height: 420px; right: -4%; top: 2%; opacity: .65; background: radial-gradient(circle, rgba(95,199,214,.55), transparent 68%); animation: lacquer-drift2 26s ease-in-out infinite; }
-  .smoke-3 { width: 68vw; height: 68vw; max-width: 600px; max-height: 600px; left: 50%; bottom: -18%; transform: translateX(-50%); opacity: .55; background: radial-gradient(circle, rgba(244,241,234,.45), transparent 68%); animation: lacquer-drift3 30s ease-in-out infinite; }
+  .smoke-1 { width: 58vw; height: 58vw; max-width: 520px; max-height: 520px; left: -6%; top: 8%; opacity: .8; background: radial-gradient(circle, rgba(232,160,90,.7), transparent 68%); animation: kavach-drift1 22s ease-in-out infinite; }
+  .smoke-2 { width: 46vw; height: 46vw; max-width: 420px; max-height: 420px; right: -4%; top: 2%; opacity: .65; background: radial-gradient(circle, rgba(95,199,214,.55), transparent 68%); animation: kavach-drift2 26s ease-in-out infinite; }
+  .smoke-3 { width: 68vw; height: 68vw; max-width: 600px; max-height: 600px; left: 50%; bottom: -18%; transform: translateX(-50%); opacity: .55; background: radial-gradient(circle, rgba(244,241,234,.45), transparent 68%); animation: kavach-drift3 30s ease-in-out infinite; }
 
   /* Fixed bottom action bar -- mobile only, mirrors a studio's own app-style
      Call / Direction / Enquiry / WhatsApp / Locations row. */
@@ -204,7 +204,7 @@ html.lenis, html.lenis body { height: auto; }
   .pin-pulse { position: relative; }
   .pin-pulse::after {
     content: ''; position: absolute; inset: -8px; border-radius: 50%; border: 1.5px solid var(--ceramic);
-    animation: lacquer-pulse-ring 2.2s var(--ease-soft) infinite;
+    animation: kavach-pulse-ring 2.2s var(--ease-soft) infinite;
   }
 
   /* Custom cursor -- desktop / fine pointer only */
@@ -267,10 +267,10 @@ html.lenis, html.lenis body { height: auto; }
 }
 
 /* @keyframes are a single global namespace regardless of nesting, so these
-   are prefixed lacquer-* to stay clear of Beadline's or Obsidian's. */
-@keyframes lacquer-spin { to { transform: rotateY(360deg); } }
-@keyframes lacquer-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-@keyframes lacquer-drift1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(24px, -18px); } }
-@keyframes lacquer-drift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20px, 20px); } }
-@keyframes lacquer-drift3 { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -16px); } }
-@keyframes lacquer-pulse-ring { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.9); opacity: 0; } }
+   are prefixed kavach-* to stay clear of Boond's or Kohinoor's. */
+@keyframes kavach-spin { to { transform: rotateY(360deg); } }
+@keyframes kavach-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes kavach-drift1 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(24px, -18px); } }
+@keyframes kavach-drift2 { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-20px, 20px); } }
+@keyframes kavach-drift3 { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -16px); } }
+@keyframes kavach-pulse-ring { 0% { transform: scale(.6); opacity: .9; } 100% { transform: scale(1.9); opacity: 0; } }

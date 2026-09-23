@@ -18,7 +18,7 @@ export default function Header() {
       <a href="#hero" className={`text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] transition-transform duration-400 ease-[var(--ease-soft)] origin-left ${
         scrolled ? 'scale-[0.86]' : ''
       }`}>
-        <span className="w-[6px] h-[6px] bg-[var(--brass)] rounded-full"></span>OBSIDIAN
+        <span className="w-[6px] h-[6px] bg-[var(--brass)] rounded-full"></span>KOHINOOR
       </a>
       
       <nav className="hidden lg:flex gap-[36px] font-mono text-[11px] tracking-[.14em] uppercase">
