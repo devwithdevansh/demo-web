@@ -19,6 +19,7 @@ export default function Footer() {
               <a href="#ppf" className="block text-[14px] text-[var(--paper-dim)] mb-[10px] transition-colors duration-300 hover:text-[var(--paper)]">Protection</a>
               <a href="#mod" className="block text-[14px] text-[var(--paper-dim)] mb-[10px] transition-colors duration-300 hover:text-[var(--paper)]">Modification</a>
               <a href="#builds" className="block text-[14px] text-[var(--paper-dim)] mb-[10px] transition-colors duration-300 hover:text-[var(--paper)]">Our Work</a>
+              <a href="#/catalog" className="block text-[14px] text-[var(--paper-dim)] mb-[10px] transition-colors duration-300 hover:text-[var(--paper)]">Site Catalog</a>
             </div>
             
             <div className="footer-col">

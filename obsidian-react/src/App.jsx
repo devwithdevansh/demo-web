@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Loader from './components/Loader';
 import Cursor from './components/Cursor';
 import AmbientSpotlight from './components/AmbientSpotlight';
+import Catalog from './pages/Catalog';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import Statement from './components/Statement';
@@ -23,17 +24,37 @@ import Footer from './components/Footer';
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
+  // A plain hash route, not react-router: it needs no server rewrite rule to
+  // work on whatever static host already serves this site, and the catalog
+  // is one extra page, not a second app.
+  const [route, setRoute] = useState(() => (window.location.hash === '#/catalog' ? 'catalog' : 'home'));
+
+  useEffect(() => {
+    const onHashChange = () => setRoute(window.location.hash === '#/catalog' ? 'catalog' : 'home');
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
+
+  if (route === 'catalog') {
+    return (
+      <>
+        <Cursor />
+        <AmbientSpotlight />
+        <Catalog />
+      </>
+    );
+  }
 
   return (
     <>
       {!isLoaded && <Loader onComplete={() => setIsLoaded(true)} />}
       <Cursor />
       <AmbientSpotlight />
-      
+
       {/* We apply a wrapper class to stop interactions until loaded */}
       <div className={!isLoaded ? 'pointer-events-none' : ''}>
         <Header />
-        
+
         <main>
           <Hero isReady={isLoaded} />
           <Statement />

@@ -1,8 +1,8 @@
 export default function Reviews() {
   const reviews = [
-    { text: "The car looked better than the day I bought it. The correction work alone was worth the trip.", who: "M. Okafor — BMW M4" },
-    { text: "PPF and ceramic were applied with a precision I haven't seen anywhere else. Zero orange peel, zero fuss.", who: "R. Duarte — Porsche 911" },
-    { text: "They planned the whole build around how I actually drive the car, not just what looks good in photos.", who: "S. Patel — Range Rover Sport" }
+    { text: "The car looked better than the day I bought it. The correction work alone was worth the trip.", who: "Arjun Mehta — BMW M4" },
+    { text: "PPF and ceramic were applied with a precision I haven't seen anywhere else. Zero orange peel, zero fuss.", who: "Kabir Malhotra — Porsche 911" },
+    { text: "They planned the whole build around how I actually drive the car, not just what looks good in photos.", who: "Rohan Sethi — Range Rover Sport" }
   ];
 
   return (

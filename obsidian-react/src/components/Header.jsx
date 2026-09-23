@@ -22,10 +22,10 @@ export default function Header() {
       </a>
       
       <nav className="hidden lg:flex gap-[36px] font-mono text-[11px] tracking-[.14em] uppercase">
-        {['Work', 'Services', 'Protection', 'Modification', 'Studio'].map((item) => (
+        {['Work', 'Services', 'Protection', 'Modification', 'Studio', 'Catalog'].map((item) => (
           <a
             key={item}
-            href={`#${item.toLowerCase()}`}
+            href={item === 'Catalog' ? '#/catalog' : `#${item.toLowerCase()}`}
             className="relative pb-[4px] text-[var(--paper-dim)] transition-colors duration-300 hover:text-[var(--paper)] group"
           >
             {item}
