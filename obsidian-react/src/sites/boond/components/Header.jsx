@@ -24,12 +24,12 @@ export default function Header() {
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)', height: 'calc(72px + env(safe-area-inset-top, 0px))' }}
       >
         <a href="#top" className="wide text-[22px] no-underline">{BRAND}</a>
-        <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium" aria-label="Main">
+        <nav className="hidden lg:flex items-center gap-8 text-[15px] font-medium" aria-label="Main">
           {links.map(([l, h]) => <a key={h} href={h} className="no-underline hover:opacity-60 transition-opacity">{l}</a>)}
           <a href="#/catalog" className="no-underline hover:opacity-60 transition-opacity">Catalog</a>
           <a href="#book" className={`btn !min-h-[42px] !px-5 ${solid ? '' : 'light'}`}>Book a slot</a>
         </nav>
-        <button className="md:hidden font-medium underline underline-offset-4" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="mnav">Menu</button>
+        <button className="lg:hidden font-medium underline underline-offset-4" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="mnav">Menu</button>
       </header>
 
       {open && (

@@ -30,12 +30,12 @@ export default function Header() {
         <a href="#top" className="display text-[21px] no-underline flex items-center gap-2">
           <span className="text-[var(--lacquer)]">◆</span>{BRAND}
         </a>
-        <nav className="hidden md:flex items-center gap-8 text-[14px] font-medium text-[var(--paper-dim)]" aria-label="Main">
+        <nav className="hidden lg:flex items-center gap-8 text-[14px] font-medium text-[var(--paper-dim)]" aria-label="Main">
           {links.map(([l, h]) => <a key={h} href={h} className="no-underline hover:text-[var(--paper)] transition-colors">{l}</a>)}
           <a href="#/catalog" className="no-underline hover:text-[var(--paper)] transition-colors">Catalog</a>
           <a href="#book" className="btn solid sm">Book a slot</a>
         </nav>
-        <button className="md:hidden font-medium underline underline-offset-4" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="mnav">Menu</button>
+        <button className="lg:hidden font-medium underline underline-offset-4" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="mnav">Menu</button>
       </header>
 
       {open && (

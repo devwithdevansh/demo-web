@@ -183,10 +183,13 @@ html.lenis, html.lenis body { height: auto; }
   .kinetic-mask { overflow: hidden; display: inline-block; vertical-align: top; }
   .kinetic-word { display: inline-block; will-change: transform; }
 
-  /* Horizontal scroll story (Services on fine pointers) */
+  /* Horizontal scroll story (Services) -- pinned/scrubbed only on wide,
+     fine-pointer screens (see Services.jsx); everything else, including
+     tablets and narrow windows, falls back to a native scrollable row here,
+     so the two conditions must stay each other's exact opposite. */
   .hscroll-track { will-change: transform; }
   .hcard { scroll-snap-align: start; }
-  @media (pointer: coarse), (prefers-reduced-motion: reduce) {
+  @media (pointer: coarse), (prefers-reduced-motion: reduce), (max-width: 1199px) {
     .hscroll-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
   }
 

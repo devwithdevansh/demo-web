@@ -104,4 +104,23 @@ html.lenis, html.lenis body { height: auto; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
+
+  /* Fixed bottom action bar -- mobile only, mirrors a studio's own app-style
+     Call / Direction / Enquiry / WhatsApp / Visit row. */
+  .action-bar {
+    position: fixed; inset-inline: 0; bottom: 0; z-index: 55;
+    background: rgba(243, 245, 246, .94); backdrop-filter: blur(14px); border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  .action-bar a, .action-bar button {
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 10px 4px 8px; color: var(--asphalt); font: 600 10.5px/1 var(--font); opacity: .72;
+    text-decoration: none; background: none; border: 0; cursor: pointer; transition: opacity .2s;
+  }
+  .action-bar a:active, .action-bar button:active { opacity: 1; }
+  .ab-whatsapp { color: #1f9d52 !important; opacity: 1 !important; }
+  @media (min-width: 768px) {
+    .action-bar { display: none; }
+  }
 }

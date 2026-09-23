@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import Loader from './components/Loader';
+import ActionBar from './components/ActionBar';
 import Cursor from './components/Cursor';
 import AmbientSpotlight from './components/AmbientSpotlight';
 import Catalog from './pages/Catalog';
@@ -56,6 +57,15 @@ function App() {
     return () => window.removeEventListener('hashchange', onHashChange);
   }, []);
 
+  // Every route swap here is a hash change, not a real page load, so the
+  // browser keeps whatever scroll position the previous page was at. Boond
+  // and Kavach already reset this themselves before their own Lenis/GSAP
+  // setup runs (order matters there); this covers the catalog and Kohinoor's
+  // own homepage too, neither of which has that setup to hook into.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [route]);
+
   if (route === 'catalog') {
     return (
       <>
@@ -97,8 +107,10 @@ function App() {
           <Booking />
           <FinalCTA />
         </main>
-        
+
         <Footer />
+        <div className="h-[64px] md:hidden" aria-hidden="true" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} />
+        <ActionBar />
       </div>
     </>
   );

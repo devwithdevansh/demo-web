@@ -25,10 +25,13 @@ function Price({ value }) {
   return <span ref={el} className="tnum">{inr(value)}</span>;
 }
 
-// A horizontal scroll-story on fine pointers (the section pins and the
-// scrollbar drives the cards sideways); a plain snap-scrolling row everywhere
-// else, so touch scrolling stays native and reduced-motion users lose the
-// scroll-jack but keep the content.
+// A horizontal scroll-story on wide, fine-pointer screens only (the section
+// pins and the scrollbar drives the cards sideways); a plain snap-scrolling
+// row everywhere else -- including any tablet or narrow window, even one
+// with a mouse/trackpad attached, since the pin's scroll-distance math is
+// measured against viewport width and gets it wrong on anything tablet-sized
+// or narrower, leaving a dead pinned gap. Touch scrolling stays native and
+// reduced-motion users lose the scroll-jack but keep the content either way.
 export default function Services() {
   const [size, setSize] = useState(1);
   const root = useRef(null);
@@ -37,7 +40,7 @@ export default function Services() {
 
   useGSAP(() => {
     const mm = gsap.matchMedia();
-    mm.add('(prefers-reduced-motion: no-preference) and (pointer: fine)', () => {
+    mm.add('(prefers-reduced-motion: no-preference) and (pointer: fine) and (min-width: 1200px)', () => {
       const track = trackRef.current;
       const wrap = wrapRef.current;
       const getDistance = () => Math.max(0, track.scrollWidth - wrap.clientWidth);

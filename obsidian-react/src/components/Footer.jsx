@@ -43,11 +43,6 @@ export default function Footer() {
           </div>
         </div>
       </footer>
-
-      {/* Mobile Sticky Book Button */}
-      <div className="fixed left-0 right-0 bottom-0 z-[400] p-[12px_var(--edge)] bg-[rgba(10,11,13,.9)] backdrop-blur-[10px] border-t border-[var(--line-soft)] block md:hidden">
-        <a href="#booking" className="btn solid w-full flex justify-center">Book Now</a>
-      </div>
     </>
   );
 }
