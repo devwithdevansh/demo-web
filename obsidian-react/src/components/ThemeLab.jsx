@@ -110,7 +110,7 @@ export default function ThemeLab() {
         <div className="flex flex-col gap-[28px]">
           <div>
             <p className="eyebrow mb-[14px]">Palettes</p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-[10px]">
+            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-[10px]">
               {PALETTES.map((p) => (
                 <button
                   key={p.name}
