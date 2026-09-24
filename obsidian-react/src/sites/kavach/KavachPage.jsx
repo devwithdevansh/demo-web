@@ -88,7 +88,7 @@ export default function KavachPage() {
           <Booking />
         </main>
         <Footer />
-        <div className="h-[64px] md:hidden" aria-hidden="true" style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }} />
+        <div className="action-bar-spacer" aria-hidden="true" />
         <ActionBar />
       </div>
     </div>

@@ -156,7 +156,7 @@ html.lenis, html.lenis body { height: auto; }
   .smoke-2 { width: 46vw; height: 46vw; max-width: 420px; max-height: 420px; right: -4%; top: 2%; opacity: .65; background: radial-gradient(circle, rgba(95,199,214,.55), transparent 68%); animation: kavach-drift2 26s ease-in-out infinite; }
   .smoke-3 { width: 68vw; height: 68vw; max-width: 600px; max-height: 600px; left: 50%; bottom: -18%; transform: translateX(-50%); opacity: .55; background: radial-gradient(circle, rgba(244,241,234,.45), transparent 68%); animation: kavach-drift3 30s ease-in-out infinite; }
 
-  /* Fixed bottom action bar -- mobile only, mirrors a studio's own app-style
+  /* Fixed bottom action bar -- phones and tablets, mirrors a studio's own app-style
      Call / Direction / Enquiry / WhatsApp / Locations row. */
   .action-bar {
     position: fixed; inset-inline: 0; bottom: 0; z-index: 55;
@@ -171,9 +171,27 @@ html.lenis, html.lenis body { height: auto; }
   }
   .action-bar a:active, .action-bar button:active { color: var(--lacquer-bright); }
   .ab-whatsapp { color: #3fd17a !important; }
+  /* Tablets get the bar too (they're what these demos are shown on), as a
+     centred floating pill -- a full-width strip of five tiny labels looks
+     stretched at 820-1366px. Only a mouse-driven desktop hides it, so the
+     rule is input type, not width: an iPad Pro in landscape still has it. */
   @media (min-width: 768px) {
+    .action-bar {
+      left: 50%; right: auto; transform: translateX(-50%);
+      width: min(560px, calc(100% - 48px)); bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+      padding-bottom: 0; border-radius: 999px; border: 1px solid var(--line); overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,.5);
+    }
+    .action-bar a, .action-bar button { padding: 13px 4px 11px; font-size: 12px; gap: 5px; }
+  }
+  @media (min-width: 768px) and (hover: hover) and (pointer: fine) {
     .action-bar { display: none; }
   }
+
+  /* Keeps the page's last content clear of the bar -- same show/hide rule. */
+  .action-bar-spacer { height: calc(64px + env(safe-area-inset-bottom, 0px)); }
+  @media (min-width: 768px) { .action-bar-spacer { height: calc(96px + env(safe-area-inset-bottom, 0px)); } }
+  @media (min-width: 768px) and (hover: hover) and (pointer: fine) { .action-bar-spacer { display: none; } }
 
   /* Scroll-progress bar */
   .progress-bar { position: fixed; top: 0; left: 0; height: 2px; background: var(--lacquer); z-index: 60; width: 0%; transform-origin: left; }
