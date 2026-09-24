@@ -25,7 +25,7 @@ export default function Header() {
         {['Work', 'Services', 'Protection', 'Modification', 'Studio', 'Catalog'].map((item) => (
           <a
             key={item}
-            href={item === 'Catalog' ? '#/catalog' : `#${item.toLowerCase()}`}
+            href={item === 'Catalog' ? '/' : `#${item.toLowerCase()}`}
             className="relative pb-[4px] text-[var(--paper-dim)] transition-colors duration-300 hover:text-[var(--paper)] group"
           >
             {item}

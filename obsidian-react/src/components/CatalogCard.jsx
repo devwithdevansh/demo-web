@@ -32,7 +32,7 @@ function Swatch({ color }) {
   );
 }
 
-export default function CatalogCard({ site, onNavigate }) {
+export default function CatalogCard({ site }) {
   return (
     <article className="bg-[var(--graphite)] border border-[var(--line)] rounded-[20px] overflow-hidden flex flex-col transition-colors duration-300 hover:border-[var(--line-soft)]">
       <div
@@ -93,9 +93,9 @@ export default function CatalogCard({ site, onNavigate }) {
         </div>
 
         <div className="mt-auto pt-[2px]">
-          <button type="button" onClick={() => onNavigate(site.route)} className="btn solid w-full justify-center">
+          <a href={`/${site.route}`} className="btn solid w-full justify-center">
             Open {site.name} &rarr;
-          </button>
+          </a>
         </div>
       </div>
     </article>

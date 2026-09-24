@@ -4,10 +4,10 @@
 // src/index.css — nothing here is approximated.
 //
 // Every site is ported in full into this same app (see src/sites/boond
-// and src/sites/kavach) and reached by an internal hash route, `route` —
-// no external URLs, no separate deployments to keep track of. The catalog
-// itself is the front door (`#` or `#/catalog`); Kohinoor's own homepage is
-// just another card here, opened at `#/kohinoor` like any other.
+// and src/sites/kavach) and reached at its own path, `/${route}` — no
+// external URLs, no separate deployments to keep track of. The catalog
+// itself is the front door (`/`); Kohinoor's own homepage is just another
+// card here, opened at `/kohinoor` like any other.
 // ─────────────────────────────────────────────────────────────
 
 export const catalogSites = [

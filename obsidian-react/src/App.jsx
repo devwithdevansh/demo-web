@@ -24,47 +24,37 @@ import Reviews from './components/Reviews';
 import Booking from './components/Booking';
 import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
+import { LEGACY_HASHES, routeForPath } from './seo/routes';
 
-// The catalog is the front door -- no hash lands there. Kohinoor's own
-// homepage is just one more studio site now, reached at '#/kohinoor' like
-// Boond and Kavach are at their own hashes, not the thing you see by
-// default. Every ported page also has its OWN same-page anchors (Boond and
-// Kavach's "Book a slot" both point at '#book', Kohinoor's nav uses '#hero'
-// / '#services' / etc.) -- those aren't page routes, so routeFromHash
-// returns null for them and the hashchange handler leaves the current page
-// alone, letting the browser's native anchor-scroll do its job instead of
-// yanking the user back to the catalog or the homepage mid-scroll.
-const ROUTES = { '#/catalog': 'catalog', '#/kohinoor': 'home', '#/boond': 'boond', '#/kavach': 'kavach' };
-const routeFromHash = () => {
-  if (window.location.hash === '') return 'catalog';
-  return ROUTES[window.location.hash] ?? null;
+// Each page has its own real URL ('/', '/kohinoor', '/boond', '/kavach'),
+// and the build writes a real HTML file for each one (see vite.config.js
+// and src/seo/routes.js) -- so Google indexes four pages, not one, and every
+// page arrives with its own title and description. Moving between pages is
+// a plain link, i.e. a full page load, which also gives every site a fresh
+// scroll position and a clean Lenis/GSAP setup for free.
+//
+// The old hash routes ('#/boond' etc.) are still accepted, so links already
+// shared keep working: they're swapped for the real path on arrival. Every
+// other hash ('#book', '#services', ...) is a same-page anchor and is left
+// to the browser.
+const initialRoute = () => {
+  const legacy = LEGACY_HASHES[window.location.hash];
+  if (legacy) window.history.replaceState(null, '', legacy);
+  // Anything unknown (Render rewrites every path to index.html) shows the
+  // catalog rather than a blank page.
+  return (routeForPath(window.location.pathname) ?? routeForPath('/'));
 };
 
 function App() {
   const [isLoaded, setIsLoaded] = useState(false);
-  // A plain hash route, not react-router: it needs no server rewrite rule to
-  // work on whatever static host already serves this site, and every other
-  // studio site lives here as one more page, not a link out to a separate
-  // deployment -- see src/sites/*.
-  const [route, setRoute] = useState(() => routeFromHash() ?? 'catalog');
+  const [page] = useState(initialRoute);
+  const route = page.id;
 
+  // The prerendered HTML already carries the right title; this covers the
+  // legacy-hash case, where index.html's (catalog) title arrived instead.
   useEffect(() => {
-    const onHashChange = () => {
-      const next = routeFromHash();
-      if (next) setRoute(next);
-    };
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
-  }, []);
-
-  // Every route swap here is a hash change, not a real page load, so the
-  // browser keeps whatever scroll position the previous page was at. Boond
-  // and Kavach already reset this themselves before their own Lenis/GSAP
-  // setup runs (order matters there); this covers the catalog and Kohinoor's
-  // own homepage too, neither of which has that setup to hook into.
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [route]);
+    document.title = page.title;
+  }, [page]);
 
   if (route === 'catalog') {
     return (

@@ -15,20 +15,17 @@ const STATS = [
 ];
 
 // The front door of the whole portfolio -- palette, type and theme for
-// every studio site, one click away from here (see App.jsx: no hash, or
-// any unrecognised hash, lands on this page). No server-side rewrite rule
-// needed on whatever static host serves this site, since it's all just
-// window.location.hash. Built to be walked through on a tablet in person,
+// every studio site, one click away from here (see App.jsx: '/', or any
+// unrecognised path, lands on this page). Built to be walked through on a tablet in person,
 // so layout, grids and touch targets below are tuned for that width range
 // specifically, not just squeezed mobile.
 export default function Catalog() {
   const [theme, setTheme] = useState('dark');
-  const navigate = (route) => { window.location.hash = `#/${route}`; };
 
   return (
     <div className="catalog-page min-h-screen bg-[var(--ink)] text-[var(--paper)] transition-colors duration-300" data-theme={theme}>
       <header className="px-[var(--edge)] py-[26px] flex items-center justify-between gap-[16px] border-b border-[var(--line-soft)]">
-        <a href="#/kohinoor" className="text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] shrink-0">
+        <a href="/kohinoor" className="text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] shrink-0">
           <span className="w-[6px] h-[6px] bg-[var(--brass)] rounded-full" />KOHINOOR
         </a>
         <div className="theme-toggle" role="radiogroup" aria-label="Catalog page theme">
@@ -74,7 +71,7 @@ export default function Catalog() {
 
           <section className="pb-[clamp(64px,10vw,110px)] grid sm:grid-cols-2 xl:grid-cols-3 gap-[24px]">
             {catalogSites.map((site) => (
-              <CatalogCard key={site.id} site={site} onNavigate={navigate} />
+              <CatalogCard key={site.id} site={site} />
             ))}
           </section>
 

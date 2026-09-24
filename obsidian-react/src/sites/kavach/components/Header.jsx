@@ -32,7 +32,7 @@ export default function Header() {
         </a>
         <nav className="hidden lg:flex items-center gap-8 text-[14px] font-medium text-[var(--paper-dim)]" aria-label="Main">
           {links.map(([l, h]) => <a key={h} href={h} className="no-underline hover:text-[var(--paper)] transition-colors">{l}</a>)}
-          <a href="#/catalog" className="no-underline hover:text-[var(--paper)] transition-colors">Catalog</a>
+          <a href="/" className="no-underline hover:text-[var(--paper)] transition-colors">Catalog</a>
           <a href="#book" className="btn solid sm">Book a slot</a>
         </nav>
         <button className="lg:hidden font-medium underline underline-offset-4" onClick={() => setOpen(true)} aria-expanded={open} aria-controls="mnav">Menu</button>
@@ -45,7 +45,7 @@ export default function Header() {
             <button onClick={() => setOpen(false)} className="font-medium underline underline-offset-4">Close</button>
           </div>
           <nav className="mt-10 flex flex-col gap-3" aria-label="Mobile">
-            {[...links, ['Catalog', '#/catalog'], ['Book a slot', '#book']].map(([l, h]) => (
+            {[...links, ['Catalog', '/'], ['Book a slot', '#book']].map(([l, h]) => (
               <a key={h} href={h} onClick={() => setOpen(false)} className="display d2 no-underline">{l}</a>
             ))}
           </nav>
