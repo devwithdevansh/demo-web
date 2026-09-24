@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 
 export default function BeforeAfter() {
   const containerRef = useRef(null);
@@ -13,28 +13,29 @@ export default function BeforeAfter() {
     setReveal(percent);
   };
 
-  const onPointerMove = (e) => {
-    if (isDragging) {
-      handleMove(e.clientX || (e.touches && e.touches[0].clientX));
-    }
+  // Pointer Events + touch-action: pan-y (set on the container below). This
+  // image fills most of the screen while pinned, so on a tablet nearly every
+  // scroll starts on it: a touch only takes over the slider once it's clearly
+  // moving sideways, and lets go if it's clearly vertical (a page scroll).
+  const start = useRef(null);
+  const onPointerDown = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    start.current = e.pointerType === 'mouse' ? null : { x: e.clientX, y: e.clientY };
+    setIsDragging(true);
+    if (e.pointerType === 'mouse') handleMove(e.clientX);
   };
-
-  const onPointerUp = () => setIsDragging(false);
-
-  useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', onPointerMove);
-      window.addEventListener('touchmove', onPointerMove);
-      window.addEventListener('mouseup', onPointerUp);
-      window.addEventListener('touchend', onPointerUp);
+  const onPointerMove = (e) => {
+    if (!isDragging) return;
+    if (start.current) {
+      const dx = Math.abs(e.clientX - start.current.x);
+      const dy = Math.abs(e.clientY - start.current.y);
+      if (Math.max(dx, dy) < 8) return;
+      if (dy > dx) { setIsDragging(false); return; }
+      start.current = null; // sideways: it's a drag from here on
     }
-    return () => {
-      window.removeEventListener('mousemove', onPointerMove);
-      window.removeEventListener('touchmove', onPointerMove);
-      window.removeEventListener('mouseup', onPointerUp);
-      window.removeEventListener('touchend', onPointerUp);
-    };
-  }, [isDragging]);
+    handleMove(e.clientX);
+  };
+  const onPointerEnd = () => setIsDragging(false);
 
   return (
     <section id="transform" className="h-[220vh] bg-[var(--ink)]">
@@ -49,15 +50,11 @@ export default function BeforeAfter() {
         <div 
           ref={containerRef}
           className="relative flex-1 mx-[var(--edge)] overflow-hidden cursor-ew-resize border border-[var(--line)]"
-          onMouseDown={(e) => {
-            setIsDragging(true);
-            handleMove(e.clientX);
-          }}
-          onTouchStart={(e) => {
-            setIsDragging(true);
-            handleMove(e.touches[0].clientX);
-          }}
-          style={{ '--reveal': `${reveal}%` }}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerEnd}
+          onPointerCancel={onPointerEnd}
+          style={{ '--reveal': `${reveal}%`, touchAction: 'pan-y' }}
         >
           {/* Before Image */}
           <img 

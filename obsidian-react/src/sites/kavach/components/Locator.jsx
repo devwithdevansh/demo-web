@@ -1,8 +1,25 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+// Leaflet's own stylesheet positions every pane, tile and marker -- without
+// it the map renders as a couple of stray tiles with no pins.
+import 'leaflet/dist/leaflet.css';
 import { Star, Phone, Navigation, MapPinned, Clock } from 'lucide-react';
 import { studios, BRAND } from '../content';
+
+// Leaflet measures its container once, when the map mounts, and only loads
+// tiles for that box. This page's pinned GSAP sections, Lenis and a tablet
+// rotating all resize or shift it afterwards, which left an L-shaped patch
+// of tiles with grey everywhere else. Re-measure whenever the box changes.
+function KeepSized() {
+  const map = useMap();
+  useEffect(() => {
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    ro.observe(map.getContainer());
+    return () => ro.disconnect();
+  }, [map]);
+  return null;
+}
 
 const pinIcon = (active) => L.divIcon({
   className: '', html: `<div class="${active ? 'pin-pulse' : ''}"><div class="pin-studio${active ? ' active' : ''}"></div></div>`,
@@ -126,6 +143,7 @@ export default function Locator() {
               </Marker>
             ))}
             <FlyTo pos={active.pos} />
+            <KeepSized />
           </MapContainer>
         </div>
 

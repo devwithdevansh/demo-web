@@ -14,7 +14,9 @@ export default function Statement() {
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: 'top top',
+          // Start as the section scrolls in, not once it fills the screen --
+          // 'top top' left a full blank screen before the first word moved.
+          start: 'top 65%',
           end: 'bottom bottom',
           scrub: 1,
         }

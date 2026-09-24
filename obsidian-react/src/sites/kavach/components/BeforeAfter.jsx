@@ -16,22 +16,6 @@ export default function BeforeAfter() {
     setReveal(Math.max(0, Math.min(100, (x / rect.width) * 100)));
   };
 
-  useEffect(() => {
-    if (!dragging) return;
-    const onMove = (e) => handleMove(e.clientX ?? e.touches?.[0]?.clientX);
-    const onUp = () => setDragging(false);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('touchmove', onMove);
-    window.addEventListener('mouseup', onUp);
-    window.addEventListener('touchend', onUp);
-    return () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('touchmove', onMove);
-      window.removeEventListener('mouseup', onUp);
-      window.removeEventListener('touchend', onUp);
-    };
-  }, [dragging]);
-
   // A one-time auto-sweep the first time the section comes into view, so
   // visitors who never think to drag still see what the slider does.
   // Any real interaction cancels it immediately and hands over control.
@@ -53,6 +37,30 @@ export default function BeforeAfter() {
 
   const claim = () => { interacted.current = true; };
 
+  // Pointer Events + touch-action: pan-y (on the container below): on a
+  // tablet, a touch only takes over the slider once it's clearly moving
+  // sideways, and lets go if it's clearly vertical (a page scroll).
+  const start = useRef(null);
+  const onPointerDown = (e) => {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    start.current = e.pointerType === 'mouse' ? null : { x: e.clientX, y: e.clientY };
+    setDragging(true);
+    if (e.pointerType === 'mouse') { claim(); handleMove(e.clientX); }
+  };
+  const onPointerMove = (e) => {
+    if (!dragging) return;
+    if (start.current) {
+      const dx = Math.abs(e.clientX - start.current.x);
+      const dy = Math.abs(e.clientY - start.current.y);
+      if (Math.max(dx, dy) < 8) return;
+      if (dy > dx) { setDragging(false); return; }
+      start.current = null; // sideways: it's a drag from here on
+      claim();
+    }
+    handleMove(e.clientX);
+  };
+  const onPointerEnd = () => setDragging(false);
+
   return (
     <section ref={sectionRef} className="wrap py-[clamp(72px,12vh,140px)]">
       <div className="flex flex-wrap items-end justify-between gap-6 mb-10">
@@ -66,8 +74,11 @@ export default function BeforeAfter() {
       <div
         ref={containerRef}
         className="hotspot relative h-[46vw] min-h-[320px] max-h-[560px] rounded-[16px] overflow-hidden cursor-ew-resize border border-[var(--line)]"
-        onMouseDown={(e) => { claim(); setDragging(true); handleMove(e.clientX); }}
-        onTouchStart={(e) => { claim(); setDragging(true); handleMove(e.touches[0].clientX); }}
+        style={{ touchAction: 'pan-y' }}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerEnd}
+        onPointerCancel={onPointerEnd}
       >
         <img
           className="absolute inset-0 w-full h-full object-cover saturate-[.4] contrast-[.85] brightness-[.7] blur-[.3px]"

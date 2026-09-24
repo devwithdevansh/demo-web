@@ -15,10 +15,13 @@ export default function Modification() {
   const trackRef = useRef(null);
 
   useEffect(() => {
-    // Only apply horizontal scroll animation on desktop
+    // Horizontal scroll from md (768px) up -- the same breakpoint the
+    // md:h-[340vh] / md:sticky classes below switch on at. These used to
+    // disagree (861px here), so on a portrait iPad the section pinned for
+    // 340vh with nothing moving: ~2.5 screens of black.
     const mm = gsap.matchMedia();
     
-    mm.add("(min-width: 861px)", () => {
+    mm.add("(min-width: 768px)", () => {
       let ctx = gsap.context(() => {
         const tl = gsap.timeline({
           scrollTrigger: {
@@ -26,14 +29,14 @@ export default function Modification() {
             start: 'top top',
             end: 'bottom bottom',
             scrub: 1,
+            invalidateOnRefresh: true,
           }
         });
 
-        // Calculate scroll amount based on track width vs viewport width
-        const scrollAmount = trackRef.current.scrollWidth - window.innerWidth + 120; // 120 buffer
-        
+        // Track width vs viewport width, re-measured on refresh so a tablet
+        // rotating mid-page still slides to exactly the last card.
         tl.to(trackRef.current, {
-          x: -scrollAmount,
+          x: () => -(trackRef.current.scrollWidth - window.innerWidth + 120), // 120 buffer
           ease: 'none'
         });
 
@@ -44,8 +47,10 @@ export default function Modification() {
     return () => mm.revert();
   }, []);
 
+  // overflow-x-clip, not overflow-hidden: hidden makes this section a
+  // scroll container, which silently breaks the md:sticky pin inside it.
   return (
-    <section id="mod" className="bg-[var(--ink)] py-[min(18vh,180px)] overflow-hidden">
+    <section id="mod" className="bg-[var(--ink)] py-[min(18vh,180px)] overflow-x-clip">
       <div className="px-[var(--edge)] mb-[56px]">
         <div className="flex justify-between items-end gap-[40px] flex-wrap m-0">
           <h2 className="text-[clamp(32px,5vw,64px)] font-semibold uppercase leading-[1.02] tracking-[-0.01em]">

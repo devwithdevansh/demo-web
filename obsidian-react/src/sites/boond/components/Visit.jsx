@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from 'react-leaflet';
 import L from 'leaflet';
+// Leaflet's own stylesheet positions every pane, tile and marker -- without
+// it the map renders as a couple of stray tiles with no pins.
+import 'leaflet/dist/leaflet.css';
 import { studio, landmarks, PICKUP_RADIUS_KM, ADDRESS, HOURS, PHONE_DISPLAY, WHATSAPP_NUMBER } from '../content';
 
 const studioIcon = L.divIcon({ className: '', html: '<div class="pin-studio"></div>', iconSize: [22, 22], iconAnchor: [11, 11], popupAnchor: [0, -12] });
@@ -11,6 +14,20 @@ function km([a, b], [c, d]) {
   const R = 6371, r = (x) => (x * Math.PI) / 180;
   const h = Math.sin(r(c - a) / 2) ** 2 + Math.cos(r(a)) * Math.cos(r(c)) * Math.sin(r(d - b) / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+// Leaflet measures its container once, when the map mounts, and only loads
+// tiles for that box. This page's pinned GSAP sections, Lenis and a tablet
+// rotating all resize or shift it afterwards, which left an L-shaped patch
+// of tiles with grey everywhere else. Re-measure whenever the box changes.
+function KeepSized() {
+  const map = useMap();
+  useEffect(() => {
+    const ro = new ResizeObserver(() => map.invalidateSize());
+    ro.observe(map.getContainer());
+    return () => ro.disconnect();
+  }, [map]);
+  return null;
 }
 
 function FitTo({ you }) {
@@ -54,10 +71,14 @@ export default function Visit() {
       <div className="grid lg:grid-cols-[1fr_360px] gap-8 lg:gap-12">
         <div className="relative h-[60vh] min-h-[380px] rounded-[10px] overflow-hidden isolate">
           <MapContainer center={studio.pos} zoom={12} scrollWheelZoom={false} dragging={!touch} className="h-full w-full">
+            {/* Standard OSM raster tiles, no API key needed -- CARTO's free
+                light tiles now require a key and serve an "API KEY REQUIRED"
+                watermark without one. The `.leaflet-tile-pane` filter in
+                boond.css softens OSM's colours toward CARTO's light look. */}
             <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
-              subdomains="abcd" maxZoom={19}
+              url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              maxZoom={19}
             />
             {zone && <Circle center={studio.pos} radius={PICKUP_RADIUS_KM * 1000} pathOptions={{ color: '#3fa9d9', weight: 2, fillColor: '#3fa9d9', fillOpacity: 0.1 }} />}
             <Marker position={studio.pos} icon={studioIcon}><Popup><strong>Beadline studio</strong><br />{ADDRESS[0]}</Popup></Marker>
@@ -68,6 +89,7 @@ export default function Visit() {
             ))}
             {you && <Marker position={you} icon={youIcon}><Popup>You</Popup></Marker>}
             <FitTo you={you} />
+            <KeepSized />
           </MapContainer>
         </div>
 
