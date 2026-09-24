@@ -5,18 +5,19 @@ import { Check } from 'lucide-react';
 // constant so the price can change without hunting through the copy.
 const PLAN_PRICE = 999;
 
-// Rough cost-per-click for local-service searches in India (2026 agency
-// benchmarks put local services around ₹10–60, busy metros higher). These
-// are only starting points for the sliders -- the owner can drag to their
-// own number while the pitch is being made.
-const CITY_PRESETS = [
-  { name: 'Smaller town', cpc: 15 },
-  { name: 'Rajkot / Surat', cpc: 30 },
-  { name: 'Ahmedabad / metro', cpc: 60 },
+// Cost-per-click starting points. There is no public car-detailing CPC data
+// for India, let alone per city -- 2026 agency benchmarks only put a typical
+// Indian search click around ₹20 and local services at ₹10–60. So these are
+// deliberately generic, not tied to any city, and the copy tells the owner
+// to check their own number in Google's Keyword Planner.
+const CPC_PRESETS = [
+  { name: 'Low', cpc: 10 },
+  { name: 'Typical', cpc: 20 },
+  { name: 'High', cpc: 50 },
 ];
 
-// Share of clicks on a local search results page, from BrightLocal /
-// local-pack click studies. Rounded; kept here so the bars and the
+// Share of clicks on a local search results page, from US BrightLocal /
+// local-pack click studies (no Indian equivalent published). Rounded; kept here so the bars and the
 // source line stay in sync.
 const CLICK_SHARE = [
   { label: 'Google Maps top 3', value: 44, highlight: true },
@@ -40,12 +41,10 @@ const inr = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
 // click. Honest by design -- no rank guarantees (Google itself says nobody
 // can promise #1), and the 3–6 month timeline is stated up front.
 export default function SeoPitch() {
-  const [cpc, setCpc] = useState(CITY_PRESETS[1].cpc);
-  const [clicks, setClicks] = useState(10);
+  const [cpc, setCpc] = useState(CPC_PRESETS[1].cpc);
+  const [clicks, setClicks] = useState(5);
 
   const adsPerYear = cpc * clicks * 365;
-  const saved = adsPerYear - PLAN_PRICE;
-  const multiple = Math.round(adsPerYear / PLAN_PRICE);
   // Keep the plan bar visible even when the ads bar dwarfs it.
   const planWidth = Math.max((PLAN_PRICE / adsPerYear) * 100, 1.5);
 
@@ -68,8 +67,8 @@ export default function SeoPitch() {
         <div className="seo-card">
           <p className="eyebrow mb-[16px]">What ads would cost you</p>
 
-          <div className="flex flex-wrap gap-[8px] mb-[22px]" role="group" aria-label="City presets">
-            {CITY_PRESETS.map((c) => (
+          <div className="flex flex-wrap gap-[8px] mb-[22px]" role="group" aria-label="Cost per click presets">
+            {CPC_PRESETS.map((c) => (
               <button
                 key={c.name}
                 type="button"
@@ -77,7 +76,7 @@ export default function SeoPitch() {
                 aria-pressed={cpc === c.cpc}
                 onClick={() => setCpc(c.cpc)}
               >
-                {c.name}
+                {c.name} · {inr(c.cpc)}
               </button>
             ))}
           </div>
@@ -86,14 +85,14 @@ export default function SeoPitch() {
             <span className="flex justify-between text-[13px] text-[var(--paper-dim)]">
               Cost per click <strong className="text-[var(--paper)]">{inr(cpc)}</strong>
             </span>
-            <input type="range" min="10" max="150" step="5" value={cpc} onChange={(e) => setCpc(Number(e.target.value))} />
+            <input type="range" min="5" max="100" step="1" value={cpc} onChange={(e) => setCpc(Number(e.target.value))} />
           </label>
 
           <label className="seo-slider">
             <span className="flex justify-between text-[13px] text-[var(--paper-dim)]">
               Clicks per day <strong className="text-[var(--paper)]">{clicks}</strong>
             </span>
-            <input type="range" min="3" max="40" step="1" value={clicks} onChange={(e) => setClicks(Number(e.target.value))} />
+            <input type="range" min="1" max="30" step="1" value={clicks} onChange={(e) => setClicks(Number(e.target.value))} />
           </label>
 
           <div className="mt-[26px] flex flex-col gap-[14px]">
@@ -114,8 +113,12 @@ export default function SeoPitch() {
           </div>
 
           <p className="mt-[22px] mb-0 text-[15px] leading-[1.5]" aria-live="polite">
-            That's <strong className="text-[var(--brass-bright)]">{multiple}×</strong> the plan price —{' '}
-            {inr(saved)} a year that can stay in the business.
+            {inr(cpc)} × {clicks} clicks × 365 days = <strong className="text-[var(--paper)]">{inr(adsPerYear)}</strong>{' '}
+            a year, paid every year, for those clicks only.
+          </p>
+          <p className="mt-[10px] mb-0 text-[12px] text-[var(--paper-faint)] leading-[1.5]">
+            An estimate, not a quote. Real click prices depend on your city and keywords — check
+            yours free in Google Ads Keyword Planner. Ranking takes work and time, not a fixed price per visitor.
           </p>
         </div>
 
@@ -145,7 +148,7 @@ export default function SeoPitch() {
           </div>
 
           <p className="mt-[16px] mb-0 text-[11px] text-[var(--paper-faint)] leading-[1.5]">
-            Sources: BrightLocal and local-pack click studies; 2026 Google Ads CPC benchmarks for India. Figures rounded.
+            Click share: BrightLocal and local-pack click studies (US data). Click prices: 2026 agency benchmarks for India (typical search click ~₹20, local services ₹10–60). Figures rounded.
           </p>
         </div>
       </div>
