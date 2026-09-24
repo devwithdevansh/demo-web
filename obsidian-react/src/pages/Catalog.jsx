@@ -4,6 +4,7 @@ import { catalogSites } from '../data/catalogSites';
 import CatalogCard from '../components/CatalogCard';
 import ThemeLab from '../components/ThemeLab';
 import PitchCTA from '../components/PitchCTA';
+import SeoPitch from '../components/SeoPitch';
 import dwdLogo from '../assets/dwd-logo.png';
 import './catalog.css';
 
@@ -80,6 +81,10 @@ export default function Catalog() {
           <div className="hairline mb-[clamp(48px,8vw,80px)]" />
 
           <ThemeLab />
+
+          <div className="hairline mb-[clamp(48px,8vw,80px)]" />
+
+          <SeoPitch />
 
           <div className="hairline mb-[clamp(48px,8vw,80px)]" />
 

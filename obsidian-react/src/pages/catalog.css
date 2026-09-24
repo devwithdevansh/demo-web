@@ -89,3 +89,28 @@
 }
 .lab-color-field input[type='color']::-webkit-color-swatch-wrapper { padding: 0; border-radius: 50%; }
 .lab-color-field input[type='color']::-webkit-color-swatch { border: 0; border-radius: 50%; }
+
+/* Google-visibility pitch (SeoPitch.jsx): ads-vs-plan calculator, click
+   share bars and the plan checklist. Same card language as the stat strip
+   and pitch CTA; touch-sized chips and sliders for the tablet walkthrough. */
+.seo-card {
+  border: 1px solid var(--line); border-radius: 20px; background: var(--graphite);
+  padding: clamp(20px, 3vw, 32px);
+}
+.seo-chip {
+  border: 1px solid var(--line); border-radius: 999px; background: var(--ink); color: var(--paper-dim);
+  font-weight: 600; font-size: 12.5px; line-height: 1; padding: 10px 16px; min-height: 40px; cursor: pointer;
+  transition: border-color .25s, color .25s;
+}
+.seo-chip[aria-pressed='true'] { border-color: var(--brass); color: var(--paper); }
+.seo-slider { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.seo-slider input[type='range'] { width: 100%; min-height: 32px; accent-color: var(--brass); cursor: pointer; }
+.seo-bar { height: 10px; border-radius: 999px; background: var(--ink); overflow: hidden; }
+.seo-bar span { display: block; height: 100%; border-radius: 999px; transition: width .4s var(--ease-panel, ease); }
+.seo-bar-ads { background: var(--paper-faint); }
+.seo-bar-plan { background: var(--brass-bright); }
+.seo-stat {
+  display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 14px;
+  background: var(--ink); border: 1px solid var(--line);
+}
+.seo-stat-num { font-size: clamp(26px, 3vw, 34px); font-weight: 700; line-height: 1; color: var(--brass-bright); }
