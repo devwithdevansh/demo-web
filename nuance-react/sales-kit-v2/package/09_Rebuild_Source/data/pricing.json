@@ -1,0 +1,170 @@
+{
+  "_note": "SINGLE SOURCE OF TRUTH for every number in the kit (PDFs, PPTX, DOCX, XLSX, HTML). All figures are PROPOSALS derived from market research (Oct 2026). Confirm against your own hours and costs, then run build/build_all.py.",
+  "currency": "INR",
+  "gst_note": "Prices exclude GST. Add GST (18%) if registered.",
+  "tiers": {
+    "starter": {
+      "name": "Starter",
+      "outcome": "Get Found",
+      "gu": "શોધાઓ",
+      "tagline": "Your bilingual website and Google Maps presence",
+      "status": "Ready now",
+      "setup": 12999,
+      "annual": 5999
+    },
+    "growth": {
+      "name": "Growth",
+      "outcome": "Get Booked",
+      "gu": "બુકિંગ મેળવો",
+      "tagline": "Online booking requests, owner dashboard and client list",
+      "status": "Founding-partner build",
+      "setup": 29999,
+      "annual": {
+        "1-3": 11999,
+        "4-8": 17999,
+        "9-15": 23999
+      }
+    },
+    "pro": {
+      "name": "Pro",
+      "outcome": "Run the Salon",
+      "gu": "સલૂન ચલાવો",
+      "tagline": "Everything in Growth plus expense manager, staff and profit view",
+      "status": "Founding-partner build",
+      "setup": 54999,
+      "annual": {
+        "1-3": 19999,
+        "4-8": 27999,
+        "9-15": 35999
+      }
+    },
+    "custom": {
+      "name": "Custom",
+      "outcome": "Built Around You",
+      "gu": "તમારા માટે ખાસ",
+      "tagline": "Multi-branch, special workflows and integrations",
+      "status": "Scoped per salon",
+      "setup_from": 100000,
+      "annual_from": 49999
+    }
+  },
+  "addons": [
+    {
+      "key": "local_seo",
+      "name": "Local SEO & Google Maps care",
+      "price": 3999,
+      "unit": "per month",
+      "note": "Weekly Google posts, review-reply drafts, photo and hours updates, citations, monthly report. No ranking guarantee.",
+      "status": "Ready now"
+    },
+    {
+      "key": "gmaps",
+      "name": "Google Maps setup (for salons without our website)",
+      "price": 4999,
+      "unit": "one-time",
+      "note": "Profile claim and optimisation, categories, services, photos, review link and QR",
+      "status": "Ready now"
+    },
+    {
+      "key": "expense",
+      "name": "Expense manager (for Growth; included in Pro)",
+      "price": 7999,
+      "unit": "one-time",
+      "note": "Daily expenses, vendor dues, salaries and advances, monthly summary, Excel export",
+      "status": "Founding-partner build"
+    },
+    {
+      "key": "whatsapp",
+      "name": "WhatsApp automated reminders",
+      "price": 4999,
+      "unit": "one-time",
+      "note": "Provider/API charges billed at actual cost",
+      "status": "Roadmap"
+    },
+    {
+      "key": "payments",
+      "name": "Online payments / deposits",
+      "price": 7999,
+      "unit": "one-time",
+      "note": "Gateway fees billed at actual cost",
+      "status": "Roadmap"
+    },
+    {
+      "key": "members",
+      "name": "Memberships & packages tracker",
+      "price": 9999,
+      "unit": "one-time",
+      "note": "",
+      "status": "Roadmap"
+    },
+    {
+      "key": "social",
+      "name": "Gujarati + English social caption pack",
+      "price": 2999,
+      "unit": "one-time",
+      "note": "30 captions for your Instagram and WhatsApp status",
+      "status": "Ready now"
+    }
+  ],
+  "extra_branch_annual": 5999,
+  "offers": {
+    "free_audit": {
+      "name": "Free Google & website audit",
+      "note": "12-point check of Google profile, website, booking path and reviews. 30 minutes of our time."
+    },
+    "prepay_2yr_discount_pct": 10,
+    "founding_partner": {
+      "slots": 3,
+      "setup_discount_pct": 30,
+      "price_lock_years": 3,
+      "in_return": "written feedback, a short testimonial and permission to show the finished work"
+    },
+    "upgrade_credit_pct": 50,
+    "referral_credit": 2000
+  },
+  "saas_hidden": {
+    "whatsapp_api_monthly": [
+      2000,
+      8000
+    ],
+    "per_staff_year": [
+      2400,
+      6000
+    ],
+    "gateway_pct": [
+      1.8,
+      2.5
+    ]
+  },
+  "assumptions": {
+    "_note": "Planning assumptions for the revenue illustration. Replace with your real numbers.",
+    "mix": {
+      "starter": 0.6,
+      "growth": 0.3,
+      "pro": 0.1
+    },
+    "local_seo_take_rate": 0.2,
+    "local_seo_months_year1": 9,
+    "avg_band": "1-3",
+    "delivery_hours": {
+      "starter": 20,
+      "growth": 45,
+      "pro": 80
+    },
+    "support_hours_per_year": {
+      "starter": 2,
+      "growth": 8,
+      "pro": 14
+    },
+    "infra_cost_per_year": {
+      "starter": 1500,
+      "growth": 2500,
+      "pro": 3500
+    },
+    "seo_hours_per_month": 3,
+    "hourly_cost": 400,
+    "acquisition_hours_per_customer": 14,
+    "platform_build_hours": 200,
+    "avg_ticket": 900
+  }
+}
