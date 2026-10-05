@@ -1,10 +1,8 @@
-import path from 'node:path';
-import { existsSync } from 'node:fs';
 import express from 'express';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoose from 'mongoose';
-import { config, rootDir } from './config.js';
+import { config } from './config.js';
 import { requireAuth, requirePackage, requireRole } from './middleware/auth.js';
 import { errorHandler } from './middleware/http.js';
 import sessionRoutes from './routes/session.js';
@@ -20,24 +18,24 @@ export function createApp() {
   app.disable('x-powered-by');
   if (config.isProd) app.set('trust proxy', 1);
 
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'"],
-          styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
-          fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-          imgSrc: ["'self'", 'data:', 'blob:'],
-          connectSrc: ["'self'"],
-          // Only force https where the site is actually served over https.
-          upgradeInsecureRequests: config.isProd ? [] : null,
-        },
-      },
-    }),
-  );
+  app.use(helmet());
 
   const api = express.Router();
+  // The site is hosted separately, so only the configured site addresses may call the API from a browser.
+  api.use((req, res, next) => {
+    const origin = req.get('origin');
+    if (origin && config.corsOrigins.includes(origin)) {
+      res.set({
+        'Access-Control-Allow-Origin': origin,
+        Vary: 'Origin',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE',
+        'Access-Control-Max-Age': '600',
+      });
+    }
+    if (req.method === 'OPTIONS') return res.sendStatus(204);
+    next();
+  });
   api.use(rateLimit({ windowMs: 5 * 60 * 1000, limit: 900, standardHeaders: 'draft-7', legacyHeaders: false, message: { error: 'Too many requests. Please slow down.', code: 'rate_limited' } }));
   api.use(express.json({ limit: '50kb' }));
   api.use((_req, res, next) => {
@@ -64,12 +62,9 @@ export function createApp() {
 
   app.use('/api', api);
 
-  // In production the same server also serves the built site, so there is one deployment.
-  const dist = path.join(rootDir, 'dist');
-  if (existsSync(path.join(dist, 'index.html'))) {
-    app.use(express.static(dist, { index: false, maxAge: config.isProd ? '1h' : 0 }));
-    app.use((req, res, next) => (req.method === 'GET' || req.method === 'HEAD' ? res.sendFile(path.join(dist, 'index.html')) : next()));
-  }
+  // This service is the API only. The site lives in ../forge-gym and is hosted on its own.
+  app.get('/', (_req, res) => res.json({ service: 'FORGE API', health: '/api/health' }));
+  app.use((_req, res) => res.status(404).json({ error: 'Not found.', code: 'not_found' }));
 
   app.use(errorHandler);
   return app;

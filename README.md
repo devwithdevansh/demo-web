@@ -5,7 +5,7 @@ A collection of front-end React demonstrations showcasing complex UI/UX implemen
 ## Projects
 
 ### 1. [FORGE](./forge-gym/)
-Software for gym owners, shown as one combined demo: a product homepage, a cinematic sample gym website (frame-by-frame canvas hero, pinned GSAP sequences), and owner, trainer and member portals backed by a Node.js + MongoDB API.
+Software for gym owners, shown as one combined demo: a product homepage, a cinematic sample gym website (frame-by-frame canvas hero, pinned GSAP sequences), and owner, trainer and member portals. The Node.js + MongoDB API they use is its own project in [forge-gym-backend](./forge-gym-backend/).
 
 ### 2. [Obsidian](./obsidian-react/)
 A high-end, dark-mode automotive detailing website. Features a luxury aesthetic with custom cursors, smooth reveals, and an interactive configurator.

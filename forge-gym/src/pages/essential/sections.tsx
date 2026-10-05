@@ -3,7 +3,7 @@ import type { FormEvent, ReactNode } from 'react';
 import { Clock, Mail, MapPin, MessageCircle, Phone, X } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { ClipPlayer } from '@/components/ui/ClipPlayer';
-import { ApiError, sendEnquiry } from '@/lib/api';
+import { ApiError, isUnreachable, sendEnquiry } from '@/lib/api';
 import { framePath, sampleGym } from '@/config/sampleGym';
 
 const WRAP = 'mx-auto max-w-[1440px] px-6 lg:px-12';
@@ -294,7 +294,7 @@ export function Enquiry({ onAction }: { onAction: (action: DemoAction) => void }
       await sendEnquiry(form);
       setStatus('sent');
     } catch (err) {
-      if (err instanceof ApiError && err.code === 'offline') {
+      if (isUnreachable(err)) {
         // The site can be previewed without its server; say plainly that nothing was stored.
         setStatus('sent-offline');
       } else if (err instanceof ApiError) {

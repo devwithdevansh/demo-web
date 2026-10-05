@@ -12,6 +12,7 @@ import { Trainers } from '@/components/sections/Trainers';
 import { Classes } from '@/components/sections/Classes';
 import { Footer } from '@/components/sections/Footer';
 import { sampleGym } from '@/config/sampleGym';
+import { warmApi } from '@/lib/api';
 import { About, Enquiry, Gallery, MobileActions, Visit, useDemoActions } from './sections';
 
 /**
@@ -25,6 +26,7 @@ export default function EssentialDemo() {
 
   useEffect(() => {
     document.title = `${sampleGym.name} — sample gym website · FORGE Essential demo`;
+    warmApi();
   }, []);
 
   return (

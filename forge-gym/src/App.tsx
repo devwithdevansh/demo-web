@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
-import { Route, Routes, useLocation } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import Home from '@/pages/Home';
 
 // Each demo loads on demand, so the homepage stays light.
@@ -34,6 +34,8 @@ function App() {
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="/" element={<Home />} />
+          {/* Some static hosts send unknown paths to /index.html; treat that as the homepage. */}
+          <Route path="/index.html" element={<Navigate to="/" replace />} />
           <Route path="/demo/essential" element={<EssentialDemo />} />
           <Route path="/demo/growth" element={<TierEntry tier="growth" />} />
           <Route path="/demo/growth/:role/*" element={<Portal tier="growth" />} />

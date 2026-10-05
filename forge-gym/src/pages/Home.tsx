@@ -6,6 +6,7 @@ import { Reveal } from '@/components/ui/Reveal';
 import { ADDONS, FEES_NOTE, PACKAGES, PRICING_NOTE, contactHref, inr, packageByKey } from '@/config/forge';
 import type { PackageKey, Readiness } from '@/config/forge';
 import { framePath } from '@/config/sampleGym';
+import { warmApi } from '@/lib/api';
 
 const NAV = [
   { label: 'Packages', href: '#packages' },
@@ -114,6 +115,7 @@ function Device({ icon: Icon, name, use, wide = false }: { icon: typeof Monitor;
 export default function Home() {
   useEffect(() => {
     document.title = 'FORGE — Website, operations and coaching software for gyms';
+    warmApi();
   }, []);
 
   return (

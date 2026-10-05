@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { DemoBar } from '@/components/forge/DemoBar';
 import { packageByKey } from '@/config/forge';
+import { warmApi } from '@/lib/api';
 import type { Role, Tier } from '@/lib/api';
 
 interface RoleCard {
@@ -44,6 +46,7 @@ const TRY: Record<Tier, string[]> = {
 /** /demo/growth and /demo/performance: pick a role to enter the portal as. */
 export default function TierEntry({ tier }: { tier: Tier }) {
   const pkg = packageByKey(tier);
+  useEffect(warmApi, []);
   return (
     <div className="min-h-svh bg-ink text-bone">
       <DemoBar current={tier} />

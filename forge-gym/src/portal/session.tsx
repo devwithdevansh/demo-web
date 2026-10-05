@@ -33,21 +33,26 @@ export function SessionProvider({ tier, role, children }: { tier: Tier; role: Ro
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
   const [version, setVersion] = useState(0);
+  const [slow, setSlow] = useState(false);
   const tokenRef = useRef('');
 
   useEffect(() => {
     let live = true;
     setSession(null);
     setError(null);
+    setSlow(false);
+    const slowTimer = window.setTimeout(() => live && setSlow(true), 5000);
     startDemoSession(tier, role)
       .then((s) => {
         if (!live) return;
         tokenRef.current = s.token;
         setSession(s);
       })
-      .catch((err: unknown) => live && setError(err instanceof ApiError ? err.message : 'The demo could not be started.'));
+      .catch((err: unknown) => live && setError(err instanceof ApiError ? err.message : 'The demo could not be started.'))
+      .finally(() => window.clearTimeout(slowTimer));
     return () => {
       live = false;
+      window.clearTimeout(slowTimer);
     };
   }, [tier, role, attempt]);
 
@@ -90,8 +95,13 @@ export function SessionProvider({ tier, role, children }: { tier: Tier; role: Ro
   }
   if (!value) {
     return (
-      <div className="flex min-h-[70svh] items-center justify-center">
+      <div className="flex min-h-[70svh] flex-col items-center justify-center">
         <Loading label="Preparing your sample gym" />
+        {slow && (
+          <p className="-mt-8 max-w-xs px-4 text-center text-sm leading-relaxed text-mute" role="status">
+            Waking the demo server. The first open after a quiet spell can take up to a minute.
+          </p>
+        )}
       </div>
     );
   }

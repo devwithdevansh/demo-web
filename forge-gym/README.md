@@ -2,59 +2,72 @@
 
 Software for gym owners, shown as one combined demo: a product homepage and three package demos that share a fictional sample gym, **Ironpeak Fitness**.
 
-| Route | What it shows |
-|---|---|
-| `/` | FORGE homepage: packages, comparison, add-ons, contact |
-| `/demo/essential` | **Essential — Get Found Online.** The sample gym's public website |
-| `/demo/growth` | **Growth — Run Your Gym.** Owner and front-desk portal |
-| `/demo/performance` | **Performance — Coach & Retain.** Growth plus trainer and member portals |
+This folder is the **site** (React + Vite). The API it talks to is a separate project in [`../forge-gym-backend`](../forge-gym-backend).
+
+| Route | What it shows | Needs the API |
+|---|---|---|
+| `/` | FORGE homepage: packages, comparison, add-ons, contact | No |
+| `/demo/essential` | **Essential — Get Found Online.** The sample gym's public website | No (the enquiry form saves only when the API is up) |
+| `/demo/growth` | **Growth — Run Your Gym.** Owner and front-desk portal | Yes |
+| `/demo/performance` | **Performance — Coach & Retain.** Growth plus trainer and member portals | Yes |
 
 Each demo has a bar at the top that leads back to the homepage and across to the other demos.
 
 ## Run it
 
+Install both folders once:
+
 ```bash
-npm install
-npm run dev        # site on http://localhost:5173, API on http://localhost:4000
+cd forge-gym-backend && npm install
+cd ../forge-gym && npm install
 ```
 
-No setup is needed for local development. Without `MONGODB_URI`, the API starts a private MongoDB on your machine (files in `.data/`, git-ignored) so the demos work straight away.
+Then, from this folder:
 
-Other commands:
+```bash
+npm run dev:all    # site on http://localhost:5173 and API on http://localhost:4000
+```
+
+Or run them in two terminals: `npm run dev` in `forge-gym-backend`, and `npm run dev` here. The site forwards `/api` to `http://localhost:4000`.
+
+No database setup is needed locally; see the backend README.
 
 | Command | Purpose |
 |---|---|
-| `npm test` | API tests: roles, gym isolation, workflows, add-ons, reset |
+| `npm run dev` | Site only |
+| `npm run dev:all` | Site and API together |
 | `npm run build` | Type-check and build the site into `dist/` |
-| `npm start` | Run the API, which also serves `dist/` (one deployment) |
 | `npm run lint` | Lint |
-| `npm run demo:clear` | Delete every demo sandbox. Live gyms are not touched |
-| `npm run gym:create -- --name "Gym" --owner "Name" --email a@b.com --package growth` | Create a live gym and its owner account |
+| `npm run preview` | Serve the built site locally |
 
-## Configuration
+## Settings
 
-Copy `.env.example` to `.env`. The file is git-ignored.
+The site has two optional settings, both public (they are built into the site). Secrets belong in the backend, never here.
 
-| Variable | Needed | Purpose |
+| Variable | When | Purpose |
 |---|---|---|
-| `MONGODB_URI` | Production | MongoDB Atlas connection string |
-| `MONGODB_DB` | Recommended | Database name. Defaults to `gym` |
-| `JWT_SECRET` | Production | Signs sessions |
-| `PORT` | Optional | API port. Defaults to `4000` |
-| `SESSION_HOURS` | Optional | Session length. Defaults to `12` |
-| `DEMO_SANDBOX_TTL_HOURS` | Optional | How long an unused demo sandbox is kept. Defaults to `24` |
-| `DEMO_MAX_SANDBOXES` | Optional | Ceiling on stored sandboxes. Defaults to `200` |
+| `VITE_API_URL` | Hosted site | Address of the API, for example `https://forge-gym-api.onrender.com`. Set it in the host's build environment and redeploy |
+| `VITE_DEV_API_URL` | Local, rarely | Where `npm run dev` forwards `/api`. Defaults to `http://localhost:4000` |
 
-With `NODE_ENV=production` the API refuses to start unless `MONGODB_URI` and `JWT_SECRET` are set.
+## Deploying
 
-**Deploying:** run `npm run build`, then `npm start` with `NODE_ENV=production` and the variables above. The one Node process serves both the site and the API.
+The site is a static site: build command `npm run build`, publish directory `dist`.
+
+For the Growth and Performance demos to work on the hosted site:
+
+1. Deploy the API from [`../forge-gym-backend`](../forge-gym-backend) as a Node web service. Its README has the exact settings.
+2. On this static site, set `VITE_API_URL` to the API's address and redeploy, so the address is built in.
+3. On the API, set `CORS_ORIGIN` to this site's address.
+4. On the static site, the catch-all rule `/*` to `/index.html` must be a **Rewrite**, not a Redirect. With a Redirect, refreshing or sharing a link such as `/demo/growth/owner` lands on the homepage instead.
+
+Without the API, the homepage, the role pages and the Essential site still work, and entering a portal says that no server is connected.
 
 ## How the demo works
 
-- **Entering a demo.** `/demo/growth` and `/demo/performance` list the roles you can enter as. There are no passwords to type and none in the frontend: the server issues a short session for the chosen sample account.
+- **Entering a demo.** `/demo/growth` and `/demo/performance` list the roles you can enter as. There are no passwords to type and none in the site: the API issues a short session for the chosen sample account.
 - **Private sandbox.** Each visitor gets their own copy of the sample gym, so nothing one visitor types is visible to another. The sandbox key is kept in the browser; the same sandbox is shared across the Essential, Growth and Performance demos, which is why an enquiry sent from the sample website shows up under Leads.
-- **Reset.** "Reset demo data" in any portal restores the original sample data for that visitor only. Unused sandboxes are removed after `DEMO_SANDBOX_TTL_HOURS`.
-- **Sample data.** Seeded relative to today, so expiry dates, renewals and follow-ups always look current. See `server/seed/demoGym.js`.
+- **Reset.** "Reset demo data" in any portal restores the original sample data for that visitor only.
+- **Sleeping server.** On free hosting the API sleeps when idle. The site pings it when someone opens the homepage, and the portals wait with a "waking the demo server" message.
 
 ### Demo roles
 
@@ -64,13 +77,6 @@ With `NODE_ENV=production` the API refuses to start unless `MONGODB_URI` and `JW
 | Front desk | Imran Shaikh | Growth, Performance |
 | Trainer | Alex Rey | Performance |
 | Member | Aarav Shah | Performance |
-
-## Access and data safety
-
-- Every record carries the gym it belongs to, and every query is scoped to the signed-in user's gym. A record from another gym returns "not found".
-- Roles (owner, front desk, trainer, member) and the package are enforced on the server, not by hiding buttons. A trainer can open only members assigned to them; a member can read only their own record.
-- Live gym accounts sign in at `POST /api/auth/login` with bcrypt-hashed passwords. Demo accounts have no password and cannot use that endpoint; live gyms cannot be reset or reached from a demo session.
-- Input is validated with zod, responses never include password hashes or internal ids, and errors do not expose database details.
 
 ## Integrations: what is real and what is simulated
 
@@ -84,8 +90,6 @@ No messaging or payment provider is connected. In the demos:
 | Lead follow-up | Available in demo | Follow-up queue and message drafts |
 | Trainer Plus | Preview | Three workout templates in the plan editor |
 | Additional location | Coming soon | Not built |
-
-For a live gym these endpoints answer "no provider connected" rather than pretending. Wiring real providers means adding a WhatsApp Business API provider and a payment gateway (sandbox keys first) behind `server/routes/addons.js`.
 
 ## Things to change without touching pages
 
@@ -102,13 +106,7 @@ src/
   components/sections/        Cinematic gym sections reused by the Essential demo
   portal/                     Growth and Performance portals (shell, session, screens)
   config/                     Product and sample-gym content
-server/
-  index.js, app.js            API entry and Express app
-  models/                     Mongoose models
-  routes/                     Session, members, front desk, reports, coaching, member portal, add-ons
-  middleware/                 Auth, roles, validation, errors
-  seed/demoGym.js             Sample data and sandbox lifecycle
-  test/api.test.js            API tests
+  lib/api.ts                  Client for the API in ../forge-gym-backend
 ```
 
 ## Media
