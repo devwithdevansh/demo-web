@@ -8,6 +8,7 @@ const TierEntry = lazy(() => import('@/portal/TierEntry'));
 const Portal = lazy(() => import('@/portal/Portal'));
 const PayDemo = lazy(() => import('@/pages/DemoPages').then((m) => ({ default: m.PayDemo })));
 const SampleClip = lazy(() => import('@/pages/DemoPages').then((m) => ({ default: m.SampleClip })));
+const WhatsAppAdmin = lazy(() => import('@/pages/admin/WhatsAppAdmin'));
 const NotFound = lazy(() => import('@/pages/DemoPages').then((m) => ({ default: m.NotFound })));
 
 /** Start each page at the top. In-page links (#packages) are left to the browser. */
@@ -43,6 +44,8 @@ function App() {
           <Route path="/demo/performance/:role/*" element={<Portal tier="performance" />} />
           <Route path="/demo/pay/:token" element={<PayDemo />} />
           <Route path="/demo/sample-clip" element={<SampleClip />} />
+          {/* Not linked from anywhere: for whoever runs this installation, and locked by a server-side key. */}
+          <Route path="/admin/whatsapp" element={<WhatsAppAdmin />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Suspense>

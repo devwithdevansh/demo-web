@@ -8,7 +8,8 @@ export const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url))
 // Local development reads the .env file in this folder (git-ignored). Hosted environments
 // set real environment variables instead, which always take precedence.
 const envFile = path.join(rootDir, '.env');
-if (existsSync(envFile)) process.loadEnvFile(envFile);
+// Skipped under "npm test", so tests can never pick up real keys and call a real provider.
+if (existsSync(envFile) && !process.env.NODE_TEST_CONTEXT) process.loadEnvFile(envFile);
 
 const isProd = process.env.NODE_ENV === 'production';
 const int = (name, fallback) => {
@@ -33,6 +34,26 @@ export const config = {
   // Site addresses allowed to call this API from a browser (comma-separated), for example
   // https://demo-web-forge-gym.onrender.com. Not needed locally: the dev site proxies /api.
   corsOrigins: (process.env.CORS_ORIGIN || '').split(',').map((o) => o.trim().replace(/\/+$/, '')).filter(Boolean),
+  // Razorpay keys for the payment-link add-on. Only TEST keys (rzp_test_...) are used by the demo.
+  razorpay: { keyId: process.env.RAZORPAY_KEY_ID || '', keySecret: process.env.RAZORPAY_KEY_SECRET || '' },
+  // WhatsApp Cloud API for the notifications add-on. Demo messages go only to WHATSAPP_DEMO_RECIPIENTS.
+  whatsapp: {
+    token: process.env.WHATSAPP_TOKEN || '',
+    phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID || '',
+    apiVersion: process.env.WHATSAPP_API_VERSION || 'v25.0',
+    demoRecipients: (process.env.WHATSAPP_DEMO_RECIPIENTS || '').split(',').map((n) => n.replace(/\D/g, '')).filter((n) => n.length >= 10),
+    dailyLimit: int('WHATSAPP_DAILY_LIMIT', 50),
+    // For connecting a business's own number through Meta's sign-up window: the Meta app's id and
+    // the id of its Embedded Signup configuration. Both are public identifiers.
+    appId: process.env.WHATSAPP_APP_ID || '',
+    configId: process.env.WHATSAPP_CONFIG_ID || '',
+    // Both are needed to receive delivery updates (sent, delivered, read) by webhook.
+    // The app secret also finishes the sign-up, so it never leaves the server.
+    appSecret: process.env.WHATSAPP_APP_SECRET || '',
+    verifyToken: process.env.WHATSAPP_VERIFY_TOKEN || '',
+  },
+  // Unlocks /api/admin (connecting the WhatsApp number). At least 16 characters, or the routes stay off.
+  adminKey: process.env.ADMIN_KEY || '',
   sessionHours: int('SESSION_HOURS', 12),
   sandboxTtlHours: int('DEMO_SANDBOX_TTL_HOURS', 24),
   maxSandboxes: int('DEMO_MAX_SANDBOXES', 200),

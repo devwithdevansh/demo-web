@@ -73,8 +73,11 @@ const paymentSchema = new Schema(
     paidOn: { type: String, required: true },
     note: str(200),
     recordedBy: str(80),
-    // True when the payment came from the demo pay page rather than money actually moving.
+    // True when the payment came from the demo practice page rather than a payment provider.
     simulated: { type: Boolean, default: false },
+    // Set when a payment provider confirmed it, e.g. 'razorpay_test' (test mode: no real money).
+    gateway: str(30),
+    gatewayPaymentId: str(60),
   },
   { timestamps: true },
 );

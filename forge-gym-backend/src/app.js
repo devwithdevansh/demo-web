@@ -12,6 +12,8 @@ import insightRoutes from './routes/insights.js';
 import coachRoutes from './routes/coach.js';
 import portalRoutes from './routes/portal.js';
 import addonRoutes, { payRouter } from './routes/addons.js';
+import webhookRoutes from './routes/webhooks.js';
+import adminRoutes from './routes/admin.js';
 
 export function createApp() {
   const app = express();
@@ -28,7 +30,7 @@ export function createApp() {
       res.set({
         'Access-Control-Allow-Origin': origin,
         Vary: 'Origin',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Key',
         'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE',
         'Access-Control-Max-Age': '600',
       });
@@ -37,6 +39,9 @@ export function createApp() {
     next();
   });
   api.use(rateLimit({ windowMs: 5 * 60 * 1000, limit: 900, standardHeaders: 'draft-7', legacyHeaders: false, message: { error: 'Too many requests. Please slow down.', code: 'rate_limited' } }));
+  // Webhooks get their own parser: the raw body is kept so signatures can be checked against exactly
+  // what was sent, and the limit is higher because a chat-history sync arrives in large batches.
+  api.use('/webhooks', express.json({ limit: '5mb', verify: (req, _res, buf) => { req.rawBody = buf; } }));
   api.use(express.json({ limit: '50kb' }));
   api.use((_req, res, next) => {
     res.set('Cache-Control', 'no-store');
@@ -51,6 +56,8 @@ export function createApp() {
 
   // Public and session endpoints
   api.use('/public/pay', payRouter);
+  api.use('/webhooks', webhookRoutes);
+  api.use('/admin', adminRoutes);
   api.use(sessionRoutes);
 
   // Everything below needs a signed-in user; each router adds its own role checks.

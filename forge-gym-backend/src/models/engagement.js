@@ -60,10 +60,19 @@ const actionLogSchema = new Schema(
     memberId: { type: ObjectId, ref: 'Member', default: null },
     title: str(120),
     detail: str(700),
-    status: { type: String, enum: ['simulated', 'pending', 'paid', 'failed'], default: 'simulated' },
+    // simulated: nothing left the server. pending/paid/failed: payment links.
+    // accepted/sent/delivered/read/failed: a real WhatsApp message, updated by webhook.
+    status: { type: String, enum: ['simulated', 'pending', 'paid', 'failed', 'accepted', 'sent', 'delivered', 'read'], default: 'simulated' },
     simulated: { type: Boolean, default: true },
+    reason: str(300),
     amount: Number,
     token: { type: String, index: { unique: true, sparse: true } },
+    // Payment links: which gateway handles it, and the gateway's own ids.
+    gateway: str(30),
+    orderId: str(60),
+    paymentId: str(60),
+    // WhatsApp: the message id the provider returned.
+    providerId: { type: String, index: { sparse: true } },
   },
   { timestamps: true },
 );

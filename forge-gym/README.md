@@ -80,12 +80,12 @@ Without the API, the homepage, the role pages and the Essential site still work,
 
 ## Integrations: what is real and what is simulated
 
-No messaging or payment provider is connected. In the demos:
+Payments and WhatsApp can be connected in the backend's settings (see its README, "Payments and WhatsApp"). The site shows which mode is active.
 
 | Add-on | State | What happens |
 |---|---|---|
-| WhatsApp notifications | Available in demo | Message is drafted and logged as simulated. Nothing is delivered |
-| UPI payment links | Available in demo | Link opens a practice page (`/demo/pay/:token`). No money moves |
+| WhatsApp notifications | Available in demo | Connected: the reminder is sent to the presenter's demo phone only, with delivery status. Not connected: drafted and logged as simulated |
+| UPI payment links | Available in demo | Connected (Razorpay test keys): a real test payment on Razorpay's checkout, verified and recorded automatically. Not connected: a practice page. No real money moves either way |
 | UPI Autopay | Preview | Gym can request; only the member can approve, pause or cancel. No mandate is created |
 | Lead follow-up | Available in demo | Follow-up queue and message drafts |
 | Trainer Plus | Preview | Three workout templates in the plan editor |

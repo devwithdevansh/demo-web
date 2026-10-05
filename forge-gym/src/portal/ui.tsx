@@ -116,6 +116,12 @@ export const StatusBadge = ({ status }: { status: string }) => {
 /** Marks a control that comes from an add-on rather than the base package. */
 export const AddonTag = () => <Badge tone="info">Add-on</Badge>;
 
+/** How a payment came in, when it was not taken at the desk: a provider's test mode, or the practice page. */
+export function PaymentTag({ payment }: { payment: { simulated?: boolean; gateway?: string } }) {
+  if (payment.gateway === 'razorpay_test') return <Badge tone="info">Test payment</Badge>;
+  return payment.simulated ? <Badge>Simulated</Badge> : null;
+}
+
 /** Honest label for anything that only pretends to reach the outside world. */
 export function DemoNote({ children }: { children: ReactNode }) {
   return (

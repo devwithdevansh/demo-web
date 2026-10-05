@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { inr, prettyDay, relDays } from '@/lib/format';
 import { useData, useSession } from '../session';
-import { Async, Badge, Empty, PageHead, Panel, Row, RowMain, Stat } from '../ui';
+import { Async, Badge, Empty, PageHead, PaymentTag, Panel, Row, RowMain, Stat } from '../ui';
 import { methodLabel } from '../types';
 import type { Lead, Member, Payment } from '../types';
 
@@ -124,7 +124,7 @@ export default function Today() {
                     <Row key={p.id}>
                       <RowMain title={p.memberName} meta={`${methodLabel(p.method)}${p.note ? ` · ${p.note}` : ''}`} />
                       <span className="flex items-center gap-2 text-sm text-bone">
-                        {p.simulated && <Badge>Simulated</Badge>}
+                        <PaymentTag payment={p} />
                         {inr(p.amount)}
                       </span>
                     </Row>

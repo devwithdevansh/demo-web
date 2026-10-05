@@ -111,7 +111,7 @@ export const ADDONS: ForgeAddon[] = [
     does: 'Send renewal, dues and welcome messages from the member list using ready-made templates.',
     extends: ['growth', 'performance'],
     readiness: 'Available in demo',
-    demoNote: 'The demo drafts the message and logs it as simulated. Nothing is delivered until a WhatsApp provider is connected.',
+    demoNote: 'With WhatsApp connected, demo messages are delivered to the presenter\u2019s demo phone only. Otherwise the message is drafted and logged as simulated.',
     thirdParty: 'WhatsApp provider charges per message.',
   },
   {
@@ -120,7 +120,7 @@ export const ADDONS: ForgeAddon[] = [
     does: 'Create a payment link for a member’s dues and see it marked paid in the fee records.',
     extends: ['growth', 'performance'],
     readiness: 'Available in demo',
-    demoNote: 'The demo link opens a practice page. No money moves and no UPI app is contacted.',
+    demoNote: 'With a payment gateway in test mode, the link takes a real test payment. Otherwise it opens a practice page. No real money moves either way.',
     thirdParty: 'Payment gateway charges per transaction.',
   },
   {
@@ -138,7 +138,7 @@ export const ADDONS: ForgeAddon[] = [
     does: 'A follow-up queue for enquiries with a ready message draft for each one.',
     extends: ['growth', 'performance'],
     readiness: 'Available in demo',
-    demoNote: 'The queue and drafts work in the demo. Sending a draft uses WhatsApp notifications, which is simulated.',
+    demoNote: 'The queue and drafts work in the demo. Sending a draft uses WhatsApp notifications.',
   },
   {
     key: 'trainerPlus',

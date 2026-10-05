@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { inr, prettyDay, relDays } from '@/lib/format';
 import { useData, useSession } from './session';
-import { AddonTag, Async, Badge, Btn, DemoNote, Field, FormError, Modal, SelectField, StatusBadge, TextArea, useSubmit, useToast } from './ui';
+import { AddonTag, Async, Badge, Btn, DemoNote, Field, FormError, Modal, PaymentTag, SelectField, StatusBadge, TextArea, useSubmit, useToast } from './ui';
 import { CATEGORIES, PAY_METHODS, methodLabel } from './types';
 import type { Member, Payment, Plan } from './types';
 
@@ -270,21 +270,39 @@ export function RenewForm({ member, onClose, onSaved }: { member: Member; onClos
   );
 }
 
-// ---- Add-on: WhatsApp message draft ---------------------------------------
+// ---- Add-on: WhatsApp message ---------------------------------------------
 
 interface Draft {
   message: string;
   to: string;
   recipient: string;
   note: string;
+  /** True when WhatsApp is connected and the message will really be sent (to the demo phone). */
+  live: boolean;
+  /** True when delivery updates are available for sent messages. */
+  tracking: boolean;
+}
+interface SendResult {
+  status: string;
+  logId: string | null;
 }
 type Template = 'renewal' | 'dues' | 'welcome' | 'lead_followup';
+
+const IN_FLIGHT = ['accepted', 'sent'];
+const DELIVERY: Record<string, { label: string; tone: 'ok' | 'warn' | 'bad' | 'mute' }> = {
+  accepted: { label: 'Handed to WhatsApp', tone: 'warn' },
+  sent: { label: 'Sent', tone: 'warn' },
+  delivered: { label: 'Delivered', tone: 'ok' },
+  read: { label: 'Read', tone: 'ok' },
+  failed: { label: 'Not delivered', tone: 'bad' },
+};
 
 export function MessageModal({ template, memberId, leadId, onClose }: { template: Template; memberId?: string; leadId?: string; onClose: () => void }) {
   const { api, session } = useSession();
   const toast = useToast();
   const [draft, setDraft] = useState<Draft | null>(null);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<SendResult | null>(null);
+  const [delivery, setDelivery] = useState<{ status: string; reason: string | null } | null>(null);
   const { busy, message, run } = useSubmit();
   const canSend = session.gym.addons.whatsapp;
 
@@ -292,24 +310,44 @@ export function MessageModal({ template, memberId, leadId, onClose }: { template
     void run(async () => setDraft(await api<Draft>('/addons/message', { method: 'POST', body: { template, memberId, leadId, send: false } })));
   }, [api, run, template, memberId, leadId]);
 
+  // After a real send, follow the delivery status for a short while.
+  const logId = sent?.logId;
+  const follow = !!draft?.live && !!draft.tracking && !!logId;
+  useEffect(() => {
+    if (!follow) return;
+    let tries = 0;
+    const timer = window.setInterval(async () => {
+      tries += 1;
+      const latest = await api<{ status: string; reason: string | null }>(`/addons/message/${logId}`).catch(() => null);
+      if (latest) setDelivery(latest);
+      if (tries >= 20 || (latest && !IN_FLIGHT.includes(latest.status))) window.clearInterval(timer);
+    }, 2000);
+    return () => window.clearInterval(timer);
+  }, [api, follow, logId]);
+
   const send = () =>
     run(async () => {
-      await api('/addons/message', { method: 'POST', body: { template, memberId, leadId, send: true } });
-      setSent(true);
-      toast('Logged as a simulated send. No message was delivered.', 'warn');
+      const res = await api<SendResult>('/addons/message', { method: 'POST', body: { template, memberId, leadId, send: true } });
+      setSent(res);
+      setDelivery({ status: res.status, reason: null });
+      if (res.status === 'simulated') toast('Logged as a simulated send. No message was delivered.', 'warn');
+      else toast('Handed to WhatsApp for the demo phone.');
     });
+
+  const state = delivery ? DELIVERY[delivery.status] : null;
+  const outsideWindow = delivery?.status === 'failed' && (delivery.reason ?? '').includes('131047');
 
   return (
     <Modal title="WhatsApp message" onClose={onClose}>
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <AddonTag />
-          <Badge>Demo simulation</Badge>
+          {draft && (draft.live ? <Badge tone="ok">WhatsApp connected</Badge> : <Badge>Demo simulation</Badge>)}
         </div>
         {draft ? (
           <>
             <p className="text-xs text-mute">
-              To {draft.recipient} · {draft.to}
+              For {draft.recipient} · {draft.live ? `delivered to the ${draft.to}` : draft.to}
             </p>
             <p className="whitespace-pre-wrap border-l-2 border-ok/60 bg-ink px-4 py-3 text-sm leading-relaxed text-bone">{draft.message}</p>
             <DemoNote>{draft.note}</DemoNote>
@@ -318,13 +356,38 @@ export function MessageModal({ template, memberId, leadId, onClose }: { template
           !message && <p className="py-6 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-mute">Preparing draft…</p>
         )}
         <FormError message={message} />
+
+        {sent && sent.status === 'simulated' && <p className="text-sm text-bone-dim">Recorded in the add-on activity log as simulated. The member was not contacted.</p>}
+        {sent && sent.status !== 'simulated' && state && (
+          <div className="space-y-2 border border-line bg-ink px-4 py-3" role="status">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge tone={state.tone}>{state.label}</Badge>
+              <span className="text-sm text-bone-dim">
+                {delivery!.status === 'failed'
+                  ? delivery!.reason || 'WhatsApp could not deliver this message.'
+                  : IN_FLIGHT.includes(delivery!.status)
+                    ? draft?.tracking
+                      ? 'Waiting for the phone to confirm it arrived…'
+                      : 'Delivery confirmation is not set up, so check the demo phone.'
+                    : `Confirmed by WhatsApp on the ${draft?.to}.`}
+              </span>
+            </div>
+            {outsideWindow && (
+              <p className="text-xs leading-relaxed text-mute">
+                WhatsApp only delivers a free-text message to someone who messaged the business number in the last 24 hours. Send "hi" from the demo phone to the
+                WhatsApp number, then send this again.
+              </p>
+            )}
+          </div>
+        )}
+
         <div className="flex flex-wrap justify-end gap-2">
           <Btn variant="ghost" onClick={onClose}>
             {sent ? 'Done' : 'Close'}
           </Btn>
-          {draft && !sent && canSend && (
+          {draft && canSend && (!sent || outsideWindow) && (
             <Btn busy={busy} onClick={send}>
-              Simulate send
+              {draft.live ? (sent ? 'Send again' : 'Send on WhatsApp') : 'Simulate send'}
             </Btn>
           )}
           {draft && !sent && (
@@ -338,7 +401,6 @@ export function MessageModal({ template, memberId, leadId, onClose }: { template
             </Btn>
           )}
         </div>
-        {sent && <p className="text-sm text-bone-dim">Recorded in the add-on activity log as simulated. The member was not contacted.</p>}
       </div>
     </Modal>
   );
@@ -346,15 +408,24 @@ export function MessageModal({ template, memberId, leadId, onClose }: { template
 
 // ---- Add-on: UPI payment link ---------------------------------------------
 
+interface CreatedLink {
+  path: string;
+  amount: number;
+  /** Set when a payment provider handles the link, e.g. Razorpay in test mode. */
+  gateway: string | null;
+}
+
 export function UpiLinkModal({ member, onClose }: { member: Member; onClose: () => void }) {
   const { api } = useSession();
+  const addonInfo = useData<{ providers: { payments: string | false } }>('/addons');
   const { busy, fields, message, run } = useSubmit();
   const [amount, setAmount] = useState(String(member.feeDue || member.planPrice));
-  const [link, setLink] = useState<{ path: string; amount: number } | null>(null);
+  const [link, setLink] = useState<CreatedLink | null>(null);
+  const gateway = link ? !!link.gateway : !!addonInfo.data?.providers.payments;
 
   const create = (e: FormEvent) => {
     e.preventDefault();
-    void run(async () => setLink(await api('/addons/upi-link', { method: 'POST', body: { memberId: member.id, amount: num(amount) ?? 0 } })));
+    void run(async () => setLink(await api<CreatedLink>('/addons/upi-link', { method: 'POST', body: { memberId: member.id, amount: num(amount) ?? 0 } })));
   };
   const url = link ? `${window.location.origin}${link.path}` : '';
 
@@ -363,24 +434,29 @@ export function UpiLinkModal({ member, onClose }: { member: Member; onClose: () 
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <AddonTag />
-          <Badge>Demo simulation</Badge>
+          {gateway ? <Badge tone="ok">Razorpay test mode</Badge> : <Badge>Demo simulation</Badge>}
         </div>
         {link ? (
           <>
             <p className="text-sm leading-relaxed text-bone-dim">
-              Demo link for {member.name}, {inr(link.amount)}. Open it to see what the member would see, then come back: a successful practice payment appears in
-              the fee records.
+              {gateway
+                ? `Payment link for ${member.name}, ${inr(link.amount)}. Open it to pay as the member would. A successful test payment is verified by Razorpay and appears in the fee records by itself.`
+                : `Demo link for ${member.name}, ${inr(link.amount)}. Open it to see what the member would see, then come back: a successful practice payment appears in the fee records.`}
             </p>
             <div className="flex flex-col items-center gap-4 border border-line bg-ink p-5 sm:flex-row sm:items-start">
-              <QrImage text={url} label="QR code for the demo payment page" size={132} />
+              <QrImage text={url} label="QR code for the payment page" size={132} />
               <div className="min-w-0 flex-1 space-y-3">
                 <p className="break-all font-mono text-[11px] leading-relaxed text-bone-dim">{url}</p>
                 <Link to={link.path} target="_blank" className="inline-flex bg-bone px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-ink transition-colors hover:bg-red hover:text-bone">
-                  Open demo pay page
+                  {gateway ? 'Open payment page' : 'Open demo pay page'}
                 </Link>
               </div>
             </div>
-            <DemoNote>This link opens a practice page inside the demo. It is not a real UPI link, and no money can be paid through it.</DemoNote>
+            <DemoNote>
+              {gateway
+                ? 'Razorpay is in test mode here. The payment is real as far as the software can tell, but no real money moves.'
+                : 'This link opens a practice page inside the demo. It is not a real UPI link, and no money can be paid through it.'}
+            </DemoNote>
             <div className="flex justify-end">
               <Btn variant="ghost" onClick={onClose}>
                 Done
@@ -399,7 +475,7 @@ export function UpiLinkModal({ member, onClose }: { member: Member; onClose: () 
                 Cancel
               </Btn>
               <Btn type="submit" busy={busy}>
-                Create demo link
+                {gateway ? 'Create payment link' : 'Create demo link'}
               </Btn>
             </div>
           </form>
@@ -497,7 +573,7 @@ export function MemberDetail({ memberId, onClose, onChanged }: { memberId: strin
                         {p.note ? ` · ${p.note}` : ''}
                       </span>
                       <span className="flex items-center gap-2 text-bone">
-                        {p.simulated && <Badge>Simulated</Badge>}
+                        <PaymentTag payment={p} />
                         {inr(p.amount)}
                       </span>
                     </li>

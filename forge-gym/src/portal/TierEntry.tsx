@@ -98,7 +98,7 @@ export default function TierEntry({ tier }: { tier: Tier }) {
               <li>Ironpeak Fitness is a made-up gym. Every member, number and payment is sample data.</li>
               <li>You get your own private copy. What you change is saved for you and is not visible to anyone else.</li>
               <li>"Reset demo data" inside the demo puts everything back to the start.</li>
-              <li>WhatsApp messages and UPI payments are simulated. Nothing is sent and no money moves.</li>
+              <li>Payments are test or practice payments, so no real money moves. WhatsApp messages never go to the sample members.</li>
             </ul>
             {tier === 'growth' ? (
               <Link to="/demo/essential" className="mt-5 inline-flex font-mono text-[10px] uppercase tracking-[0.14em] text-bone underline decoration-line underline-offset-4 hover:decoration-bone">

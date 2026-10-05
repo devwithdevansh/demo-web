@@ -39,9 +39,11 @@ interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;
   token?: string;
+  /** Extra request headers, e.g. the admin key on the admin page. */
+  headers?: Record<string, string>;
 }
 
-export async function request<T>(path: string, { method = 'GET', body, token }: RequestOptions = {}): Promise<T> {
+export async function request<T>(path: string, { method = 'GET', body, token, headers }: RequestOptions = {}): Promise<T> {
   let res: Response;
   try {
     res = await fetch(`${API_ORIGIN}/api${path}`, {
@@ -49,6 +51,7 @@ export async function request<T>(path: string, { method = 'GET', body, token }: 
       headers: {
         ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...headers,
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
     });

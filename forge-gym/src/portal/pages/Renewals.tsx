@@ -74,7 +74,7 @@ export default function Renewals() {
         <FormError message={error} />
         {(addons.whatsapp || addons.autopay) && (
           <p className="flex flex-wrap items-center gap-2 text-xs text-mute">
-            <AddonTag /> Reminders and Autopay requests come from add-ons. In this demo nothing is sent and nothing is charged.
+            <AddonTag /> Reminders and Autopay requests come from add-ons. In this demo nothing is charged, and reminders never go to the sample members.
           </p>
         )}
       </div>

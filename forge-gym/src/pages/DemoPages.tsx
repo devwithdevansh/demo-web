@@ -8,18 +8,58 @@ import { inr } from '@/config/forge';
 
 const BUTTON = 'inline-flex items-center justify-center gap-2 px-6 py-3.5 font-mono text-xs uppercase tracking-[0.16em] transition-colors disabled:cursor-wait disabled:opacity-60';
 
-// ---- Demo pay page --------------------------------------------------------
+// ---- Pay page -------------------------------------------------------------
 
 interface PayLink {
   gymName: string;
   payer: string;
   amount: number;
   status: 'pending' | 'paid' | 'failed';
+  /** 'razorpay_test' when a payment provider handles this link; null for the practice page. */
+  gateway: string | null;
+}
+interface CheckoutOrder {
+  keyId: string;
+  orderId: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+}
+interface CheckoutSuccess {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+}
+interface RazorpayInstance {
+  open: () => void;
+  on: (event: 'payment.failed', handler: (response: { error?: { description?: string } }) => void) => void;
+}
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => RazorpayInstance;
+  }
+}
+
+const CHECKOUT_SCRIPT = 'https://checkout.razorpay.com/v1/checkout.js';
+
+/** Loads Razorpay's checkout script the first time it is needed. */
+function loadCheckout() {
+  return new Promise<void>((resolve, reject) => {
+    if (window.Razorpay) return resolve();
+    const script = document.createElement('script');
+    script.src = CHECKOUT_SCRIPT;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('The payment window could not be loaded. Check your connection and try again.'));
+    document.head.appendChild(script);
+  });
 }
 
 /**
- * /demo/pay/:token — what a member would see after opening a payment link.
- * It stands in for a UPI app: the visitor chooses the outcome, and no money moves.
+ * /demo/pay/:token — what a member sees after opening a payment link.
+ * With a payment provider connected (Razorpay test mode) it takes a real test
+ * payment. Otherwise it is a practice page where the visitor picks the outcome.
+ * No real money moves in either case.
  */
 export function PayDemo() {
   const { token } = useParams();
@@ -28,7 +68,7 @@ export function PayDemo() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    document.title = 'Demo payment page · FORGE';
+    document.title = 'Payment page · FORGE demo';
     let live = true;
     request<PayLink>(`/public/pay/${token}`)
       .then((data) => live && setLink(data))
@@ -50,6 +90,45 @@ export function PayDemo() {
     }
   };
 
+  const payWithGateway = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const order = await request<CheckoutOrder>(`/public/pay/${token}/order`, { method: 'POST' });
+      await loadCheckout();
+      const checkout = new window.Razorpay!({
+        key: order.keyId,
+        order_id: order.orderId,
+        amount: order.amount,
+        currency: order.currency,
+        name: order.name,
+        description: order.description,
+        theme: { color: '#ff2e2e' },
+        // Razorpay calls this after a successful payment. The server checks the signature before recording anything.
+        handler: async (result: CheckoutSuccess) => {
+          try {
+            setLink(await request<PayLink>(`/public/pay/${token}/verify`, { method: 'POST', body: result }));
+          } catch (err) {
+            setError(err instanceof Error ? err.message : 'The payment could not be verified.');
+          } finally {
+            setBusy(false);
+          }
+        },
+        modal: { ondismiss: () => setBusy(false) },
+      });
+      checkout.on('payment.failed', (response) => {
+        setError(response.error?.description ? `The test payment did not go through: ${response.error.description}` : 'The test payment did not go through. You can try again.');
+        setBusy(false);
+      });
+      checkout.open();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not start the payment. Please try again.');
+      setBusy(false);
+    }
+  };
+
+  const viaGateway = !!link?.gateway;
+
   return (
     <div className="flex min-h-svh flex-col bg-ink text-bone">
       <header className="border-b border-line px-5 py-4">
@@ -59,7 +138,9 @@ export function PayDemo() {
       </header>
       <main className="flex flex-1 items-center justify-center px-4 py-10">
         <div className="w-full max-w-md border border-line bg-ink-2 p-6 sm:p-8">
-          <p className="inline-block border border-warn/50 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-warn">Demo payment page</p>
+          <p className="inline-block border border-warn/50 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[0.14em] text-warn">
+            {viaGateway ? 'Razorpay test mode' : 'Demo payment page'}
+          </p>
           {!link && !error && <p className="py-12 text-center font-mono text-[11px] uppercase tracking-[0.18em] text-mute" role="status">Opening link…</p>}
           {link && (
             <>
@@ -67,7 +148,21 @@ export function PayDemo() {
               <p className="mt-2 font-heavy text-5xl font-semibold leading-none text-bone">{inr(link.amount)}</p>
               <p className="mt-3 text-sm text-bone-dim">Membership fee for {link.payer}</p>
 
-              {link.status === 'pending' ? (
+              {link.status === 'pending' && viaGateway && (
+                <>
+                  <p className="mt-6 border-l border-line pl-3 text-sm leading-relaxed text-mute">
+                    This opens Razorpay's payment window in test mode, so no real money moves. To pay, choose UPI and enter <span className="text-bone">success@razorpay</span>,
+                    or use one of Razorpay's test cards.
+                  </p>
+                  <div className="mt-6 flex flex-col gap-3">
+                    <button type="button" disabled={busy} onClick={payWithGateway} className={`${BUTTON} bg-bone text-ink hover:bg-red hover:text-bone`}>
+                      {busy ? 'Opening Razorpay…' : `Pay ${inr(link.amount)} with Razorpay`}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {link.status === 'pending' && !viaGateway && (
                 <>
                   <p className="mt-6 border-l border-line pl-3 text-sm leading-relaxed text-mute">
                     This page stands in for a UPI app. No money moves and no bank is contacted. Choose an outcome to see how the gym's records respond.
@@ -81,14 +176,20 @@ export function PayDemo() {
                     </button>
                   </div>
                 </>
-              ) : (
+              )}
+
+              {link.status !== 'pending' && (
                 <div className="mt-6 border-t border-line pt-6" role="status">
                   {link.status === 'paid' ? <CheckCircle2 size={28} className="text-ok" aria-hidden /> : <XCircle size={28} className="text-red" aria-hidden />}
-                  <p className="mt-3 font-display text-3xl leading-none text-bone">{link.status === 'paid' ? 'Simulated payment recorded' : 'Simulated payment failed'}</p>
+                  <p className="mt-3 font-display text-3xl leading-none text-bone">
+                    {link.status === 'paid' ? (viaGateway ? 'Test payment received' : 'Simulated payment recorded') : 'Simulated payment failed'}
+                  </p>
                   <p className="mt-3 text-sm leading-relaxed text-bone-dim">
-                    {link.status === 'paid'
-                      ? 'The gym’s fee records now show this amount as paid by UPI, marked as simulated. No money was actually paid.'
-                      : 'Nothing was recorded and the dues are unchanged. The gym would send a new link.'}
+                    {link.status !== 'paid'
+                      ? 'Nothing was recorded and the dues are unchanged. The gym would send a new link.'
+                      : viaGateway
+                        ? 'Razorpay confirmed the test payment, and the gym’s fee records now show this amount as paid. No real money moved.'
+                        : 'The gym’s fee records now show this amount as paid by UPI, marked as simulated. No money was actually paid.'}
                   </p>
                   <p className="mt-4 text-xs text-mute">You can close this tab and go back to the demo.</p>
                 </div>
@@ -96,7 +197,7 @@ export function PayDemo() {
             </>
           )}
           {error && (
-            <p className="mt-6 text-sm leading-relaxed text-bone-dim" role="alert">
+            <p className="mt-6 border border-red/60 px-3 py-2.5 text-sm leading-relaxed text-bone" role="alert">
               {error}
             </p>
           )}

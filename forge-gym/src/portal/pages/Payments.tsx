@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { inr, prettyDay } from '@/lib/format';
 import { useData, useSession } from '../session';
-import { AddonTag, Async, Badge, Btn, Empty, PageHead, Panel, Row, RowMain, Stat } from '../ui';
+import { AddonTag, Async, Badge, Btn, Empty, PageHead, PaymentTag, Panel, Row, RowMain, Stat } from '../ui';
 import { MessageModal, PaymentForm, UpiLinkModal } from '../shared';
 import { methodLabel } from '../types';
 import type { Member, Payment } from '../types';
@@ -76,7 +76,7 @@ export default function Payments() {
               )}
               {(addons.upiLinks || addons.whatsapp) && dues.length > 0 && (
                 <p className="flex items-center gap-2 border-t border-line px-4 py-3 text-xs text-mute sm:px-5">
-                  <AddonTag /> UPI links and reminders come from add-ons and are simulated in this demo.
+                  <AddonTag /> UPI links and reminders come from add-ons. No real money moves in this demo.
                 </p>
               )}
             </Panel>
@@ -89,7 +89,7 @@ export default function Payments() {
                   <Row key={p.id}>
                     <RowMain title={p.memberName} meta={`${prettyDay(p.paidOn)} · ${methodLabel(p.method)}${p.note ? ` · ${p.note}` : ''}`} />
                     <span className="flex items-center gap-2 text-sm text-bone">
-                      {p.simulated && <Badge>Simulated</Badge>}
+                      <PaymentTag payment={p} />
                       {inr(p.amount)}
                     </span>
                   </Row>

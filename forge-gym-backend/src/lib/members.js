@@ -28,9 +28,9 @@ export function memberView(member, look, today = dayKey(), { coaching = false } 
 }
 
 /** Records money received against a member and lowers what they owe. Saves both documents. */
-export async function recordPayment(member, { amount, method, note, recordedBy, simulated = false }) {
+export async function recordPayment(member, { amount, method, note, recordedBy, simulated = false, gateway, gatewayPaymentId }) {
   const payment = await Payment.create({
-    gymId: member.gymId, memberId: member._id, amount, method, note, recordedBy, simulated, paidOn: dayKey(),
+    gymId: member.gymId, memberId: member._id, amount, method, note, recordedBy, simulated, gateway, gatewayPaymentId, paidOn: dayKey(),
   });
   member.feeDue = Math.max(0, member.feeDue - amount);
   await member.save();

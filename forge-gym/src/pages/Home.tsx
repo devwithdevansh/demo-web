@@ -304,7 +304,7 @@ export default function Home() {
               ))}
             </div>
             <p className="mt-6 max-w-3xl text-xs leading-relaxed text-mute">
-              In the demos, WhatsApp messages and UPI payments are simulated: nothing is sent and no money moves. {FEES_NOTE}
+              In the demos no real money moves, and WhatsApp messages are never sent to the sample members. {FEES_NOTE}
             </p>
           </div>
         </section>

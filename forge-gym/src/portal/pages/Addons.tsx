@@ -11,12 +11,16 @@ import type { ActionLog } from '../types';
 
 interface AddonData {
   addons: AddonState;
-  providers: { whatsapp: boolean; payments: boolean };
+  providers: { whatsapp: string | false; whatsappFrom: string | null; whatsappTracking: boolean; payments: string | false };
   activity: ActionLog[];
 }
 
 const READINESS_TONE = { 'Available in demo': 'ok', Preview: 'warn', 'Coming soon': 'mute' } as const;
-const LOG_STATUS: Record<string, string> = { simulated: 'Simulated', pending: 'Link not used yet', paid: 'Paid (simulated)', failed: 'Failed (simulated)' };
+const LOG_STATUS: Record<string, string> = {
+  simulated: 'Simulated', pending: 'Link not used yet', paid: 'Paid (simulated)', failed: 'Failed',
+  accepted: 'Handed to WhatsApp', sent: 'Sent', delivered: 'Delivered', read: 'Read',
+};
+const logLabel = (a: ActionLog) => (a.status === 'paid' && a.gateway ? 'Paid (test mode)' : (LOG_STATUS[a.status] ?? a.status));
 
 export default function Addons() {
   const { api, role, tier, setAddons } = useSession();
@@ -56,10 +60,17 @@ export default function Addons() {
       <PageHead title="Add-ons" sub="Optional extras that sit on top of a package. Switch them on or off to see what changes in this demo." />
       <div className="mb-5 space-y-3">
         <FormError message={error} />
-        <DemoNote>
-          No WhatsApp or payment provider is connected to this demo. Messages are drafted but not delivered, and payment steps are practice screens where no money
-          moves. {FEES_NOTE}
-        </DemoNote>
+        {data.data && (
+          <DemoNote>
+            {data.data.providers.payments
+              ? 'Payments are connected to Razorpay in test mode: payment links take a real test payment, and no real money moves. '
+              : 'No payment provider is connected: payment links open a practice page where no money moves. '}
+            {data.data.providers.whatsapp
+              ? `WhatsApp is connected and sends from ${data.data.providers.whatsappFrom ?? 'the connected number'}: demo messages are delivered to the demo phone only, never to the sample members. `
+              : 'No WhatsApp provider is connected: messages are drafted and logged as simulated. '}
+            {FEES_NOTE}
+          </DemoNote>
+        )}
       </div>
 
       <Async state={data} label="Loading add-ons">
@@ -124,10 +135,11 @@ export default function Addons() {
                           {stamp(a.createdAt)}
                           {a.amount ? ` · ${inr(a.amount)}` : ''}
                           {a.detail && <span className="mt-0.5 block whitespace-pre-line">{a.detail}</span>}
+                          {a.reason && <span className="mt-0.5 block text-bone-dim">{a.reason}</span>}
                         </>
                       }
                     />
-                    <Badge>{LOG_STATUS[a.status] ?? a.status}</Badge>
+                    <Badge tone={a.status === 'delivered' || a.status === 'read' ? 'ok' : a.status === 'failed' ? 'bad' : 'mute'}>{logLabel(a)}</Badge>
                   </Row>
                 ))
               )}

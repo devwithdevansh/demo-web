@@ -71,6 +71,8 @@ export interface Payment {
   note?: string;
   recordedBy?: string;
   simulated: boolean;
+  /** 'razorpay_test' when a payment provider confirmed it in test mode. */
+  gateway?: string;
 }
 
 export interface Lead {
@@ -119,6 +121,8 @@ export interface ActionLog {
   title: string;
   detail?: string;
   status: string;
+  reason?: string;
+  gateway?: string;
   amount?: number;
   createdAt: string;
 }

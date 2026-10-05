@@ -10,6 +10,7 @@ mongoose.plugin((schema) => {
       delete ret.gymId;
       delete ret.passwordHash;
       delete ret.demoKeyHash;
+      delete ret.tokenSealed;
       return ret;
     },
   });
