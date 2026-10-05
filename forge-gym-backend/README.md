@@ -87,6 +87,8 @@ A number that is already on the WhatsApp Business app can be connected without l
 
 **Then** open `https://<site-address>/admin/whatsapp`, enter the admin key, and press "Connect WhatsApp number". The server exchanges Meta's code (valid for 30 seconds), subscribes to the account, and requests the contact and chat-history sync that Meta requires within 24 hours.
 
+Meta's window returns to the site's root address (`https://<site-address>/`) with the code, and Meta only accepts the code together with that exact address. So that address, with the trailing slash, must be in "Valid OAuth Redirect URIs", and `CORS_ORIGIN` must be the same site address. If either differs, the connect step fails with "Error validating verification code".
+
 What to know:
 
 - The access token Meta issues is stored encrypted and never returned by the API. It is tied to `JWT_SECRET`: changing that secret means connecting the number again.

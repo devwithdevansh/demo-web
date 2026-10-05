@@ -72,6 +72,8 @@ router.post(
   body(
     z.object({
       code: z.string().min(10).max(2000),
+      // The return address the sign-up window was opened with. Meta needs the same one for the exchange.
+      redirectUri: z.string().max(300).optional(),
       wabaId: z.string().regex(/^\d{5,30}$/).optional(),
       phoneNumberId: z.string().regex(/^\d{5,30}$/).optional(),
       // The signup window's own name for how it ended, e.g. FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING.
@@ -81,8 +83,16 @@ router.post(
   async (req, res) => {
     if (!signupReady()) throw new HttpError(409, 'WhatsApp sign-up is not set up on the server yet. Add WHATSAPP_APP_ID, WHATSAPP_APP_SECRET and WHATSAPP_CONFIG_ID.', 'not_configured');
 
+    // Only this site's own address is accepted as the return address, so the code can never be
+    // exchanged on behalf of a page somewhere else.
+    const { redirectUri } = req.data;
+    const sites = config.corsOrigins.length ? config.corsOrigins : [req.get('origin')].filter(Boolean);
+    if (redirectUri && !sites.some((site) => redirectUri === `${site}/`)) {
+      throw new HttpError(400, 'The sign-up was started from an address this server does not recognise.', 'bad_redirect');
+    }
+
     // The code expires 30 seconds after the signup window closes, so it is exchanged before anything else.
-    const token = await exchangeSignupCode(req.data.code);
+    const token = await exchangeSignupCode(req.data.code, redirectUri);
     const wabaId = req.data.wabaId ?? (await grantedAccounts(token))[0];
     if (!wabaId) throw new HttpError(409, 'The sign-up finished without a WhatsApp account. Please run it again and complete every step.', 'no_account');
 
@@ -90,11 +100,10 @@ router.post(
     const number = numbers.find((n) => n.id === req.data.phoneNumberId) ?? numbers.find((n) => n.is_on_biz_app) ?? numbers[0];
     if (!number) throw new HttpError(409, 'That WhatsApp account has no phone number yet. Add a number during sign-up and try again.', 'no_number');
 
+    // Meta reports whether the number is still on the WhatsApp Business app. When it does not say
+    // either way, the number is still connected; a number that turns out to need separate
+    // registration will say so when the first message is sent.
     const onBusinessApp = number.is_on_biz_app === true || req.data.event === 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING';
-    if (!onBusinessApp) {
-      // A number that is not on the Business app needs a separate registration step that is not built yet.
-      throw new HttpError(409, 'This number is not on the WhatsApp Business app. Connecting API-only numbers is not supported yet.', 'unsupported_number');
-    }
 
     await subscribeApp(wabaId, token);
     const link = await WhatsAppLink.findOneAndUpdate(
@@ -105,7 +114,7 @@ router.post(
       },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true },
     );
-    await startSync(link, token);
+    if (onBusinessApp) await startSync(link, token);
     res.status(201).json(await overview());
   },
 );

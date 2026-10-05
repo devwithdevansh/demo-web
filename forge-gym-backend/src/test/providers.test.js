@@ -200,8 +200,13 @@ test('connecting a Business-app number: admin only, token kept encrypted, sync r
   assert.equal(expired.status, 502);
   assert.equal(await WhatsAppLink.countDocuments(), 0, 'a failed sign-up stores nothing');
 
+  const site = { headers: { ...admin.headers, origin: 'https://site.example' } };
+  const foreign = await call('/admin/whatsapp/connect', { ...site, method: 'POST', body: { code: 'fresh-signup-code', redirectUri: 'https://elsewhere.example/' } });
+  assert.equal(foreign.status, 400, 'a return address that is not this site is refused');
+
   outbound.length = 0;
-  const done = await call('/admin/whatsapp/connect', { ...admin, method: 'POST', body: { code: 'fresh-signup-code', event: 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING' } });
+  const done = await call('/admin/whatsapp/connect', { ...site, method: 'POST', body: { code: 'fresh-signup-code', redirectUri: 'https://site.example/', event: 'FINISH_WHATSAPP_BUSINESS_APP_ONBOARDING' } });
+  assert.equal(new URL(outbound[0].target).searchParams.get('redirect_uri'), 'https://site.example/', 'the code is exchanged with the same return address');
   assert.equal(done.status, 201);
   assert.deepEqual([done.data.connection.phone, done.data.connection.onBusinessApp, done.data.connection.status], ['+91 94088 57184', true, 'connected']);
   assert.deepEqual([done.data.connection.sync.contacts, done.data.connection.sync.history], ['requested', 'requested']);

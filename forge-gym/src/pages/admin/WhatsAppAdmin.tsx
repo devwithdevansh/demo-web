@@ -33,38 +33,42 @@ interface SignupSession {
   wabaId?: string;
   phoneNumberId?: string;
 }
-interface FacebookSdk {
-  init: (options: Record<string, unknown>) => void;
-  login: (callback: (response: { authResponse?: { code?: string } | null }) => void, options: Record<string, unknown>) => void;
-}
-declare global {
-  interface Window {
-    FB?: FacebookSdk;
-    fbAsyncInit?: () => void;
-  }
+/** What the sign-up popup hands back when Meta returns it to this site (see main.tsx). */
+interface SignupReturn {
+  state?: string;
+  code?: string | null;
+  error?: string | null;
 }
 
 const KEY_STORE = 'forge.admin.key';
+const STATE_STORE = 'forge.admin.signup-state';
 const BUTTON = 'inline-flex items-center justify-center px-5 py-3 font-mono text-[11px] uppercase tracking-[0.14em] transition-colors disabled:cursor-not-allowed disabled:opacity-50';
 const SOLID = `${BUTTON} bg-bone text-ink hover:bg-red hover:text-bone`;
 const LINE = `${BUTTON} border border-line text-bone hover:border-bone`;
 const LABEL = 'font-mono text-[10px] uppercase tracking-[0.16em] text-mute';
 
-/** Loads Meta's JavaScript SDK once. It is loaded ahead of time so the sign-up window can open straight from a click. */
-function loadFacebookSdk(appId: string, version: string) {
-  return new Promise<void>((resolve, reject) => {
-    if (window.FB) return resolve();
-    window.fbAsyncInit = () => {
-      window.FB!.init({ appId, autoLogAppEvents: true, xfbml: false, version });
-      resolve();
-    };
-    const script = document.createElement('script');
-    script.src = 'https://connect.facebook.net/en_US/sdk.js';
-    script.async = true;
-    script.crossOrigin = 'anonymous';
-    script.onerror = () => reject(new Error('Meta’s sign-up could not be loaded. Check your connection, or an ad blocker.'));
-    document.head.appendChild(script);
-  });
+/**
+ * The address Meta sends the sign-up popup back to. Meta only accepts its one-time code together
+ * with this exact address, so the popup is opened with it and the server exchanges the code with it.
+ * It must be listed under "Valid OAuth Redirect URIs" in the Meta app.
+ */
+const returnAddress = () => `${window.location.origin}/`;
+
+/** Builds the address of Meta's WhatsApp sign-up window. */
+function signupUrl(signup: { appId: string; configId: string; graphVersion: string }, state: string) {
+  const url = new URL(`https://www.facebook.com/${signup.graphVersion}/dialog/oauth`);
+  url.search = new URLSearchParams({
+    client_id: signup.appId,
+    config_id: signup.configId,
+    redirect_uri: returnAddress(),
+    response_type: 'code',
+    override_default_response_type: 'true',
+    display: 'popup',
+    state,
+    // Offers "connect my existing WhatsApp Business app number" in Meta's window.
+    extras: JSON.stringify({ setup: {}, featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' }),
+  }).toString();
+  return url.toString();
 }
 
 const isFacebook = (origin: string) => {
@@ -86,7 +90,6 @@ export default function WhatsAppAdmin() {
   });
   const [typed, setTyped] = useState('');
   const [info, setInfo] = useState<Overview | null>(null);
-  const [sdkReady, setSdkReady] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
@@ -149,12 +152,6 @@ export default function WhatsAppAdmin() {
   }, []);
 
   const signup = info?.signup;
-  useEffect(() => {
-    if (!signup) return;
-    loadFacebookSdk(signup.appId, signup.graphVersion)
-      .then(() => setSdkReady(true))
-      .catch((err: Error) => setError(err.message));
-  }, [signup]);
 
   const run = async (name: string, action: () => Promise<void>) => {
     setBusy(name);
@@ -169,35 +166,61 @@ export default function WhatsAppAdmin() {
     }
   };
 
+  // The popup reports back through a same-site channel once Meta returns it here.
+  const finishRef = useRef<(result: SignupReturn) => void>(() => {});
+  finishRef.current = (result) => {
+    let expected: string | null = null;
+    try {
+      expected = sessionStorage.getItem(STATE_STORE);
+    } catch {
+      // Without storage the check below simply fails closed.
+    }
+    // Only a result for the sign-up this tab started is accepted. Anything else is ignored and
+    // leaves the remembered state in place, so it cannot block the genuine result.
+    if (!expected || result.state !== expected) return;
+    sessionStorage.removeItem(STATE_STORE);
+    if (!result.code) {
+      setBusy(null);
+      setNotice(result.error ? `Meta did not finish the sign-up: ${result.error}` : 'The sign-up was closed before it finished. Nothing was connected.');
+      return;
+    }
+    // The code is only valid for 30 seconds, so it goes to the server immediately.
+    void run('connect', async () => {
+      setInfo(await call<Overview>('/connect', 'POST', { code: result.code, redirectUri: returnAddress(), ...session.current }));
+      setNotice('Number connected. Reminders in the demo now go out from it.');
+    });
+  };
+  useEffect(() => {
+    const channel = new BroadcastChannel('forge-wa-signup');
+    channel.onmessage = (event: MessageEvent<SignupReturn>) => finishRef.current(event.data ?? {});
+    return () => channel.close();
+  }, []);
+
   const connect = () => {
-    if (!signup || !window.FB) return;
-    setBusy('connect');
+    if (!signup) return;
     setError(null);
     setNotice(null);
     session.current = {};
+    const state = `forge-wa-${crypto.randomUUID()}`;
+    try {
+      sessionStorage.setItem(STATE_STORE, state);
+    } catch {
+      setError('This browser is blocking storage for this site, which the sign-up needs. Try a normal (not private) window.');
+      return;
+    }
     // Opened directly from the click, so the browser allows the popup.
-    window.FB.login(
-      (response) => {
-        const code = response.authResponse?.code;
-        if (!code) {
-          setBusy(null);
-          setNotice((current) => current ?? 'The sign-up was closed before it finished. Nothing was connected.');
-          return;
-        }
-        // The code is only valid for 30 seconds, so it goes to the server immediately.
-        void run('connect', async () => {
-          setInfo(await call<Overview>('/connect', 'POST', { code, ...session.current }));
-          setNotice('Number connected. Reminders in the demo now go out from it.');
-        });
-      },
-      {
-        config_id: signup.configId,
-        response_type: 'code',
-        override_default_response_type: true,
-        // Offers "connect my existing WhatsApp Business app number" in Meta's window.
-        extras: { setup: {}, featureType: 'whatsapp_business_app_onboarding', sessionInfoVersion: '3' },
-      },
-    );
+    const popup = window.open(signupUrl(signup, state), 'forge-wa-signup', 'width=720,height=860');
+    if (!popup) {
+      setError('The browser blocked Meta’s sign-up window. Allow popups for this site and press the button again.');
+      return;
+    }
+    setBusy('connect');
+    // If the window is closed without finishing, stop waiting.
+    const watch = window.setInterval(() => {
+      if (!popup.closed) return;
+      window.clearInterval(watch);
+      window.setTimeout(() => setBusy((current) => (current === 'connect' && sessionStorage.getItem(STATE_STORE) === state ? null : current)), 1500);
+    }, 800);
   };
 
   const connection = info?.connection;
@@ -356,8 +379,8 @@ export default function WhatsAppAdmin() {
                       After connecting, WhatsApp turns off broadcast lists, disappearing messages, view-once and live location on that number, and unlinks companion
                       devices (most can be linked again). You can disconnect at any time from the app.
                     </p>
-                    <button type="button" disabled={!sdkReady || !!busy} onClick={connect} className={SOLID}>
-                      {busy === 'connect' ? 'Waiting for Meta…' : sdkReady ? 'Connect WhatsApp number' : 'Loading Meta sign-up…'}
+                    <button type="button" disabled={!!busy} onClick={connect} className={SOLID}>
+                      {busy === 'connect' ? 'Waiting for Meta…' : 'Connect WhatsApp number'}
                     </button>
                   </>
                 )}

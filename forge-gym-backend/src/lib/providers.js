@@ -169,10 +169,14 @@ export function validWebhookSignature(rawBody, header) {
 /** True when the settings needed to run Meta's signup window are present. */
 export const signupReady = () => !!(config.whatsapp.appId && config.whatsapp.appSecret && config.whatsapp.configId);
 
-/** Swaps the short-lived code from the signup window for the business's access token. The code lasts 30 seconds. */
-export async function exchangeSignupCode(code) {
+/**
+ * Swaps the short-lived code from the signup window for the business's access token. The code lasts
+ * 30 seconds, and Meta only accepts it together with the exact return address the window was opened with.
+ */
+export async function exchangeSignupCode(code, redirectUri) {
   const { appId, appSecret } = config.whatsapp;
-  const data = await graph('/oauth/access_token', { query: { client_id: appId, client_secret: appSecret, code }, step: 'Finishing the sign-up' });
+  const query = { client_id: appId, client_secret: appSecret, code, ...(redirectUri ? { redirect_uri: redirectUri } : {}) };
+  const data = await graph('/oauth/access_token', { query, step: 'Finishing the sign-up' });
   if (!data?.access_token) throw new HttpError(502, 'WhatsApp did not return access for this business.', 'provider_error');
   return data.access_token;
 }
