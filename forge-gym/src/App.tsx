@@ -1,60 +1,49 @@
-import { useState } from 'react';
-import { useLenis } from '@/hooks/useLenis';
-import { Loader } from '@/components/ui/Loader';
-import { Cursor } from '@/components/ui/Cursor';
-import { IntensityRail } from '@/components/ui/IntensityRail';
-import { Nav } from '@/components/sections/Nav';
-import { Hero } from '@/components/sections/Hero';
-import { Statement } from '@/components/sections/Statement';
-import { Programs } from '@/components/sections/Programs';
-import { TrainingFloor } from '@/components/sections/TrainingFloor';
-import { Equipment } from '@/components/sections/Equipment';
-import { Trainers } from '@/components/sections/Trainers';
-import { TheBody } from '@/components/sections/TheBody';
-import { Metrics } from '@/components/sections/Metrics';
-import { Membership } from '@/components/sections/Membership';
-import { Classes } from '@/components/sections/Classes';
-import { Community } from '@/components/sections/Community';
-import { Motivation } from '@/components/sections/Motivation';
-import { Recovery } from '@/components/sections/Recovery';
-import { Journal } from '@/components/sections/Journal';
-import { Testimonial } from '@/components/sections/Testimonial';
-import { SocialGallery } from '@/components/sections/SocialGallery';
-import { FinalCta } from '@/components/sections/FinalCta';
-import { Footer } from '@/components/sections/Footer';
+import { lazy, Suspense, useEffect } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
+import Home from '@/pages/Home';
+
+// Each demo loads on demand, so the homepage stays light.
+const EssentialDemo = lazy(() => import('@/pages/essential/EssentialDemo'));
+const TierEntry = lazy(() => import('@/portal/TierEntry'));
+const Portal = lazy(() => import('@/portal/Portal'));
+const PayDemo = lazy(() => import('@/pages/DemoPages').then((m) => ({ default: m.PayDemo })));
+const SampleClip = lazy(() => import('@/pages/DemoPages').then((m) => ({ default: m.SampleClip })));
+const NotFound = lazy(() => import('@/pages/DemoPages').then((m) => ({ default: m.NotFound })));
+
+/** Start each page at the top. In-page links (#packages) are left to the browser. */
+function ScrollToTop() {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+}
+
+function PageLoading() {
+  return (
+    <div className="flex min-h-svh items-center justify-center bg-ink" role="status">
+      <span className="font-mono text-[11px] uppercase tracking-[0.3em] text-mute">Loading</span>
+    </div>
+  );
+}
 
 function App() {
-  const [ready, setReady] = useState(false);
-  useLenis();
-
   return (
     <>
-      <Loader onDone={() => setReady(true)} />
-      <div style={{ visibility: ready ? 'visible' : 'hidden' }}>
-        <Cursor />
-        <IntensityRail />
-        <Nav />
-        <main>
-          <Hero />
-          <Statement />
-          <Programs />
-          <TrainingFloor />
-          <Equipment />
-          <Trainers />
-          <TheBody />
-          <Metrics />
-          <Membership />
-          <Classes />
-          <Community />
-          <Motivation />
-          <Recovery />
-          <Journal />
-          <Testimonial />
-          <SocialGallery />
-          <FinalCta />
-        </main>
-        <Footer />
-      </div>
+      <ScrollToTop />
+      <Suspense fallback={<PageLoading />}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/demo/essential" element={<EssentialDemo />} />
+          <Route path="/demo/growth" element={<TierEntry tier="growth" />} />
+          <Route path="/demo/growth/:role/*" element={<Portal tier="growth" />} />
+          <Route path="/demo/performance" element={<TierEntry tier="performance" />} />
+          <Route path="/demo/performance/:role/*" element={<Portal tier="performance" />} />
+          <Route path="/demo/pay/:token" element={<PayDemo />} />
+          <Route path="/demo/sample-clip" element={<SampleClip />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Suspense>
     </>
   );
 }

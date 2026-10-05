@@ -26,7 +26,7 @@ import FinalCTA from './components/FinalCTA';
 import Footer from './components/Footer';
 import { LEGACY_HASHES, routeForPath } from './seo/routes';
 
-// Each page has its own real URL ('/', '/kohinoor', '/boond', '/kavach'),
+// Each page has its own real URL ('/', '/kohinoor/', '/boond/', '/kavach/'),
 // and the build writes a real HTML file for each one (see vite.config.js
 // and src/seo/routes.js) -- so Google indexes four pages, not one, and every
 // page arrives with its own title and description. Moving between pages is

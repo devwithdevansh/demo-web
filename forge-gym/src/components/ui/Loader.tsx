@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { sampleGym } from '@/config/sampleGym';
 
 export function Loader({ onDone }: { onDone: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -39,7 +40,7 @@ export function Loader({ onDone }: { onDone: () => void }) {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.35, ease: 'easeInOut' }}
         >
-          <div className="font-display text-4xl tracking-wider text-bone">FORGE</div>
+          <div className="font-display text-4xl tracking-wider text-bone">{sampleGym.wordmark}</div>
           <div className="mt-6 font-mono text-xs tracking-[0.3em] text-mute">PREPARE TO TRAIN</div>
           <div className="mt-4 font-mono text-2xl text-red">{String(progress).padStart(2, '0')}</div>
         </motion.div>

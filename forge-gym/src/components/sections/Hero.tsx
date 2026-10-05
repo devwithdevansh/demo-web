@@ -3,8 +3,14 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { FrameSequence } from '@/components/ui/FrameSequence';
 import type { FrameSequenceHandle } from '@/components/ui/FrameSequence';
+import { FRAME_COUNT as TOTAL_FRAMES, framePath, sampleGym } from '@/config/sampleGym';
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Phones load every fourth frame (about 95 images instead of 379) to keep the page light.
+const FRAME_STEP = typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches ? 4 : 1;
+const FRAME_COUNT = Math.ceil(TOTAL_FRAMES / FRAME_STEP);
+const heroFrame = (i: number) => framePath(1 + (i - 1) * FRAME_STEP);
 
 export function Hero() {
   const sectionRef = useRef<HTMLDivElement>(null);
@@ -13,9 +19,6 @@ export function Hero() {
   const text2Ref = useRef<HTMLDivElement>(null);
   const text3Ref = useRef<HTMLDivElement>(null);
   const frameSequenceRef = useRef<FrameSequenceHandle>(null);
-
-  // FFmpeg extracted exactly 379 frames from the 4K video.
-  const FRAME_COUNT = 379;
 
   useEffect(() => {
     if (!sectionRef.current || !containerRef.current) return;
@@ -63,7 +66,7 @@ export function Hero() {
           <FrameSequence 
             ref={frameSequenceRef}
             frameCount={FRAME_COUNT} 
-            framePath={(i) => `/frames/frame_${i.toString().padStart(4, '0')}.jpg`} 
+            framePath={heroFrame}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/70 pointer-events-none" />
           <div className="absolute inset-0 bg-ink/20 pointer-events-none" />
@@ -81,14 +84,14 @@ export function Hero() {
           
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <button
-              onClick={() => document.querySelector('#tour')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.querySelector('#enquire')?.scrollIntoView({ behavior: 'smooth' })}
               className="bg-bone px-7 py-3.5 font-mono text-xs uppercase tracking-[0.18em] text-ink transition-colors hover:bg-red hover:text-bone"
               data-cursor="START"
             >
-              Start Training →
+              Enquire Now →
             </button>
             <button
-              onClick={() => document.querySelector('#floor')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.querySelector('#about')?.scrollIntoView({ behavior: 'smooth' })}
               className="border border-bone/40 px-7 py-3.5 font-mono text-xs uppercase tracking-[0.18em] text-bone transition-colors hover:border-bone"
               data-cursor="VIEW"
             >
@@ -99,8 +102,8 @@ export function Hero() {
 
         {/* Caption 2 */}
         <div ref={text2Ref} className="absolute inset-0 z-10 flex h-full flex-col items-center justify-center px-6 text-center opacity-0 pointer-events-none">
-          <h2 className="font-display text-[12vw] leading-none text-bone lg:text-[6vw]">FORGE YOUR</h2>
-          <h2 className="font-display text-[12vw] leading-none text-red lg:text-[6vw]">LEGACY</h2>
+          <h2 className="font-display text-[12vw] leading-none text-bone lg:text-[6vw]">BUILD YOUR</h2>
+          <h2 className="font-display text-[12vw] leading-none text-red lg:text-[6vw]">STRENGTH</h2>
           <p className="mt-6 max-w-md font-mono text-sm uppercase tracking-widest text-mute">
             Elite equipment. Unmatched atmosphere. No excuses.
           </p>
@@ -108,8 +111,8 @@ export function Hero() {
 
         {/* Caption 3 */}
         <div ref={text3Ref} className="absolute inset-0 z-10 flex h-full flex-col items-end justify-end px-6 pb-20 lg:px-12 lg:pb-24 text-right opacity-0 pointer-events-none">
-          <h2 className="font-display text-[10vw] leading-none text-bone lg:text-[5vw]">JOIN THE</h2>
-          <h2 className="font-display text-[10vw] leading-none text-red lg:text-[5vw]">ELITE</h2>
+          <h2 className="font-display text-[10vw] leading-none text-bone lg:text-[5vw]">JOIN</h2>
+          <h2 className="font-display text-[10vw] leading-none text-red lg:text-[5vw]">{sampleGym.wordmark}</h2>
         </div>
       </div>
     </section>

@@ -24,14 +24,14 @@ export const ROUTES = [
     heading: 'Websites for car-detailing studios, built to be found on Google',
     body: 'DWD Studio designs custom websites for car detailing, ceramic coating and paint protection film studios. Three live demo sites — Kohinoor, Boond and Kavach — each with its own palette, type system and signature scroll effect.',
     links: [
-      ['/kohinoor', 'Kohinoor — dark luxury detailing demo'],
-      ['/boond', 'Boond — single-studio detailing demo'],
-      ['/kavach', 'Kavach — multi-studio ceramic and PPF demo'],
+      ['/kohinoor/', 'Kohinoor — dark luxury detailing demo'],
+      ['/boond/', 'Boond — single-studio detailing demo'],
+      ['/kavach/', 'Kavach — multi-studio ceramic and PPF demo'],
     ],
   },
   {
     id: 'home',
-    path: '/kohinoor',
+    path: '/kohinoor/',
     title: 'Kohinoor — Luxury Car Detailing Website Demo | DWD Studio',
     description:
       'Demo website for a premium detailing, ceramic coating and PPF studio: dark luxury design, before/after slider, service configurator and booking. Built by DWD Studio.',
@@ -40,7 +40,7 @@ export const ROUTES = [
   },
   {
     id: 'boond',
-    path: '/boond',
+    path: '/boond/',
     title: 'Boond — Car Detailing Studio Website Demo | DWD Studio',
     description:
       'Demo website for a single car-detailing studio: scroll-to-wash hero, price menu, five-stage process and WhatsApp booking. Built by DWD Studio.',
@@ -49,7 +49,7 @@ export const ROUTES = [
   },
   {
     id: 'kavach',
-    path: '/kavach',
+    path: '/kavach/',
     title: 'Kavach — Multi-Studio Ceramic & PPF Website Demo | DWD Studio',
     description:
       'Demo website for a detailing brand with several studios: studio locator with live map, service menu, before/after comparison and per-studio WhatsApp booking. Built by DWD Studio.',
@@ -62,13 +62,19 @@ export const ROUTES = [
 // swaps them for the real path so shared links keep working.
 export const LEGACY_HASHES = {
   '#/catalog': '/',
-  '#/kohinoor': '/kohinoor',
-  '#/boond': '/boond',
-  '#/kavach': '/kavach',
+  '#/kohinoor': '/kohinoor/',
+  '#/boond': '/boond/',
+  '#/kavach': '/kavach/',
 };
 
+// Paths end in a slash on purpose: Render serves dist/boond/index.html for
+// '/boond/', but its catch-all rewrite answers '/boond' with the root
+// index.html first -- so the slash form is the one crawlers must be given
+// (links, canonical, sitemap). Both forms still open the right page here.
+const trim = (path) => path.replace(/\/+$/, '') || '/';
+
 export const routeForPath = (pathname) => {
-  const clean = pathname.replace(/\/+$/, '') || '/';
+  const clean = trim(pathname);
   if (clean === '/catalog') return ROUTES[0];
-  return ROUTES.find((r) => r.path === clean) ?? null;
+  return ROUTES.find((r) => trim(r.path) === clean) ?? null;
 };

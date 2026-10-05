@@ -25,7 +25,7 @@ export default function Catalog() {
   return (
     <div className="catalog-page min-h-screen bg-[var(--ink)] text-[var(--paper)] transition-colors duration-300" data-theme={theme}>
       <header className="px-[var(--edge)] py-[26px] flex items-center justify-between gap-[16px] border-b border-[var(--line-soft)]">
-        <a href="/kohinoor" className="text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] shrink-0">
+        <a href="/kohinoor/" className="text-[20px] font-semibold tracking-[0.04em] flex items-center gap-[8px] shrink-0">
           <span className="w-[6px] h-[6px] bg-[var(--brass)] rounded-full" />KOHINOOR
         </a>
         <div className="theme-toggle" role="radiogroup" aria-label="Catalog page theme">
@@ -56,7 +56,7 @@ export default function Catalog() {
             <p className="mt-[20px] mb-0 max-w-[62ch] text-[15px] md:text-[17px] text-[var(--paper-dim)] leading-[1.6]">
               Every site in this portfolio is its own build — its own palette, its own type
               system, its own signature scroll effect — not a reskin of the others. All
-              {' '}{catalogSites.length} live in this one deployment. Click any swatch to copy its hex.
+              {' '}{catalogSites.length} live in this one deployment. Tap any swatch to copy its hex.
             </p>
 
             <div className="stat-strip">
@@ -69,7 +69,7 @@ export default function Catalog() {
             </div>
           </section>
 
-          <section className="pb-[clamp(64px,10vw,110px)] grid sm:grid-cols-2 xl:grid-cols-3 gap-[24px]">
+          <section className="pb-[clamp(64px,10vw,110px)] grid sm:grid-cols-2 lg:grid-cols-3 gap-[24px]">
             {catalogSites.map((site) => (
               <CatalogCard key={site.id} site={site} />
             ))}
