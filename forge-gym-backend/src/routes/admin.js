@@ -3,7 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { config } from '../config.js';
 import { WhatsAppLink } from '../models/whatsapp.js';
-import { Gym, User, Member, TENANT_MODELS } from '../models/index.js';
+import { Gym, User, Member, Plan, TENANT_MODELS } from '../models/index.js';
 import { body, HttpError } from '../middleware/http.js';
 import { seal, unseal } from '../lib/secretbox.js';
 import {
@@ -194,7 +194,7 @@ router.post(
       ownerName: z.string().min(2).max(80),
       email: z.string().email().max(160).optional().or(z.literal('')),
       phone: z.string().min(8).max(20),
-      package: z.enum(['essential', 'growth', 'performance']).default('growth'),
+      package: z.enum(['growth', 'performance']).default('growth'),
       addons: z.record(z.boolean()).optional(),
     })
   ),
@@ -213,6 +213,14 @@ router.post(
       isDemo: false,
       addons: addons || {},
     });
+
+    // Seed starter membership plans for the new gym
+    await Plan.insertMany([
+      { gymId: gym._id, name: 'Monthly General', price: 1500, durationMonths: 1, active: true },
+      { gymId: gym._id, name: 'Quarterly Fitness', price: 4000, durationMonths: 3, active: true },
+      { gymId: gym._id, name: 'Half-Yearly Transformation', price: 7500, durationMonths: 6, active: true },
+      { gymId: gym._id, name: 'Annual All-Access', price: 12000, durationMonths: 12, active: true },
+    ]);
 
     const user = await User.create({
       gymId: gym._id,
@@ -254,7 +262,7 @@ router.patch(
   body(
     z.object({
       name: z.string().min(2).max(80).optional(),
-      package: z.enum(['essential', 'growth', 'performance']).optional(),
+      package: z.enum(['growth', 'performance']).optional(),
       addons: z.record(z.boolean()).optional(),
       ownerName: z.string().min(2).max(80).optional(),
       ownerPhone: z.string().min(8).max(20).optional(),

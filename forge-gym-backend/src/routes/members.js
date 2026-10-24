@@ -30,7 +30,16 @@ const planInput = z.object({
 });
 
 router.get('/plans', desk, async (req, res) => {
-  res.json({ plans: await Plan.find({ gymId: req.gymId }).sort({ price: 1 }) });
+  let plans = await Plan.find({ gymId: req.gymId }).sort({ price: 1 });
+  if (plans.length === 0) {
+    plans = await Plan.insertMany([
+      { gymId: req.gymId, name: 'Monthly General', price: 1500, durationMonths: 1, active: true },
+      { gymId: req.gymId, name: 'Quarterly Fitness', price: 4000, durationMonths: 3, active: true },
+      { gymId: req.gymId, name: 'Half-Yearly Transformation', price: 7500, durationMonths: 6, active: true },
+      { gymId: req.gymId, name: 'Annual All-Access', price: 12000, durationMonths: 12, active: true },
+    ]);
+  }
+  res.json({ plans });
 });
 
 router.post('/plans', owner, demoCap(Plan, 20), body(planInput), async (req, res) => {
@@ -73,7 +82,7 @@ router.post(
       category: z.enum(CATEGORIES).optional(),
       planId: zId,
       startDate: zDay.optional(),
-      trainerId: zId.nullable().optional(),
+      trainerId: z.union([zId, z.literal(''), z.null()]).optional(),
       notes: zText(500).optional(),
       ...paymentPart,
     }),
@@ -87,7 +96,7 @@ router.post(
       ...fields,
       gymId: req.gymId,
       planId: plan._id,
-      trainerId: req.pkg === 'performance' ? await trainerFor(req, trainerId) : null,
+      trainerId: trainerId ? await trainerFor(req, trainerId) : null,
       startDate: start,
       expiryDate: shiftMonths(start, plan.durationMonths),
       feeDue: plan.price,
@@ -130,14 +139,18 @@ router.patch(
       email: zEmail.optional(),
       category: z.enum(CATEGORIES).optional(),
       planId: zId.optional(),
+      trainerId: z.union([zId, z.literal(''), z.null()]).optional(),
       expiryDate: zDay.optional(),
       notes: zText(500).optional(),
     }),
   ),
   async (req, res) => {
     const member = await findOwned(Member, req, req.params.id, 'Member');
-    const { planId, ...fields } = req.data;
+    const { planId, trainerId, ...fields } = req.data;
     if (planId) member.planId = (await findOwned(Plan, req, planId, 'Plan'))._id;
+    if ('trainerId' in req.data) {
+      member.trainerId = trainerId ? await trainerFor(req, trainerId) : null;
+    }
     Object.assign(member, fields);
     await member.save();
     res.json({ member: memberView(member, await lookups(req.gymId)) });

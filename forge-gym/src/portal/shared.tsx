@@ -38,6 +38,7 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
   const { api } = useSession();
   const toast = useToast();
   const plans = useData<{ plans: Plan[] }>('/plans');
+  const team = useData<{ team: { id: string; name: string; role: string; title?: string; active: boolean }[] }>('/team');
   const { busy, fields, message, run } = useSubmit();
   const [form, setForm] = useState({
     name: member?.name ?? prefill?.name ?? '',
@@ -45,6 +46,7 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
     email: member?.email ?? '',
     category: member?.category ?? 'General fitness',
     planId: member?.planId ?? '',
+    trainerId: member?.trainerId ?? '',
     expiryDate: member?.expiryDate ?? '',
     notes: member?.notes ?? prefill?.notes ?? '',
     paidNow: '',
@@ -54,10 +56,19 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
   const activePlans = (plans.data?.plans ?? []).filter((p) => p.active || p.id === member?.planId);
   const planId = form.planId || activePlans[0]?.id || '';
   const plan = activePlans.find((p) => p.id === planId);
+  const trainers = (team.data?.team ?? []).filter((t) => t.role === 'trainer' && t.active);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const shared = { name: form.name, phone: form.phone, email: form.email, category: form.category, planId, notes: form.notes };
+    const shared = {
+      name: form.name,
+      phone: form.phone,
+      email: form.email,
+      category: form.category,
+      planId,
+      trainerId: form.trainerId || null,
+      notes: form.notes,
+    };
     await run(async () => {
       const res = member
         ? await api<{ member: Member }>(`/members/${member.id}`, { method: 'PATCH', body: { ...shared, expiryDate: form.expiryDate } })
@@ -89,9 +100,28 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
             ))}
           </SelectField>
         </div>
-        {member ? (
-          <Field label="Membership valid until" type="date" value={form.expiryDate} onChange={set('expiryDate')} error={fields.expiryDate} />
-        ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <SelectField
+            label="Assigned Trainer"
+            value={form.trainerId}
+            onChange={set('trainerId')}
+            error={fields.trainerId}
+            hint={trainers.length === 0 ? 'No trainers yet. Add trainers under the Team tab.' : undefined}
+          >
+            <option value="">No trainer (unassigned)</option>
+            {trainers.map((t) => (
+              <option key={t.id} value={t.id}>
+                {t.name} {t.title ? `(${t.title})` : ''}
+              </option>
+            ))}
+          </SelectField>
+          {member ? (
+            <Field label="Membership valid until" type="date" value={form.expiryDate} onChange={set('expiryDate')} error={fields.expiryDate} />
+          ) : (
+            <div className="hidden sm:block" />
+          )}
+        </div>
+        {!member && (
           <div className="grid gap-4 sm:grid-cols-2">
             <Field
               label="Paid now (optional)"

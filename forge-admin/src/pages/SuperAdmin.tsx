@@ -61,7 +61,7 @@ export default function SuperAdmin() {
   const [ownerName, setOwnerName] = useState('');
   const [ownerPhone, setOwnerPhone] = useState('');
   const [ownerEmail, setOwnerEmail] = useState('');
-  const [pkg, setPkg] = useState<'growth' | 'performance' | 'essential'>('growth');
+  const [pkg, setPkg] = useState<'growth' | 'performance'>('growth');
   const [addons, setAddons] = useState({
     whatsapp: false,
     upiLinks: false,
@@ -74,7 +74,7 @@ export default function SuperAdmin() {
   const [editOwnerName, setEditOwnerName] = useState('');
   const [editOwnerPhone, setEditOwnerPhone] = useState('');
   const [editOwnerEmail, setEditOwnerEmail] = useState('');
-  const [editPkg, setEditPkg] = useState<'growth' | 'performance' | 'essential'>('growth');
+  const [editPkg, setEditPkg] = useState<'growth' | 'performance'>('growth');
   const [editAddons, setEditAddons] = useState({
     whatsapp: false,
     upiLinks: false,
@@ -132,7 +132,7 @@ export default function SuperAdmin() {
     setEditOwnerName(gym.owner?.name || '');
     setEditOwnerPhone(gym.owner?.phone || '');
     setEditOwnerEmail(gym.owner?.email || '');
-    setEditPkg(gym.package);
+    setEditPkg(gym.package === 'performance' ? 'performance' : 'growth');
     setEditAddons({
       whatsapp: !!gym.addons?.whatsapp,
       upiLinks: !!gym.addons?.upiLinks,
@@ -341,22 +341,28 @@ export default function SuperAdmin() {
       {/* Main Content */}
       <main className="mx-auto max-w-[1440px] px-5 py-8">
         {/* KPI Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
           <div className="border border-line bg-ink-2 p-5">
-            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Active Gyms</p>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">SaaS Gym Clients</p>
             <p className="mt-2 font-display text-4xl text-bone">{gyms.length}</p>
           </div>
           <div className="border border-line bg-ink-2 p-5">
-            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Growth Tiers</p>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Growth (₹2,499)</p>
             <p className="mt-2 font-display text-4xl text-ok">{growthCount}</p>
           </div>
           <div className="border border-line bg-ink-2 p-5">
-            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Performance Tiers</p>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Performance (₹4,499)</p>
             <p className="mt-2 font-display text-4xl text-warn">{perfCount}</p>
           </div>
           <div className="border border-line bg-ink-2 p-5">
-            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Total Athletes / Members</p>
+            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Total Athletes</p>
             <p className="mt-2 font-display text-4xl text-bone">{totalMembers}</p>
+          </div>
+          <div className="border border-line bg-ink-2 p-5">
+            <p className="font-mono text-[11px] uppercase tracking-wider text-mute">Est. Monthly MRR</p>
+            <p className="mt-2 font-display text-4xl text-bone">
+              ₹{(growthCount * 2499 + perfCount * 4499).toLocaleString('en-IN')}
+            </p>
           </div>
         </div>
 
@@ -364,10 +370,10 @@ export default function SuperAdmin() {
         <div className="mt-10 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
           <div>
             <h2 className="font-display text-2xl uppercase tracking-wider text-bone">
-              Gym Accounts Directory
+              SaaS Gym Accounts (Growth & Performance)
             </h2>
             <p className="font-mono text-xs text-mute">
-              Onboard new gym owners, generate invite links, edit details, and manage package tiers
+              Onboard new gym owners, generate WhatsApp setup links, and control software tiers
             </p>
           </div>
           <button
@@ -558,7 +564,6 @@ export default function SuperAdmin() {
                 >
                   <option value="growth">Growth — Run Your Gym (₹2,499/mo)</option>
                   <option value="performance">Performance — Coach & Retain (₹4,499/mo)</option>
-                  <option value="essential">Essential — Get Found Online (₹999/mo)</option>
                 </select>
               </div>
 
@@ -694,7 +699,6 @@ export default function SuperAdmin() {
                 >
                   <option value="growth">Growth — Run Your Gym (₹2,499/mo)</option>
                   <option value="performance">Performance — Coach & Retain (₹4,499/mo)</option>
-                  <option value="essential">Essential — Get Found Online (₹999/mo)</option>
                 </select>
               </div>
 
