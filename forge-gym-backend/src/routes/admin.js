@@ -248,7 +248,7 @@ router.post('/gyms/:id/invite', async (req, res) => {
   res.json({ inviteToken, owner: { name: user.name, phone: user.phone, email: user.email } });
 });
 
-// Update gym (package, addons, name)
+// Update gym (package, addons, name, owner info)
 router.patch(
   '/gyms/:id',
   body(
@@ -256,6 +256,9 @@ router.patch(
       name: z.string().min(2).max(80).optional(),
       package: z.enum(['essential', 'growth', 'performance']).optional(),
       addons: z.record(z.boolean()).optional(),
+      ownerName: z.string().min(2).max(80).optional(),
+      ownerPhone: z.string().min(8).max(20).optional(),
+      ownerEmail: z.string().email().max(160).optional().or(z.literal('')).optional(),
     })
   ),
   async (req, res) => {
@@ -267,7 +270,23 @@ router.patch(
     if (req.data.addons) gym.addons = { ...gym.addons, ...req.data.addons };
     await gym.save();
 
-    res.json({ id: String(gym._id), name: gym.name, package: gym.package, addons: gym.addons });
+    const owner = await User.findOne({ gymId: gym._id, role: 'owner' });
+    if (owner) {
+      if (req.data.ownerName) owner.name = req.data.ownerName;
+      if (req.data.ownerPhone) owner.phone = req.data.ownerPhone;
+      if (req.data.ownerEmail !== undefined) {
+        owner.email = req.data.ownerEmail ? req.data.ownerEmail.toLowerCase() : undefined;
+      }
+      await owner.save();
+    }
+
+    res.json({
+      id: String(gym._id),
+      name: gym.name,
+      package: gym.package,
+      addons: gym.addons,
+      owner: owner ? { name: owner.name, phone: owner.phone, email: owner.email } : null,
+    });
   }
 );
 
@@ -278,7 +297,7 @@ router.delete('/gyms/:id', async (req, res) => {
 
   await Promise.all(TENANT_MODELS.map((Model) => Model.deleteMany({ gymId: gym._id })));
   await gym.deleteOne();
-  res.json({ ok: true, message: `Gym "${gym.name}" and all records removed.` });
+  res.json({ ok: true, id: req.params.id, message: `Gym "${gym.name}" and all records removed.` });
 });
 
 export default router;

@@ -1,12 +1,15 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import {
+  AlertTriangle,
   Check,
   Copy,
   Lock,
+  Pencil,
   Plus,
   RefreshCw,
   Share2,
   Trash2,
+  X,
 } from 'lucide-react';
 import { ForgeMark } from '@/components/forge/DemoBar';
 import { request, ApiError } from '@/lib/api';
@@ -38,8 +41,14 @@ export default function SuperAdmin() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Modal state
+  // Modals state
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [editingGym, setEditingGym] = useState<GymItem | null>(null);
+  const [deletingGym, setDeletingGym] = useState<GymItem | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState(false);
+  const [editBusy, setEditBusy] = useState(false);
+
+  // Invite link dialog
   const [createdInvite, setCreatedInvite] = useState<{
     gymName: string;
     ownerPhone: string;
@@ -47,7 +56,7 @@ export default function SuperAdmin() {
   } | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Form inputs
+  // Create Form inputs
   const [gymName, setGymName] = useState('');
   const [ownerName, setOwnerName] = useState('');
   const [ownerPhone, setOwnerPhone] = useState('');
@@ -57,7 +66,19 @@ export default function SuperAdmin() {
     whatsapp: false,
     upiLinks: false,
     autopay: false,
-    leadFollowup: false,
+    trainerPlus: false,
+  });
+
+  // Edit Form inputs
+  const [editName, setEditName] = useState('');
+  const [editOwnerName, setEditOwnerName] = useState('');
+  const [editOwnerPhone, setEditOwnerPhone] = useState('');
+  const [editOwnerEmail, setEditOwnerEmail] = useState('');
+  const [editPkg, setEditPkg] = useState<'growth' | 'performance' | 'essential'>('growth');
+  const [editAddons, setEditAddons] = useState({
+    whatsapp: false,
+    upiLinks: false,
+    autopay: false,
     trainerPlus: false,
   });
 
@@ -104,6 +125,23 @@ export default function SuperAdmin() {
     setGyms([]);
   };
 
+  // Open Edit Modal
+  const openEditModal = (gym: GymItem) => {
+    setEditingGym(gym);
+    setEditName(gym.name);
+    setEditOwnerName(gym.owner?.name || '');
+    setEditOwnerPhone(gym.owner?.phone || '');
+    setEditOwnerEmail(gym.owner?.email || '');
+    setEditPkg(gym.package);
+    setEditAddons({
+      whatsapp: !!gym.addons?.whatsapp,
+      upiLinks: !!gym.addons?.upiLinks,
+      autopay: !!gym.addons?.autopay,
+      trainerPlus: !!gym.addons?.trainerPlus,
+    });
+  };
+
+  // Create New Gym
   const handleCreateGym = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
@@ -137,11 +175,57 @@ export default function SuperAdmin() {
       setOwnerName('');
       setOwnerPhone('');
       setOwnerEmail('');
+      setShowCreateModal(false);
 
       // Refresh list
       fetchGyms(adminKey);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Failed to create gym account.');
+      alert(err instanceof ApiError ? err.message : 'Failed to create gym account.');
+    }
+  };
+
+  // Save Gym Updates (Edit)
+  const handleUpdateGym = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!editingGym) return;
+    setEditBusy(true);
+    try {
+      await request(`/admin/gyms/${editingGym.id}`, {
+        method: 'PATCH',
+        headers: { 'x-admin-key': adminKey },
+        body: {
+          name: editName,
+          package: editPkg,
+          addons: editAddons,
+          ownerName: editOwnerName,
+          ownerPhone: editOwnerPhone,
+          ownerEmail: editOwnerEmail || undefined,
+        },
+      });
+      setEditingGym(null);
+      fetchGyms(adminKey);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : 'Could not update gym.');
+    } finally {
+      setEditBusy(false);
+    }
+  };
+
+  // Confirm and Delete Gym
+  const confirmDeleteGym = async () => {
+    if (!deletingGym) return;
+    setDeleteBusy(true);
+    try {
+      await request(`/admin/gyms/${deletingGym.id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-key': adminKey },
+      });
+      setDeletingGym(null);
+      fetchGyms(adminKey);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : 'Could not delete gym.');
+    } finally {
+      setDeleteBusy(false);
     }
   };
 
@@ -159,19 +243,6 @@ export default function SuperAdmin() {
       });
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Could not generate invite link.');
-    }
-  };
-
-  const handleDeleteGym = async (gymId: string, name: string) => {
-    if (!confirm(`Are you sure you want to completely remove "${name}" and all their records?`)) return;
-    try {
-      await request('/admin/gyms/' + gymId, {
-        method: 'DELETE',
-        headers: { 'x-admin-key': adminKey },
-      });
-      fetchGyms(adminKey);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Could not delete gym.');
     }
   };
 
@@ -216,7 +287,7 @@ export default function SuperAdmin() {
                 className="mt-1.5 w-full border border-line bg-ink px-3.5 py-2.5 font-mono text-sm text-bone transition-colors focus:border-red focus:outline-none"
               />
               <p className="mt-1 text-[11px] text-mute">
-                Default dev key: <code className="text-bone-dim">forge-superadmin-key-2026-production</code>
+                Configured on your backend server under <code className="text-bone-dim">ADMIN_KEY</code>
               </p>
             </div>
             <button
@@ -296,7 +367,7 @@ export default function SuperAdmin() {
               Gym Accounts Directory
             </h2>
             <p className="font-mono text-xs text-mute">
-              Onboard new gym owners, generate invite links, and control package tiers
+              Onboard new gym owners, generate invite links, edit details, and manage package tiers
             </p>
           </div>
           <button
@@ -323,7 +394,7 @@ export default function SuperAdmin() {
                 <th className="px-5 py-3.5">Package</th>
                 <th className="px-5 py-3.5">Owner Contact</th>
                 <th className="px-5 py-3.5">Members</th>
-                <th className="px-5 py-3.5">Created</th>
+                <th className="px-5 py-3.5">Add-ons</th>
                 <th className="px-5 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
@@ -339,7 +410,7 @@ export default function SuperAdmin() {
                   <tr key={gym.id} className="transition-colors hover:bg-graphite/40">
                     <td className="px-5 py-4">
                       <p className="font-heavy text-sm text-bone">{gym.name}</p>
-                      <p className="mt-0.5 text-[10px] text-mute">ID: {gym.id.slice(-6)}</p>
+                      <p className="mt-0.5 text-[10px] text-mute">ID: {gym.id.slice(-6)} · {new Date(gym.createdAt).toLocaleDateString()}</p>
                     </td>
                     <td className="px-5 py-4">
                       <span
@@ -358,9 +429,25 @@ export default function SuperAdmin() {
                       <p className="text-bone">{gym.owner?.name || 'No Owner'}</p>
                       <p className="text-mute">{gym.owner?.phone || gym.owner?.email || '-'}</p>
                     </td>
-                    <td className="px-5 py-4 text-bone">{gym.memberCount}</td>
-                    <td className="px-5 py-4 text-mute">
-                      {new Date(gym.createdAt).toLocaleDateString()}
+                    <td className="px-5 py-4 text-bone font-heavy">{gym.memberCount}</td>
+                    <td className="px-5 py-4">
+                      <div className="flex flex-wrap gap-1">
+                        {gym.addons?.whatsapp && (
+                          <span className="border border-line px-1.5 py-0.5 text-[9px] text-bone-dim">WA</span>
+                        )}
+                        {gym.addons?.upiLinks && (
+                          <span className="border border-line px-1.5 py-0.5 text-[9px] text-bone-dim">UPI</span>
+                        )}
+                        {gym.addons?.autopay && (
+                          <span className="border border-line px-1.5 py-0.5 text-[9px] text-bone-dim">Autopay</span>
+                        )}
+                        {gym.addons?.trainerPlus && (
+                          <span className="border border-line px-1.5 py-0.5 text-[9px] text-bone-dim">Trainer+</span>
+                        )}
+                        {!gym.addons?.whatsapp && !gym.addons?.upiLinks && !gym.addons?.autopay && !gym.addons?.trainerPlus && (
+                          <span className="text-[10px] text-mute">None</span>
+                        )}
+                      </div>
                     </td>
                     <td className="px-5 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -369,14 +456,21 @@ export default function SuperAdmin() {
                             handleGenerateInvite(gym.id, gym.owner?.phone || '', gym.name)
                           }
                           title="Generate WhatsApp Invite Link"
-                          className="border border-line px-2.5 py-1.5 text-mute hover:border-bone hover:text-bone"
+                          className="border border-line px-2.5 py-1.5 text-mute hover:border-bone hover:text-bone transition-colors"
                         >
                           <Share2 size={13} />
                         </button>
                         <button
-                          onClick={() => handleDeleteGym(gym.id, gym.name)}
+                          onClick={() => openEditModal(gym)}
+                          title="Edit Gym & Package"
+                          className="border border-line px-2.5 py-1.5 text-mute hover:border-bone hover:text-bone transition-colors"
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          onClick={() => setDeletingGym(gym)}
                           title="Remove Gym"
-                          className="border border-line px-2.5 py-1.5 text-mute hover:border-red hover:text-red"
+                          className="border border-line px-2.5 py-1.5 text-mute hover:border-red hover:text-red transition-colors"
                         >
                           <Trash2 size={13} />
                         </button>
@@ -392,12 +486,17 @@ export default function SuperAdmin() {
 
       {/* Onboard New Gym Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="w-full max-w-lg border border-line bg-ink-2 p-6 shadow-2xl">
-            <h3 className="font-display text-2xl uppercase tracking-wider text-bone">
-              Onboard New Gym Client
-            </h3>
-            <p className="mt-1 font-mono text-xs text-mute">
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <h3 className="font-display text-2xl uppercase tracking-wider text-bone">
+                Onboard New Gym Client
+              </h3>
+              <button onClick={() => setShowCreateModal(false)} className="text-mute hover:text-bone">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="mt-2 font-mono text-xs text-mute">
               Enter the gym details to generate an instant WhatsApp activation link.
             </p>
 
@@ -505,7 +604,7 @@ export default function SuperAdmin() {
                 </div>
               </div>
 
-              <div className="flex justify-end gap-3 pt-4">
+              <div className="flex justify-end gap-3 pt-4 border-t border-line">
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
@@ -515,7 +614,7 @@ export default function SuperAdmin() {
                 </button>
                 <button
                   type="submit"
-                  className="bg-bone px-5 py-2 uppercase tracking-wider text-ink hover:bg-red hover:text-bone"
+                  className="bg-bone px-5 py-2 uppercase tracking-wider text-ink hover:bg-red hover:text-bone transition-colors"
                 >
                   Create & Generate Link
                 </button>
@@ -525,9 +624,185 @@ export default function SuperAdmin() {
         </div>
       )}
 
+      {/* Edit Gym Modal */}
+      {editingGym && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg border border-line bg-ink-2 p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-line pb-3">
+              <h3 className="font-display text-2xl uppercase tracking-wider text-bone">
+                Edit Gym: {editingGym.name}
+              </h3>
+              <button onClick={() => setEditingGym(null)} className="text-mute hover:text-bone">
+                <X size={18} />
+              </button>
+            </div>
+            <p className="mt-2 font-mono text-xs text-mute">
+              Update gym name, package plan, owner details, or enabled add-ons.
+            </p>
+
+            <form onSubmit={handleUpdateGym} className="mt-6 space-y-4 font-mono text-xs">
+              <div>
+                <label className="block uppercase tracking-wider text-bone-dim">Gym Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="mt-1 w-full border border-line bg-ink px-3 py-2 text-bone focus:border-red focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block uppercase tracking-wider text-bone-dim">Owner Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={editOwnerName}
+                    onChange={(e) => setEditOwnerName(e.target.value)}
+                    className="mt-1 w-full border border-line bg-ink px-3 py-2 text-bone focus:border-red focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block uppercase tracking-wider text-bone-dim">Owner Phone *</label>
+                  <input
+                    type="tel"
+                    required
+                    value={editOwnerPhone}
+                    onChange={(e) => setEditOwnerPhone(e.target.value)}
+                    className="mt-1 w-full border border-line bg-ink px-3 py-2 text-bone focus:border-red focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block uppercase tracking-wider text-bone-dim">Owner Email</label>
+                <input
+                  type="email"
+                  value={editOwnerEmail}
+                  onChange={(e) => setEditOwnerEmail(e.target.value)}
+                  className="mt-1 w-full border border-line bg-ink px-3 py-2 text-bone focus:border-red focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block uppercase tracking-wider text-bone-dim">Package Tier *</label>
+                <select
+                  value={editPkg}
+                  onChange={(e) => setEditPkg(e.target.value as any)}
+                  className="mt-1 w-full border border-line bg-ink px-3 py-2 text-bone focus:border-red focus:outline-none"
+                >
+                  <option value="growth">Growth — Run Your Gym (₹2,499/mo)</option>
+                  <option value="performance">Performance — Coach & Retain (₹4,499/mo)</option>
+                  <option value="essential">Essential — Get Found Online (₹999/mo)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block uppercase tracking-wider text-bone-dim mb-2">Enable Add-ons</label>
+                <div className="grid grid-cols-2 gap-2 text-[11px] text-mute">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editAddons.whatsapp}
+                      onChange={(e) => setEditAddons((a) => ({ ...a, whatsapp: e.target.checked }))}
+                      className="accent-red"
+                    />
+                    <span>WhatsApp Alerts</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editAddons.upiLinks}
+                      onChange={(e) => setEditAddons((a) => ({ ...a, upiLinks: e.target.checked }))}
+                      className="accent-red"
+                    />
+                    <span>UPI Payment Links</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editAddons.autopay}
+                      onChange={(e) => setEditAddons((a) => ({ ...a, autopay: e.target.checked }))}
+                      className="accent-red"
+                    />
+                    <span>UPI Autopay</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editAddons.trainerPlus}
+                      onChange={(e) => setEditAddons((a) => ({ ...a, trainerPlus: e.target.checked }))}
+                      className="accent-red"
+                    />
+                    <span>Trainer Plus</span>
+                  </label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 pt-4 border-t border-line">
+                <button
+                  type="button"
+                  onClick={() => setEditingGym(null)}
+                  className="border border-line px-4 py-2 uppercase tracking-wider text-mute hover:text-bone"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editBusy}
+                  className="bg-bone px-5 py-2 uppercase tracking-wider text-ink hover:bg-red hover:text-bone transition-colors disabled:opacity-50"
+                >
+                  {editBusy ? 'Saving...' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deletingGym && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md border border-red/40 bg-ink-2 p-6 shadow-2xl">
+            <div className="flex items-center gap-3 text-red">
+              <AlertTriangle size={24} />
+              <h3 className="font-display text-2xl uppercase tracking-wider text-bone">
+                Confirm Deletion
+              </h3>
+            </div>
+
+            <p className="mt-3 font-mono text-xs text-bone-dim leading-relaxed">
+              Are you sure you want to permanently delete <strong className="text-red font-heavy">{deletingGym.name}</strong>?
+            </p>
+            <p className="mt-2 font-mono text-[11px] text-mute">
+              This will completely remove the gym, owner login, members, check-ins, payment logs, and plans. This action cannot be undone.
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3 border-t border-line pt-4 font-mono text-xs">
+              <button
+                type="button"
+                onClick={() => setDeletingGym(null)}
+                className="border border-line px-4 py-2 uppercase tracking-wider text-mute hover:text-bone"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleteBusy}
+                onClick={confirmDeleteGym}
+                className="bg-red px-5 py-2 uppercase tracking-wider text-white hover:bg-red-dim transition-colors disabled:opacity-50"
+              >
+                {deleteBusy ? 'Deleting...' : 'Delete Permanently'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Generated Invite Modal */}
       {createdInvite && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="w-full max-w-lg border border-line bg-ink-2 p-6 shadow-2xl">
             <h3 className="font-display text-2xl uppercase tracking-wider text-ok">
               Activation Link Ready!
@@ -543,7 +818,7 @@ export default function SuperAdmin() {
             <div className="mt-5 flex flex-wrap gap-3">
               <button
                 onClick={() => copyToClipboard(createdInvite.url)}
-                className="inline-flex items-center gap-1.5 bg-bone px-4 py-2 font-mono text-xs uppercase tracking-wider text-ink hover:bg-red hover:text-bone"
+                className="inline-flex items-center gap-1.5 bg-bone px-4 py-2 font-mono text-xs uppercase tracking-wider text-ink hover:bg-red hover:text-bone transition-colors"
               >
                 {copied ? <Check size={14} /> : <Copy size={14} />}
                 {copied ? 'Copied to Clipboard!' : 'Copy Link'}
@@ -555,7 +830,7 @@ export default function SuperAdmin() {
                 )}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 border border-ok/60 bg-ok/10 px-4 py-2 font-mono text-xs uppercase tracking-wider text-ok hover:bg-ok hover:text-ink"
+                className="inline-flex items-center gap-1.5 border border-ok/60 bg-ok/10 px-4 py-2 font-mono text-xs uppercase tracking-wider text-ok hover:bg-ok hover:text-ink transition-colors"
               >
                 <Share2 size={14} />
                 Send via WhatsApp
