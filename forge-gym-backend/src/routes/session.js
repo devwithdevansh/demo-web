@@ -7,6 +7,7 @@ import { signToken, requireAuth } from '../middleware/auth.js';
 import { body, HttpError, zName, zPhone, zText } from '../middleware/http.js';
 import { createSandbox, findSandbox, resetSandbox } from '../seed/demoGym.js';
 import { dayKey } from '../lib/dates.js';
+import { unseal } from '../lib/secretbox.js';
 
 const router = Router();
 
@@ -74,16 +75,65 @@ router.post('/demo/reset', limiter(20), requireAuth, async (req, res) => {
   res.json(sessionPayload(user, req.gym, req.pkg));
 });
 
-/** Sign-in for live gym accounts. Demo accounts have no password and are never accepted here. */
+/** Activate onboarding invite link for a gym owner */
+router.post(
+  '/auth/activate',
+  limiter(20),
+  body(z.object({ token: z.string().min(10), password: z.string().min(6).max(200), name: z.string().min(2).max(80).optional() })),
+  async (req, res) => {
+    const raw = unseal(req.data.token);
+    if (!raw) throw new HttpError(400, 'This activation link is invalid or has expired.', 'invalid_token');
+    let payload;
+    try {
+      payload = JSON.parse(raw);
+    } catch {
+      throw new HttpError(400, 'This activation link is corrupt.', 'invalid_token');
+    }
+    if (payload.exp && Date.now() > payload.exp) {
+      throw new HttpError(410, 'This activation link has expired. Please ask for a new invite.', 'token_expired');
+    }
+    const user = await User.findOne({ _id: payload.userId, gymId: payload.gymId, isDemo: false });
+    if (!user) throw new HttpError(404, 'Account not found.', 'not_found');
+    const gym = await Gym.findOne({ _id: payload.gymId, isDemo: false });
+    if (!gym) throw new HttpError(404, 'Gym not found.', 'not_found');
+
+    user.passwordHash = await bcrypt.hash(req.data.password, 12);
+    if (req.data.name) user.name = req.data.name;
+    user.active = true;
+    await user.save();
+
+    res.json(sessionPayload(user, gym, gym.package));
+  }
+);
+
+/** Sign-in for live gym accounts via email or phone. Demo accounts have no password and are never accepted here. */
 router.post(
   '/auth/login',
   limiter(20),
-  body(z.object({ email: z.email().max(160), password: z.string().min(1).max(200) })),
+  body(
+    z.object({
+      identifier: z.string().min(1).max(160).optional(),
+      email: z.string().optional(),
+      password: z.string().min(1).max(200),
+    })
+  ),
   async (req, res) => {
-    const user = await User.findOne({ email: req.data.email.toLowerCase(), isDemo: false, active: true });
+    const id = (req.data.identifier || req.data.email || '').trim().toLowerCase();
+    if (!id) throw new HttpError(400, 'Please enter your phone number or email.', 'missing_identifier');
+
+    const cleanPhone = id.replace(/\D/g, '');
+    const user = await User.findOne({
+      $or: [
+        { email: id },
+        { phone: id },
+        ...(cleanPhone.length >= 10 ? [{ phone: { $regex: cleanPhone + '$' } }] : []),
+      ],
+      isDemo: false,
+      active: true,
+    });
     const matches = await bcrypt.compare(req.data.password, user?.passwordHash || DUMMY_HASH);
     const gym = user && matches ? await Gym.findOne({ _id: user.gymId, isDemo: false }) : null;
-    if (!gym) throw new HttpError(401, 'Email or password is incorrect.', 'bad_credentials');
+    if (!gym) throw new HttpError(401, 'Email/Phone or password is incorrect.', 'bad_credentials');
     res.json(sessionPayload(user, gym, gym.package));
   },
 );

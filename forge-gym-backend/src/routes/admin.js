@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import { z } from 'zod';
 import { config } from '../config.js';
 import { WhatsAppLink } from '../models/whatsapp.js';
+import { Gym, User, Member, TENANT_MODELS } from '../models/index.js';
 import { body, HttpError } from '../middleware/http.js';
 import { seal, unseal } from '../lib/secretbox.js';
 import {
@@ -149,6 +150,135 @@ router.delete('/whatsapp', async (_req, res) => {
     await link.deleteOne();
   }
   res.json(await overview());
+});
+
+// ---- Gym Management Endpoints ---------------------------------------------
+
+// List all non-demo gyms with stats
+router.get('/gyms', async (_req, res) => {
+  const gyms = await Gym.find({ isDemo: false }).sort({ createdAt: -1 });
+  const result = await Promise.all(
+    gyms.map(async (gym) => {
+      const owner = await User.findOne({ gymId: gym._id, role: 'owner' }).lean();
+      const memberCount = await Member.countDocuments({ gymId: gym._id });
+      return {
+        id: String(gym._id),
+        name: gym.name,
+        package: gym.package,
+        addons: gym.addons,
+        createdAt: gym.createdAt,
+        lastUsedAt: gym.lastUsedAt,
+        memberCount,
+        owner: owner
+          ? {
+              id: String(owner._id),
+              name: owner.name,
+              email: owner.email || '',
+              phone: owner.phone || '',
+              active: owner.active,
+              hasPassword: !!owner.passwordHash,
+            }
+          : null,
+      };
+    })
+  );
+  res.json({ gyms: result });
+});
+
+// Create a new live gym and generate an activation invite token
+router.post(
+  '/gyms',
+  body(
+    z.object({
+      name: z.string().min(2).max(80),
+      ownerName: z.string().min(2).max(80),
+      email: z.string().email().max(160).optional().or(z.literal('')),
+      phone: z.string().min(8).max(20),
+      package: z.enum(['essential', 'growth', 'performance']).default('growth'),
+      addons: z.record(z.boolean()).optional(),
+    })
+  ),
+  async (req, res) => {
+    const { name, ownerName, email, phone, package: pkg, addons } = req.data;
+    if (email) {
+      const existingEmail = await User.findOne({ email: email.toLowerCase(), isDemo: false });
+      if (existingEmail) throw new HttpError(409, 'An account with that email already exists.', 'duplicate_email');
+    }
+    const existingPhone = await User.findOne({ phone, isDemo: false });
+    if (existingPhone) throw new HttpError(409, 'An account with that phone number already exists.', 'duplicate_phone');
+
+    const gym = await Gym.create({
+      name,
+      package: pkg,
+      isDemo: false,
+      addons: addons || {},
+    });
+
+    const user = await User.create({
+      gymId: gym._id,
+      name: ownerName,
+      email: email ? email.toLowerCase() : undefined,
+      phone,
+      role: 'owner',
+      title: 'Owner',
+      isDemo: false,
+      active: true,
+    });
+
+    const invitePayload = JSON.stringify({ gymId: String(gym._id), userId: String(user._id), exp: Date.now() + 7 * 86400000 });
+    const inviteToken = seal(invitePayload);
+
+    res.status(201).json({
+      gym: { id: String(gym._id), name: gym.name, package: gym.package, addons: gym.addons },
+      owner: { id: String(user._id), name: user.name, phone: user.phone, email: user.email },
+      inviteToken,
+    });
+  }
+);
+
+// Regenerate invite link for a gym
+router.post('/gyms/:id/invite', async (req, res) => {
+  const gym = await Gym.findOne({ _id: req.params.id, isDemo: false });
+  if (!gym) throw new HttpError(404, 'Gym not found.', 'not_found');
+  const user = await User.findOne({ gymId: gym._id, role: 'owner' });
+  if (!user) throw new HttpError(404, 'Owner account not found for this gym.', 'not_found');
+
+  const invitePayload = JSON.stringify({ gymId: String(gym._id), userId: String(user._id), exp: Date.now() + 7 * 86400000 });
+  const inviteToken = seal(invitePayload);
+  res.json({ inviteToken, owner: { name: user.name, phone: user.phone, email: user.email } });
+});
+
+// Update gym (package, addons, name)
+router.patch(
+  '/gyms/:id',
+  body(
+    z.object({
+      name: z.string().min(2).max(80).optional(),
+      package: z.enum(['essential', 'growth', 'performance']).optional(),
+      addons: z.record(z.boolean()).optional(),
+    })
+  ),
+  async (req, res) => {
+    const gym = await Gym.findOne({ _id: req.params.id, isDemo: false });
+    if (!gym) throw new HttpError(404, 'Gym not found.', 'not_found');
+
+    if (req.data.name) gym.name = req.data.name;
+    if (req.data.package) gym.package = req.data.package;
+    if (req.data.addons) gym.addons = { ...gym.addons, ...req.data.addons };
+    await gym.save();
+
+    res.json({ id: String(gym._id), name: gym.name, package: gym.package, addons: gym.addons });
+  }
+);
+
+// Delete gym and all its records
+router.delete('/gyms/:id', async (req, res) => {
+  const gym = await Gym.findOne({ _id: req.params.id, isDemo: false });
+  if (!gym) throw new HttpError(404, 'Gym not found.', 'not_found');
+
+  await Promise.all(TENANT_MODELS.map((Model) => Model.deleteMany({ gymId: gym._id })));
+  await gym.deleteOne();
+  res.json({ ok: true, message: `Gym "${gym.name}" and all records removed.` });
 });
 
 export default router;

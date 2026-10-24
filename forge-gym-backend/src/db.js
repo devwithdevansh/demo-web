@@ -21,14 +21,15 @@ export async function connectDb({ ephemeral = false } = {}) {
 
   // The -core package fetches its database binary on first use, not during npm install,
   // so installing on a host never triggers a large download.
+  process.env.MONGOMS_MD5_CHECK = '0';
   const { MongoMemoryServer } = await import('mongodb-memory-server-core');
   if (ephemeral) {
-    localServer = await MongoMemoryServer.create();
+    localServer = await MongoMemoryServer.create({ binary: { checkMD5: false } });
   } else {
     const dbPath = path.join(rootDir, '.data');
     const start = () => {
       mkdirSync(dbPath, { recursive: true });
-      return MongoMemoryServer.create({ instance: { dbPath, storageEngine: 'wiredTiger' } });
+      return MongoMemoryServer.create({ instance: { dbPath, storageEngine: 'wiredTiger' }, binary: { checkMD5: false } });
     };
     try {
       localServer = await start();

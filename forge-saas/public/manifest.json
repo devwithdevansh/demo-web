@@ -1,0 +1,16 @@
+{
+  "name": "FORGE Gym Software",
+  "short_name": "FORGE",
+  "description": "Complete operations, attendance, payments and coaching portal for gyms.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0a",
+  "theme_color": "#ff2e2e",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
