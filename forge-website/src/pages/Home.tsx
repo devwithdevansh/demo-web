@@ -66,7 +66,7 @@ function Header() {
         </nav>
         <div className="flex items-center gap-3">
           <a
-            href={import.meta.env.VITE_SAAS_URL || 'http://localhost:5174/login'}
+            href={import.meta.env.VITE_SAAS_URL ? `${import.meta.env.VITE_SAAS_URL}/login` : 'https://demo-web-gym-saas.onrender.com/login'}
             className="hidden border border-line px-4 py-2 font-mono text-[11px] uppercase tracking-[0.16em] text-bone transition-colors hover:border-bone sm:block"
           >
             Client Login

@@ -82,7 +82,7 @@ export default function SuperAdmin() {
     trainerPlus: false,
   });
 
-  const saasUrl = import.meta.env.VITE_SAAS_URL || 'http://localhost:5174';
+  const saasUrl = (import.meta.env.VITE_SAAS_URL || 'https://demo-web-gym-saas.onrender.com').replace(/\/+$/, '');
 
   const fetchGyms = async (key: string) => {
     setLoading(true);
