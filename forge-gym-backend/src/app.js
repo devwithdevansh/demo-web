@@ -26,7 +26,15 @@ export function createApp() {
   // The site is hosted separately, so only the configured site addresses may call the API from a browser.
   api.use((req, res, next) => {
     const origin = req.get('origin');
-    if (origin && config.corsOrigins.includes(origin)) {
+    const isAllowed =
+      !origin ||
+      config.corsOrigins.length === 0 ||
+      config.corsOrigins.includes('*') ||
+      config.corsOrigins.includes(origin) ||
+      /\.onrender\.com$/.test(origin) ||
+      /localhost(:\d+)?$/.test(origin);
+
+    if (origin && isAllowed) {
       res.set({
         'Access-Control-Allow-Origin': origin,
         Vary: 'Origin',
