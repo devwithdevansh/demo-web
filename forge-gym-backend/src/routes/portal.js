@@ -52,7 +52,12 @@ router.post('/checkin', body(z.object({ qrCode: z.string().min(1) })), async (re
   const code = req.data.qrCode.trim();
   const expected = `FORGE_CHECKIN:${req.gymId}`;
 
-  if (code !== expected && code !== String(req.gymId)) {
+  const isValid =
+    code.toLowerCase() === expected.toLowerCase() ||
+    code === String(req.gymId) ||
+    code.toLowerCase().endsWith(String(req.gymId).toLowerCase());
+
+  if (!isValid) {
     throw new HttpError(400, 'Invalid gym QR code. Please scan the check-in QR code at your gym reception.', 'invalid_qr');
   }
 
