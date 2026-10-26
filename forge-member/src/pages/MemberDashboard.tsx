@@ -75,7 +75,19 @@ export default function MemberDashboard() {
       });
 
       setCheckinSuccessMsg(res.message);
-      fetchPortalData();
+
+      // Instant optimistic update: mark today as checked-in immediately without waiting for a manual refresh
+      setData((prev) => {
+        if (!prev) return prev;
+        const alreadyVisited = prev.visits.includes(prev.today);
+        return {
+          ...prev,
+          visits: alreadyVisited ? prev.visits : [...prev.visits, prev.today],
+        };
+      });
+
+      // Synchronize latest fresh state from server in background
+      await fetchPortalData();
     } catch (err) {
       setCheckinErrorMsg(err instanceof Error ? err.message : 'Could not check in. Please try again.');
     }

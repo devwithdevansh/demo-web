@@ -23,9 +23,14 @@ export async function request<T>(path: string, { method = 'GET', body, token, he
   const authToken = token || localStorage.getItem('forge.member.token');
   let res: Response;
   try {
-    res = await fetch(`${API_ORIGIN}/api${path}`, {
+    const sep = path.includes('?') ? '&' : '?';
+    const cacheBuster = method === 'GET' ? `${sep}_t=${Date.now()}` : '';
+    res = await fetch(`${API_ORIGIN}/api${path}${cacheBuster}`, {
       method,
+      cache: 'no-store',
       headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
         ...(body !== undefined ? { 'Content-Type': 'application/json' } : {}),
         ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
         ...headers,

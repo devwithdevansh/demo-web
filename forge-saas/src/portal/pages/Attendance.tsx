@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { FormEvent } from 'react';
 import { ApiError } from '@/lib/api';
 import { prettyDay } from '@/lib/format';
@@ -40,6 +40,15 @@ export default function Attendance() {
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showStandee, setShowStandee] = useState(false);
+
+  // Auto-refresh attendance every 4 seconds when viewing today so scanned members appear in real-time
+  useEffect(() => {
+    if (!sheet.data?.isToday) return;
+    const interval = setInterval(() => {
+      sheet.reload();
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [sheet.data?.isToday, sheet.reload]);
 
   const waiting = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -87,16 +96,21 @@ export default function Attendance() {
         title="Attendance"
         sub="Check members in at the front desk, or by the QR pass on their phone."
         actions={
-          <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
-            Day
-            <input
-              type="date"
-              value={date || sheet.data?.day || ''}
-              max={sheet.data?.isToday ? sheet.data.day : undefined}
-              onChange={(e) => setDate(e.target.value)}
-              className="border border-line bg-ink px-3 py-2 text-sm text-bone"
-            />
-          </label>
+          <div className="flex items-center gap-3">
+            <Btn variant="ghost" size="sm" onClick={() => sheet.reload()} busy={sheet.loading}>
+              Refresh
+            </Btn>
+            <label className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
+              Day
+              <input
+                type="date"
+                value={date || sheet.data?.day || ''}
+                max={sheet.data?.isToday ? sheet.data.day : undefined}
+                onChange={(e) => setDate(e.target.value)}
+                className="border border-line bg-ink px-3 py-2 text-sm text-bone"
+              />
+            </label>
+          </div>
         }
       />
       <div className="mb-4">
