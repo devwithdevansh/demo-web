@@ -140,9 +140,10 @@ function Shell() {
     }`;
 
   return (
-    <>
-      <header className="border-b border-line bg-ink-2">
-        <div className="mx-auto flex max-w-[1440px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 lg:px-8">
+    <div className="flex h-svh flex-col overflow-hidden bg-ink text-bone">
+      {/* Pinned Top Navigation Header */}
+      <header className="shrink-0 border-b border-line bg-ink-2 z-30">
+        <div className="mx-auto flex max-w-[1600px] flex-wrap items-center justify-between gap-x-6 gap-y-3 px-4 py-3 lg:px-8">
           <div className="min-w-0">
             <p className="truncate font-display text-2xl leading-none text-bone">{session.gym.name}</p>
             <p className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.16em] text-mute">
@@ -162,8 +163,14 @@ function Shell() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-[1440px] lg:flex">
-        <nav ref={navRef} aria-label="Sections" className="scroll-x sticky top-0 z-40 flex gap-1 border-b border-line bg-ink px-2 py-2 lg:static lg:w-56 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r lg:px-3 lg:py-6">
+      {/* Main Container below Header: Split into Left Sidebar and Right Main Content */}
+      <div className="mx-auto flex flex-1 w-full max-w-[1600px] min-h-0 flex-col overflow-hidden lg:flex-row">
+        {/* Left Sidebar: Independent Vertical Scrollbar */}
+        <nav
+          ref={navRef}
+          aria-label="Sections"
+          className="scroll-x shrink-0 flex gap-1 border-b border-line bg-ink px-2 py-2 z-20 lg:w-60 lg:shrink-0 lg:h-full lg:flex-col lg:border-b-0 lg:border-r lg:border-line lg:px-3 lg:py-6 lg:overflow-y-auto scroll-y"
+        >
           {items.map(({ to, label, icon: Icon }) => (
             <NavLink key={to} to={to ? `${base}/${to}` : base} end={!to} className={linkClass}>
               <Icon size={15} aria-hidden />
@@ -172,7 +179,8 @@ function Shell() {
           ))}
         </nav>
 
-        <main className="min-w-0 flex-1 px-4 py-6 sm:py-8 lg:px-8">
+        {/* Right Main Screen: Independent Vertical Scrollbar */}
+        <main className="min-w-0 flex-1 h-full overflow-y-auto scroll-y px-4 py-6 sm:py-8 lg:px-8">
           <Suspense fallback={<Loading />}>
             <Routes>
               {desk && (
@@ -216,7 +224,7 @@ function Shell() {
           </Suspense>
         </main>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -225,12 +233,10 @@ export default function Portal({ role: propRole }: { role?: Role }) {
   const params = useParams();
   const role = (propRole || params.role || 'owner') as Role;
   return (
-    <div className="min-h-svh bg-ink text-bone">
-      <ToastProvider>
-        <SessionProvider role={role}>
-          <Shell />
-        </SessionProvider>
-      </ToastProvider>
-    </div>
+    <ToastProvider>
+      <SessionProvider role={role}>
+        <Shell />
+      </SessionProvider>
+    </ToastProvider>
   );
 }

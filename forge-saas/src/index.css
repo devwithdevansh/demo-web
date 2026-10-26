@@ -125,3 +125,24 @@ input, select, textarea {
   scrollbar-width: thin;
   scrollbar-color: var(--color-line) transparent;
 }
+
+/* Independent thin vertical scroller for sidebar and right screen */
+.scroll-y {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
+}
+.scroll-y::-webkit-scrollbar {
+  width: 6px;
+}
+.scroll-y::-webkit-scrollbar-track {
+  background: rgba(10, 10, 10, 0.5);
+}
+.scroll-y::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 2px;
+}
+.scroll-y::-webkit-scrollbar-thumb:hover {
+  background: var(--color-mute);
+}
+
