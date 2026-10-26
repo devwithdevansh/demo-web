@@ -8,6 +8,7 @@ export interface Plan {
   name: string;
   price: number;
   durationMonths: number;
+  durationDays?: number;
   active: boolean;
 }
 

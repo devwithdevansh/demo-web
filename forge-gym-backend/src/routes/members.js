@@ -26,9 +26,17 @@ async function trainerFor(req, trainerId) {
 const planInput = z.object({
   name: z.string().trim().min(2, 'Enter a plan name.').max(60),
   price: z.number({ error: 'Enter the fee in rupees.' }).int('Use whole rupees.').min(0).max(1000000),
-  durationMonths: z.number().int().min(1).max(36),
+  durationMonths: z.number().int().min(0).max(36).default(0),
+  durationDays: z.number().int().min(1).max(365).optional().nullable(),
   active: z.boolean().optional(),
 });
+
+export function calcPlanExpiry(startDate, plan) {
+  if (plan.durationDays && plan.durationDays > 0) {
+    return shiftDay(startDate, plan.durationDays);
+  }
+  return shiftMonths(startDate, plan.durationMonths || 1);
+}
 
 router.get('/plans', desk, async (req, res) => {
   let plans = await Plan.find({ gymId: req.gymId }).sort({ price: 1 });
@@ -100,7 +108,7 @@ router.post(
       planId: plan._id,
       trainerId: trainerId ? await trainerFor(req, trainerId) : null,
       startDate: start,
-      expiryDate: shiftMonths(start, plan.durationMonths),
+      expiryDate: calcPlanExpiry(start, plan),
       feeDue: plan.price,
       memberCode: `IP-${1001 + count}`,
     });
@@ -214,7 +222,8 @@ router.post('/members/:id/renew', desk, body(z.object({ planId: zId.optional(), 
   const plan = await findOwned(Plan, req, req.data.planId || member.planId, 'Plan');
   const today = dayKey();
   member.planId = plan._id;
-  member.expiryDate = shiftMonths(member.expiryDate < today ? today : member.expiryDate, plan.durationMonths);
+  const baseDate = member.expiryDate < today ? today : member.expiryDate;
+  member.expiryDate = calcPlanExpiry(baseDate, plan);
   member.feeDue += plan.price;
   await member.save();
   const { paidNow = 0, method = 'cash' } = req.data;

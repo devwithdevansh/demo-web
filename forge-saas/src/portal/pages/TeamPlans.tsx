@@ -123,18 +123,35 @@ export function Team() {
 
 // ---- Plans ----------------------------------------------------------------
 
+const DURATION_OPTIONS = [
+  { value: 'd:10', label: '10 days', days: 10, months: 0 },
+  { value: 'd:15', label: '15 days', days: 15, months: 0 },
+  { value: 'm:1', label: '1 month', days: 0, months: 1 },
+  { value: 'm:3', label: '3 months', days: 0, months: 3 },
+  { value: 'm:6', label: '6 months', days: 0, months: 6 },
+  { value: 'm:12', label: '1 year', days: 0, months: 12 },
+];
+
 function PlanForm({ plan, onClose, onSaved }: { plan?: Plan; onClose: () => void; onSaved: () => void }) {
   const { api } = useSession();
   const toast = useToast();
   const { busy, fields, message, run } = useSubmit();
   const [name, setName] = useState(plan?.name ?? '');
   const [price, setPrice] = useState(plan ? String(plan.price) : '');
-  const [months, setMonths] = useState(String(plan?.durationMonths ?? 1));
+  const initialDuration = plan?.durationDays ? `d:${plan.durationDays}` : `m:${plan?.durationMonths ?? 1}`;
+  const [durationKey, setDurationKey] = useState(initialDuration);
   const [active, setActive] = useState(plan?.active ?? true);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
-    const body = { name, price: price === '' ? NaN : Number(price), durationMonths: Number(months), active };
+    const selected = DURATION_OPTIONS.find((o) => o.value === durationKey) || DURATION_OPTIONS[2];
+    const body = {
+      name,
+      price: price === '' ? NaN : Number(price),
+      durationMonths: selected.months,
+      durationDays: selected.days || null,
+      active,
+    };
     const ok = await run(() => api(plan ? `/plans/${plan.id}` : '/plans', { method: plan ? 'PATCH' : 'POST', body }));
     if (ok) {
       toast(plan ? `${name} updated.` : `${name} plan created.`);
@@ -148,10 +165,10 @@ function PlanForm({ plan, onClose, onSaved }: { plan?: Plan; onClose: () => void
         <Field label="Plan name" value={name} onChange={(e) => setName(e.target.value)} error={fields.name} placeholder="e.g. Pro Half-Yearly" required />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Fee (rupees)" type="number" inputMode="numeric" min={0} value={price} onChange={(e) => setPrice(e.target.value)} error={fields.price} required />
-          <SelectField label="Length" value={months} onChange={(e) => setMonths(e.target.value)} error={fields.durationMonths}>
-            {[1, 3, 6, 12].map((m) => (
-              <option key={m} value={m}>
-                {m === 12 ? '1 year' : `${m} month${m === 1 ? '' : 's'}`}
+          <SelectField label="Length" value={durationKey} onChange={(e) => setDurationKey(e.target.value)}>
+            {DURATION_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
               </option>
             ))}
           </SelectField>
@@ -205,7 +222,16 @@ export function Plans() {
             ) : (
               all.map((p) => (
                 <Row key={p.id}>
-                  <RowMain title={p.name} meta={p.durationMonths === 12 ? '1 year' : `${p.durationMonths} month${p.durationMonths === 1 ? '' : 's'}`} />
+                  <RowMain
+                    title={p.name}
+                    meta={
+                      p.durationDays
+                        ? `${p.durationDays} days`
+                        : p.durationMonths === 12
+                        ? '1 year'
+                        : `${p.durationMonths} month${p.durationMonths === 1 ? '' : 's'}`
+                    }
+                  />
                   <div className="flex flex-wrap items-center gap-3">
                     {!p.active && <Badge>Not offered</Badge>}
                     <span className="text-sm text-bone">{inr(p.price)}</span>
