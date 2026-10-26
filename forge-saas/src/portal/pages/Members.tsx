@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus, Search } from 'lucide-react';
 import { inr, prettyDay, relDays } from '@/lib/format';
@@ -28,6 +28,12 @@ export default function Members() {
     setAdding(false);
     if (params.has('add')) setParams({}, { replace: true });
   };
+
+  useEffect(() => {
+    if (params.get('add') === '1') {
+      setAdding(true);
+    }
+  }, [params]);
 
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase();

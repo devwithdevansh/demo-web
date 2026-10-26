@@ -28,16 +28,16 @@ export default function Addons() {
   const data = useData<AddonData>('/addons');
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const base = `/demo/${tier}/${role}`;
+  const base = `/${role}`;
   const owner = role === 'owner';
 
-  // Where each add-on can be tried in this demo.
+  // Where each add-on can be tried in this portal.
   const tryAt: Partial<Record<ForgeAddon['key'], { to: string; label: string } | { note: string }>> = {
     whatsapp: { to: `${base}/renewals`, label: 'Try it in Renewals' },
     upiLinks: { to: `${base}/payments`, label: 'Try it in Payments' },
-    autopay: tier === 'performance' ? { to: '/demo/performance/member/autopay', label: 'Approve as the member' } : { to: `${base}/renewals`, label: 'Request it in Renewals' },
+    autopay: { to: `${base}/renewals`, label: 'Request it in Renewals' },
     leadFollowup: { to: `${base}/leads`, label: 'Try it in Leads' },
-    trainerPlus: tier === 'performance' ? { to: '/demo/performance/trainer', label: 'Open the trainer view' } : { note: 'Shown in the Performance demo.' },
+    trainerPlus: tier === 'performance' ? { to: `${base}/coaching`, label: 'Open Coaching & Trainers' } : { note: 'Included in Performance plan.' },
   };
 
   const toggle = async (key: keyof AddonState, enabled: boolean) => {

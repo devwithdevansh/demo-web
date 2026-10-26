@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Plus } from 'lucide-react';
 import { inr, prettyDay } from '@/lib/format';
@@ -27,6 +27,12 @@ export default function Payments() {
     if (params.has('add')) setParams({}, { replace: true });
     ledger.reload();
   };
+
+  useEffect(() => {
+    if (params.get('add') === '1') {
+      setOpen({ kind: 'pay' });
+    }
+  }, [params]);
 
   return (
     <>

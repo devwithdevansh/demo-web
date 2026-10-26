@@ -29,8 +29,8 @@ const LINK = 'font-mono text-[10px] uppercase tracking-[0.14em] text-bone-dim un
 const ACTION = 'border border-line px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.14em] text-bone transition-colors hover:border-bone';
 
 export default function Today() {
-  const { tier, role, session } = useSession();
-  const base = `/demo/${tier}/${role}`;
+  const { role, session } = useSession();
+  const base = `/${role}`;
   const dash = useData<Dashboard>('/dashboard');
 
   return (
