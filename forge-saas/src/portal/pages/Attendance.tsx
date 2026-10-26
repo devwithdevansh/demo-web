@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { ApiError } from '@/lib/api';
 import { prettyDay } from '@/lib/format';
 import { useData, useSession } from '../session';
-import { Async, Badge, Btn, DemoNote, Empty, Field, FormError, PageHead, Panel, Row, RowMain, StatusBadge, useToast } from '../ui';
+import { Async, Badge, Btn, DemoNote, Empty, Field, FormError, Modal, PageHead, Panel, Row, RowMain, StatusBadge, useToast } from '../ui';
 import { QrImage } from '../shared';
 
 interface Entry {
@@ -26,6 +26,8 @@ interface Sheet {
   isToday: boolean;
   entries: Entry[];
   notCheckedIn: Waiting[];
+  gymCheckinCode?: string;
+  gymName?: string;
 }
 
 export default function Attendance() {
@@ -37,6 +39,7 @@ export default function Attendance() {
   const [code, setCode] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showStandee, setShowStandee] = useState(false);
 
   const waiting = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -106,7 +109,37 @@ export default function Attendance() {
             <div className="space-y-6">
               {isToday ? (
                 <>
-                  <Panel title="QR check-in" hint="Each member has a pass with a QR code. Scanning it records the visit.">
+                  <Panel
+                    title="Reception Check-In QR"
+                    hint="Display on reception screen or print as counter standee for members to scan with their phones."
+                  >
+                    <div className="grid gap-5 p-4 sm:grid-cols-[auto_1fr] sm:p-5">
+                      <div className="justify-self-center border border-line bg-ink p-3 text-center">
+                        <QrImage
+                          text={sheet.data?.gymCheckinCode || 'FORGE_CHECKIN:ironpulse'}
+                          label="Gym Reception QR"
+                          size={132}
+                        />
+                        <p className="mt-2 text-xs font-semibold text-bone">{sheet.data?.gymName || 'Front Desk'}</p>
+                        <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-red">Scan via Member App</p>
+                      </div>
+                      <div className="space-y-3">
+                        <p className="text-sm text-bone leading-relaxed">
+                          Gym members tap <strong className="text-red">"Scan Gym QR"</strong> in their mobile Member App to instantly check in.
+                        </p>
+                        <div>
+                          <Btn variant="primary" size="sm" onClick={() => setShowStandee(true)}>
+                            Print Standee QR
+                          </Btn>
+                        </div>
+                        <DemoNote>
+                          No turnstile or barcode guns needed! Members scan this QR code with their mobile phone camera upon entry.
+                        </DemoNote>
+                      </div>
+                    </div>
+                  </Panel>
+
+                  <Panel title="Desk Scanner / Pass Lookup" hint="Scan member's phone pass or enter code directly.">
                     <div className="grid gap-5 p-4 sm:grid-cols-[auto_1fr] sm:p-5">
                       {samplePass ? (
                         <div className="justify-self-center border border-line bg-ink p-3 text-center">
@@ -199,6 +232,50 @@ export default function Attendance() {
           </div>
         )}
       </Async>
+
+      {showStandee && (
+        <Modal title="Reception Standee QR" onClose={() => setShowStandee(false)}>
+          <div className="p-4 text-center">
+            <div className="mx-auto max-w-sm border border-line bg-ink p-6 text-center shadow-lg">
+              <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-red">
+                {sheet.data?.gymName || 'IRON PULSE FITNESS'}
+              </span>
+              <h2 className="mt-1 font-display text-3xl uppercase tracking-wider text-bone">
+                MEMBER CHECK-IN
+              </h2>
+              <p className="mt-1 font-mono text-[11px] text-mute">
+                Open Member App & Scan to Check In
+              </p>
+
+              <div className="my-5 flex justify-center bg-white p-3">
+                <QrImage
+                  text={sheet.data?.gymCheckinCode || 'FORGE_CHECKIN:ironpulse'}
+                  label="Gym Reception Check-In QR Standee"
+                  size={200}
+                />
+              </div>
+
+              <div className="border-t border-line/60 pt-3">
+                <p className="font-mono text-xs text-bone-dim">
+                  1. Open Member App → 2. Tap "Scan Gym QR" → 3. Done!
+                </p>
+                <p className="mt-2 font-mono text-[9px] uppercase tracking-widest text-mute">
+                  Powered by Forge Gym SaaS
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Btn variant="ghost" onClick={() => setShowStandee(false)}>
+                Close
+              </Btn>
+              <Btn onClick={() => window.print()}>
+                Print Standee
+              </Btn>
+            </div>
+          </div>
+        </Modal>
+      )}
     </>
   );
 }

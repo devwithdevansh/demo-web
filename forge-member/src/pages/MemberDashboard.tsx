@@ -13,10 +13,12 @@ import {
   CheckSquare,
   Square,
   Flame,
+  Camera,
 } from 'lucide-react';
 import { request, ApiError } from '@/lib/api';
 import { inr, prettyDay, relDays, time12 } from '@/lib/format';
 import { QrPass } from '@/components/QrPass';
+import { CameraQrScanner } from '@/components/CameraQrScanner';
 import type { MemberPortalData } from '@/types';
 
 export default function MemberDashboard() {
@@ -25,6 +27,9 @@ export default function MemberDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showQr, setShowQr] = useState(false);
+  const [showCameraScanner, setShowCameraScanner] = useState(false);
+  const [checkinSuccessMsg, setCheckinSuccessMsg] = useState<string | null>(null);
+  const [checkinErrorMsg, setCheckinErrorMsg] = useState<string | null>(null);
   const [completedExercises, setCompletedExercises] = useState<Record<string, boolean>>({});
   const [activeDayIdx, setActiveDayIdx] = useState(0);
 
@@ -51,6 +56,29 @@ export default function MemberDashboard() {
     localStorage.removeItem('forge.member.token');
     localStorage.removeItem('forge.member.session');
     navigate('/login', { replace: true });
+  };
+
+  const handleScanGymQr = async (scannedCode: string) => {
+    setShowCameraScanner(false);
+    setCheckinErrorMsg(null);
+    setCheckinSuccessMsg(null);
+    try {
+      const res = await request<{
+        ok: boolean;
+        alreadyCheckedIn: boolean;
+        message: string;
+        time: string;
+        visitsMonth?: number;
+      }>('/portal/checkin', {
+        method: 'POST',
+        body: { qrCode: scannedCode },
+      });
+
+      setCheckinSuccessMsg(res.message);
+      fetchPortalData();
+    } catch (err) {
+      setCheckinErrorMsg(err instanceof Error ? err.message : 'Could not check in. Please try again.');
+    }
   };
 
   const toggleExercise = (key: string) => {
@@ -133,6 +161,50 @@ export default function MemberDashboard() {
 
       {/* Main Screen Feed */}
       <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 sm:px-6">
+        {/* Scan Gym QR Check-in Banner */}
+        {checkinSuccessMsg && (
+          <div className="flex items-center justify-between border border-ok/40 bg-ok/10 p-3.5 font-mono text-xs text-ok">
+            <span>✓ {checkinSuccessMsg}</span>
+            <button onClick={() => setCheckinSuccessMsg(null)} className="text-bone-dim hover:text-bone">✕</button>
+          </div>
+        )}
+        {checkinErrorMsg && (
+          <div className="flex items-center justify-between border border-red/40 bg-red/10 p-3.5 font-mono text-xs text-red">
+            <span>⚠ {checkinErrorMsg}</span>
+            <button onClick={() => setCheckinErrorMsg(null)} className="text-bone-dim hover:text-bone">✕</button>
+          </div>
+        )}
+
+        {isCheckedInToday ? (
+          <div className="flex items-center justify-between border border-ok/40 bg-ok/10 p-4">
+            <div className="flex items-center gap-3">
+              <UserCheck className="text-ok" size={22} />
+              <div>
+                <p className="font-mono text-xs font-semibold uppercase tracking-wider text-ok">Checked In Today</p>
+                <p className="font-mono text-[11px] text-bone-dim">Your workout attendance is recorded for today!</p>
+              </div>
+            </div>
+            <span className="font-mono text-xs font-semibold text-ok">✓ Complete</span>
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-red/50 bg-red/10 p-4">
+            <div className="flex items-center gap-3">
+              <Camera className="text-red" size={24} />
+              <div>
+                <p className="font-mono text-xs font-bold uppercase tracking-wider text-bone">Gym QR Check-In</p>
+                <p className="font-mono text-[11px] text-bone-dim">Scan the reception / desk QR code to mark your attendance.</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowCameraScanner(true)}
+              className="flex items-center justify-center gap-2 bg-red px-5 py-2.5 font-mono text-xs font-bold uppercase tracking-wider text-white shadow-lg hover:bg-red/90 transition-colors"
+            >
+              <Camera size={16} />
+              Scan Gym QR
+            </button>
+          </div>
+        )}
+
         {/* 1. Digital Member Pass & Attendance Status */}
         <section className="border border-line bg-ink-2 p-5 sm:p-6 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -460,6 +532,14 @@ export default function MemberDashboard() {
             </button>
           </div>
         </div>
+      )}
+
+      {/* Camera QR Scanner Modal */}
+      {showCameraScanner && (
+        <CameraQrScanner
+          onScanSuccess={handleScanGymQr}
+          onClose={() => setShowCameraScanner(false)}
+        />
       )}
     </div>
   );

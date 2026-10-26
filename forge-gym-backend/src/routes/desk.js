@@ -24,6 +24,9 @@ router.get('/attendance', desk, async (req, res) => {
   res.json({
     day,
     isToday: day === today,
+    gymId: String(req.gymId),
+    gymName: req.gym.name,
+    gymCheckinCode: `FORGE_CHECKIN:${req.gymId}`,
     entries: entries.map((e) => {
       const m = byId.get(String(e.memberId));
       return { id: String(e._id), memberId: String(e.memberId), name: m?.name ?? 'Removed member', memberCode: m?.memberCode ?? '', time: timeLabel(e.checkInAt), method: e.method };

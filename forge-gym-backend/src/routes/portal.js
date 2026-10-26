@@ -4,7 +4,7 @@ import { Member, Attendance, Announcement, CoachLog, ActionLog } from '../models
 import { requireAddon } from '../middleware/auth.js';
 import { body, HttpError } from '../middleware/http.js';
 import { lookups, memberView } from '../lib/members.js';
-import { dayKey, shiftDay, weekdayOf } from '../lib/dates.js';
+import { dayKey, shiftDay, weekdayOf, timeLabel, prettyDay } from '../lib/dates.js';
 import { timetableFor } from './coach.js';
 
 // Mounted at /api/portal behind requireAuth + requirePackage('performance') + requireRole('member').
@@ -41,7 +41,62 @@ router.get('/', async (req, res) => {
     visits: visits.map((v) => v.day).sort(),
     announcements,
     slots,
+    gymCheckinCode: `FORGE_CHECKIN:${req.gymId}`,
     addons: { autopay: !!req.gym.addons?.autopay },
+  });
+});
+
+/** Member self-check-in by scanning the Gym's counter/reception QR code */
+router.post('/checkin', body(z.object({ qrCode: z.string().min(1) })), async (req, res) => {
+  const member = await ownRecord(req);
+  const code = req.data.qrCode.trim();
+  const expected = `FORGE_CHECKIN:${req.gymId}`;
+
+  if (code !== expected && code !== String(req.gymId)) {
+    throw new HttpError(400, 'Invalid gym QR code. Please scan the check-in QR code at your gym reception.', 'invalid_qr');
+  }
+
+  const today = dayKey();
+  const existing = await Attendance.findOne({ gymId: req.gymId, memberId: member._id, day: today });
+  if (existing) {
+    return res.json({
+      ok: true,
+      alreadyCheckedIn: true,
+      message: 'You are already checked in today!',
+      time: timeLabel(existing.checkInAt),
+    });
+  }
+
+  const look = await lookups(req.gymId);
+  const view = memberView(member, look, today);
+  if (view.status === 'expired') {
+    throw new HttpError(
+      403,
+      `Your membership expired on ${prettyDay(member.expiryDate)}. Please renew at the front desk to check in.`,
+      'expired_membership'
+    );
+  }
+
+  const entry = await Attendance.create({
+    gymId: req.gymId,
+    memberId: member._id,
+    day: today,
+    method: 'qr',
+    checkInAt: new Date(),
+  });
+
+  const countThisMonth = await Attendance.countDocuments({
+    gymId: req.gymId,
+    memberId: member._id,
+    day: { $gte: shiftDay(today, -29) },
+  });
+
+  res.status(201).json({
+    ok: true,
+    alreadyCheckedIn: false,
+    message: `Checked in successfully! Welcome to ${req.gym.name}!`,
+    time: timeLabel(entry.checkInAt),
+    visitsMonth: countThisMonth,
   });
 });
 
