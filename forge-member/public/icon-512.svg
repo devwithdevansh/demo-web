@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="96" fill="#0a0a0a" />
+  <rect x="4" y="4" width="504" height="504" rx="92" fill="none" stroke="#262626" stroke-width="4" />
+  <!-- Dumbbell graphic -->
+  <g fill="#ff2e2e">
+    <rect x="96" y="196" width="54" height="120" rx="10" />
+    <rect x="70" y="218" width="26" height="76" rx="6" />
+    <rect x="362" y="196" width="54" height="120" rx="10" />
+    <rect x="416" y="218" width="26" height="76" rx="6" />
+    <rect x="150" y="240" width="212" height="32" rx="8" fill="#f1efe8" />
+  </g>
+  <!-- Brand text -->
+  <text x="256" y="400" font-family="system-ui, sans-serif" font-size="44" font-weight="900" fill="#f1efe8" letter-spacing="8" text-anchor="middle">FORGE</text>
+</svg>
