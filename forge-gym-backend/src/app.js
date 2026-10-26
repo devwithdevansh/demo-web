@@ -38,7 +38,7 @@ export function createApp() {
       res.set({
         'Access-Control-Allow-Origin': origin,
         Vary: 'Origin',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Key',
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Admin-Key, Cache-Control, Pragma',
         'Access-Control-Allow-Methods': 'GET, POST, PATCH, PUT, DELETE',
         'Access-Control-Max-Age': '600',
       });
