@@ -48,6 +48,7 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
     planId: member?.planId ?? '',
     trainerId: member?.trainerId ?? '',
     expiryDate: member?.expiryDate ?? '',
+    password: '',
     notes: member?.notes ?? prefill?.notes ?? '',
     paidNow: '',
     method: 'cash',
@@ -67,6 +68,7 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
       category: form.category,
       planId,
       trainerId: form.trainerId || null,
+      ...(form.password.trim() ? { password: form.password.trim() } : {}),
       notes: form.notes,
     };
     await run(async () => {
@@ -148,6 +150,19 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
             </SelectField>
           </div>
         )}
+        <div className="border border-line/60 bg-ink/60 p-3.5">
+          <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.18em] text-bone">Member App Login Access</p>
+          <Field
+            label={member ? 'New App Password (optional)' : 'Set App Password (optional)'}
+            type="text"
+            value={form.password}
+            onChange={set('password')}
+            error={fields.password}
+            placeholder={member ? 'Leave blank to keep current password' : 'e.g. member123 (min 4 chars)'}
+            hint="Member can log in to the Member Web App using their Member ID or Phone and this password."
+            autoComplete="new-password"
+          />
+        </div>
         <TextArea label="Notes for staff (optional)" value={form.notes} onChange={set('notes')} error={fields.notes} />
         <FormError message={message} />
         <div className="flex flex-wrap justify-end gap-2 pt-1">
@@ -565,6 +580,7 @@ export function MemberDetail({ memberId, onClose, onChanged }: { memberId: strin
                 ['Email', m.email || '—'],
                 ['Joined', prettyDay(m.startDate)],
                 ['Trainer', m.trainerName ?? 'Not assigned'],
+                ['App Access', (m as any).hasAppAccess ? 'Password set' : 'Not set'],
               ].map(([label, value]) => (
                 <div key={label} className="min-w-0">
                   <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-mute">{label}</dt>

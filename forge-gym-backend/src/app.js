@@ -70,7 +70,7 @@ export function createApp() {
 
   // Everything below needs a signed-in user; each router adds its own role checks.
   api.use('/coach', requireAuth, requirePackage('performance'), coachRoutes);
-  api.use('/portal', requireAuth, requirePackage('performance'), requireRole('member'), portalRoutes);
+  api.use('/portal', requireAuth, requirePackage('growth'), requireRole('member'), portalRoutes);
   api.use('/addons', requireAuth, requirePackage('growth'), addonRoutes);
   api.use(requireAuth, requirePackage('growth'), memberRoutes, deskRoutes, insightRoutes);
   api.use((_req, res) => res.status(404).json({ error: 'Not found.', code: 'not_found' }));

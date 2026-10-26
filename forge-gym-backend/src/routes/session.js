@@ -2,7 +2,7 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
-import { Gym, User, Lead, ROLES } from '../models/index.js';
+import { Gym, User, Member, Lead, ROLES } from '../models/index.js';
 import { signToken, requireAuth } from '../middleware/auth.js';
 import { body, HttpError, zName, zPhone, zText } from '../middleware/http.js';
 import { createSandbox, findSandbox, resetSandbox } from '../seed/demoGym.js';
@@ -122,7 +122,7 @@ router.post(
     if (!id) throw new HttpError(400, 'Please enter your phone number or email.', 'missing_identifier');
 
     const cleanPhone = id.replace(/\D/g, '');
-    const user = await User.findOne({
+    let user = await User.findOne({
       $or: [
         { email: id },
         { phone: id },
@@ -131,9 +131,20 @@ router.post(
       isDemo: false,
       active: true,
     });
+
+    if (!user) {
+      // Check if identifier is a memberCode (e.g. IP-1001)
+      const member = await Member.findOne({
+        memberCode: new RegExp(`^${id}$`, 'i'),
+      });
+      if (member?.userId) {
+        user = await User.findOne({ _id: member.userId, isDemo: false, active: true });
+      }
+    }
+
     const matches = await bcrypt.compare(req.data.password, user?.passwordHash || DUMMY_HASH);
     const gym = user && matches ? await Gym.findOne({ _id: user.gymId, isDemo: false }) : null;
-    if (!gym) throw new HttpError(401, 'Email/Phone or password is incorrect.', 'bad_credentials');
+    if (!gym) throw new HttpError(401, 'Member ID/Phone or password is incorrect.', 'bad_credentials');
     res.json(sessionPayload(user, gym, gym.package));
   },
 );

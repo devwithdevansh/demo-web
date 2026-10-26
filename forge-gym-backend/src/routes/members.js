@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { Member, Plan, User, Payment, Attendance, CATEGORIES, PAY_METHODS } from '../models/index.js';
 import { requireRole } from '../middleware/auth.js';
@@ -83,12 +84,13 @@ router.post(
       planId: zId,
       startDate: zDay.optional(),
       trainerId: z.union([zId, z.literal(''), z.null()]).optional(),
+      password: z.string().min(4, 'Password must be at least 4 characters.').max(100).optional(),
       notes: zText(500).optional(),
       ...paymentPart,
     }),
   ),
   async (req, res) => {
-    const { paidNow = 0, method = 'cash', planId, trainerId, startDate, ...fields } = req.data;
+    const { paidNow = 0, method = 'cash', planId, trainerId, startDate, password, ...fields } = req.data;
     const plan = await findOwned(Plan, req, planId, 'Plan');
     const start = startDate || dayKey();
     const count = await Member.countDocuments({ gymId: req.gymId });
@@ -102,6 +104,22 @@ router.post(
       feeDue: plan.price,
       memberCode: `IP-${1001 + count}`,
     });
+
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      const user = await User.create({
+        gymId: req.gymId,
+        name: member.name,
+        phone: member.phone,
+        email: member.email || undefined,
+        role: 'member',
+        passwordHash,
+        active: true,
+        isDemo: req.gym.isDemo,
+      });
+      member.userId = user._id;
+    }
+
     for (let attempt = 0; ; attempt++) {
       try {
         await member.save();
@@ -140,18 +158,51 @@ router.patch(
       category: z.enum(CATEGORIES).optional(),
       planId: zId.optional(),
       trainerId: z.union([zId, z.literal(''), z.null()]).optional(),
+      password: z.string().min(4, 'Password must be at least 4 characters.').max(100).optional(),
       expiryDate: zDay.optional(),
       notes: zText(500).optional(),
     }),
   ),
   async (req, res) => {
     const member = await findOwned(Member, req, req.params.id, 'Member');
-    const { planId, trainerId, ...fields } = req.data;
+    const { planId, trainerId, password, ...fields } = req.data;
     if (planId) member.planId = (await findOwned(Plan, req, planId, 'Plan'))._id;
     if ('trainerId' in req.data) {
       member.trainerId = trainerId ? await trainerFor(req, trainerId) : null;
     }
     Object.assign(member, fields);
+
+    if (password) {
+      const passwordHash = await bcrypt.hash(password, 10);
+      if (member.userId) {
+        await User.updateOne(
+          { _id: member.userId, gymId: req.gymId },
+          { passwordHash, name: member.name, phone: member.phone, email: member.email || undefined, active: true }
+        );
+      } else {
+        const user = await User.create({
+          gymId: req.gymId,
+          name: member.name,
+          phone: member.phone,
+          email: member.email || undefined,
+          role: 'member',
+          passwordHash,
+          active: true,
+          isDemo: req.gym.isDemo,
+        });
+        member.userId = user._id;
+      }
+    } else if (member.userId && (req.data.name || req.data.phone || req.data.email !== undefined)) {
+      await User.updateOne(
+        { _id: member.userId, gymId: req.gymId },
+        {
+          ...(req.data.name ? { name: req.data.name } : {}),
+          ...(req.data.phone ? { phone: req.data.phone } : {}),
+          ...(req.data.email !== undefined ? { email: req.data.email || undefined } : {}),
+        }
+      );
+    }
+
     await member.save();
     res.json({ member: memberView(member, await lookups(req.gymId)) });
   },

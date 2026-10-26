@@ -20,6 +20,7 @@ export function memberView(member, look, today = dayKey(), { coaching = false } 
   const trainer = member.trainerId ? look.trainers.get(String(member.trainerId)) : null;
   return {
     ...out,
+    hasAppAccess: Boolean(member.userId),
     planName: plan?.name ?? 'Plan removed',
     planPrice: plan?.price ?? 0,
     trainerName: trainer?.name ?? null,

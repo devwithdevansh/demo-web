@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Archivo:ital,wght@0,400..900;1,400..900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #0a0a0a;
+  --color-ink-2: #131313;
+  --color-graphite: #1c1c1a;
+  --color-line: #2a2a27;
+  --color-bone: #f1efe8;
+  --color-bone-dim: #c9c7bf;
+  --color-mute: #85837c;
+  --color-red: #ff2e2e;
+  --color-red-dim: #3a0d0d;
+  --color-ok: #5fc98a;
+  --color-warn: #f0b24a;
+
+  --font-display: 'Bebas Neue', 'Archivo Black', sans-serif;
+  --font-heavy: 'Archivo', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-ink);
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-red);
+  color: var(--color-ink);
+}
+
+.font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}
+.font-heavy {
+  font-family: var(--font-heavy);
+}
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+input, select, textarea {
+  color-scheme: dark;
+}

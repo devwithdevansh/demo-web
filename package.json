@@ -6,6 +6,7 @@
     "dev:web": "npm --prefix forge-website run dev",
     "dev:saas": "npm --prefix forge-saas run dev",
     "dev:admin": "npm --prefix forge-admin run dev",
-    "dev:all": "npx concurrently -k -n api,web,saas,admin -c gray,cyan,green,magenta \"npm:dev:api\" \"npm:dev:web\" \"npm:dev:saas\" \"npm:dev:admin\""
+    "dev:member": "npm --prefix forge-member run dev",
+    "dev:all": "npx concurrently -k -n api,web,saas,admin,member -c gray,cyan,green,magenta,yellow \"npm:dev:api\" \"npm:dev:web\" \"npm:dev:saas\" \"npm:dev:admin\" \"npm:dev:member\""
   }
 }
