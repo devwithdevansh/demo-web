@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   LogOut,
@@ -19,7 +19,10 @@ import {
   ExternalLink,
   Pin,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
+
 import { request, ApiError } from '@/lib/api';
 import { inr, prettyDay, relDays, time12 } from '@/lib/format';
 import { QrPass } from '@/components/QrPass';
@@ -50,6 +53,15 @@ export default function MemberDashboard() {
   const [activeDayIdx, setActiveDayIdx] = useState(0);
   const [activeVideoCategory, setActiveVideoCategory] = useState<string>('All');
   const [playingVideo, setPlayingVideo] = useState<FitnessVideo | null>(null);
+  const videoQueueRef = useRef<HTMLDivElement>(null);
+
+  const scrollVideoQueue = (direction: 'left' | 'right') => {
+    if (videoQueueRef.current) {
+      const amount = direction === 'left' ? -340 : 340;
+      videoQueueRef.current.scrollBy({ left: amount, behavior: 'smooth' });
+    }
+  };
+
 
 
   const fetchPortalData = async () => {
@@ -317,123 +329,147 @@ export default function MemberDashboard() {
           </div>
         </section>
 
-        {/* 2-Column Responsive Dashboard Layout on Desktop/Tablet */}
-        <div className="grid gap-6 lg:grid-cols-12 items-start">
-          {/* Main Left Column: Videos, Workout Routine & Diet Plan (8 cols on lg) */}
-          <div className="space-y-6 lg:col-span-8">
-            {/* 1. Fitness Videos & Guides (FIRST SECTION) */}
-            {videos.length > 0 && (
-              <section className="border border-line bg-ink-2 p-4 sm:p-6 shadow-xl">
-                <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex h-9 w-9 items-center justify-center border border-red/40 bg-red/10 text-red">
-                      <Film size={18} />
-                    </div>
-                    <div>
-                      <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
-                        Fitness Videos & Tutorials
-                      </h2>
-                      <p className="mt-0.5 font-mono text-[11px] text-mute">
-                        Workout guides, exercise form & fitness advice from your gym
-                      </p>
-                    </div>
-                  </div>
-                  <span className="font-mono text-xs text-bone-dim">
-                    {videos.length} videos available
-                  </span>
+        {/* Full-Width Horizontal Queue of Fitness Videos */}
+        {videos.length > 0 && (
+          <section className="border border-line bg-ink-2 p-4 sm:p-6 shadow-xl">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-9 w-9 items-center justify-center border border-red/40 bg-red/10 text-red">
+                  <Film size={18} />
                 </div>
-
-                {/* Category Filter Chips */}
-                {videoCategories.length > 1 && (
-                  <div className="mt-4 scroll-x flex gap-1.5 pb-2">
-                    {videoCategories.map((cat) => (
-                      <button
-                        key={cat}
-                        type="button"
-                        onClick={() => setActiveVideoCategory(cat)}
-                        className={`shrink-0 px-3 py-1 font-mono text-xs uppercase tracking-wider transition-colors ${
-                          activeVideoCategory === cat
-                            ? 'bg-bone text-ink font-semibold'
-                            : 'border border-line text-mute hover:border-bone/50 hover:text-bone'
-                        }`}
-                      >
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                {/* Video Cards Grid */}
-                <div className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {displayedVideos.map((video) => {
-                    const ytId = video.youtubeId || extractYouTubeId(video.videoUrl);
-                    const thumb =
-                      video.thumbnailUrl ||
-                      (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null);
-
-                    return (
-                      <div
-                        key={video.id}
-                        onClick={() => setPlayingVideo(video)}
-                        className="group flex flex-col border border-line bg-ink hover:border-red/60 transition-all cursor-pointer overflow-hidden shadow-md"
-                      >
-                        {/* Thumbnail with play overlay */}
-                        <div className="relative aspect-video w-full overflow-hidden bg-graphite">
-                          {thumb ? (
-                            <img
-                              src={thumb}
-                              alt={video.title}
-                              className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                              loading="lazy"
-                            />
-                          ) : (
-                            <div className="flex h-full w-full items-center justify-center text-mute font-mono text-xs">
-                              Video Guide
-                            </div>
-                          )}
-                          <div className="absolute inset-0 flex items-center justify-center bg-black/35 group-hover:bg-black/15 transition-colors">
-                            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red text-white shadow-xl group-hover:scale-110 transition-transform">
-                              <Play size={18} className="ml-0.5 fill-white" />
-                            </div>
-                          </div>
-                          {video.pinned && (
-                            <span className="absolute top-2 left-2 flex items-center gap-1 bg-red px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white shadow">
-                              <Pin size={10} /> Pinned
-                            </span>
-                          )}
-                          <span className="absolute bottom-2 right-2 border border-line bg-ink/90 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-bone-dim backdrop-blur-sm">
-                            {video.category}
-                          </span>
-                        </div>
-
-                        {/* Title and details */}
-                        <div className="flex flex-1 flex-col justify-between p-3.5">
-                          <div>
-                            <h3 className="font-display text-lg uppercase tracking-wide text-bone group-hover:text-red transition-colors line-clamp-2">
-                              {video.title}
-                            </h3>
-                            {video.description && (
-                              <p className="mt-1 line-clamp-2 text-xs text-bone-dim leading-relaxed">
-                                {video.description}
-                              </p>
-                            )}
-                          </div>
-                          <div className="mt-3 flex items-center justify-between border-t border-line/50 pt-2 font-mono text-[10px] text-mute">
-                            <span>{video.postedBy ? `Coach ${video.postedBy}` : 'Gym Staff'}</span>
-                            <span className="flex items-center gap-1 text-red group-hover:underline">
-                              Watch Video →
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div>
+                  <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
+                    Fitness Videos & Tutorials
+                  </h2>
+                  <p className="mt-0.5 font-mono text-[11px] text-mute">
+                    Exercise form guides, workout techniques & diet advice from your gym
+                  </p>
                 </div>
-              </section>
+              </div>
+
+              {/* Navigation Arrows for the horizontal queue */}
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs text-bone-dim hidden sm:inline mr-2">
+                  {videos.length} videos available
+                </span>
+                <button
+                  type="button"
+                  onClick={() => scrollVideoQueue('left')}
+                  className="flex h-8 w-8 items-center justify-center border border-line bg-ink text-mute hover:border-bone hover:text-bone transition-colors"
+                  aria-label="Scroll left"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => scrollVideoQueue('right')}
+                  className="flex h-8 w-8 items-center justify-center border border-line bg-ink text-mute hover:border-bone hover:text-bone transition-colors"
+                  aria-label="Scroll right"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Category Filter Chips */}
+            {videoCategories.length > 1 && (
+              <div className="mt-4 scroll-x flex gap-1.5 pb-2">
+                {videoCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setActiveVideoCategory(cat)}
+                    className={`shrink-0 px-3 py-1 font-mono text-xs uppercase tracking-wider transition-colors ${
+                      activeVideoCategory === cat
+                        ? 'bg-bone text-ink font-semibold'
+                        : 'border border-line text-mute hover:border-bone/50 hover:text-bone'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             )}
 
-            {/* 2. Today's Assigned Workout Routine */}
+            {/* Horizontal Queue of Video Cards */}
+            <div
+              ref={videoQueueRef}
+              className="mt-4 scroll-x flex gap-4 overflow-x-auto pb-3 snap-x scroll-smooth"
+            >
+              {displayedVideos.map((video) => {
+                const ytId = video.youtubeId || extractYouTubeId(video.videoUrl);
+                const thumb =
+                  video.thumbnailUrl ||
+                  (ytId ? `https://img.youtube.com/vi/${ytId}/hqdefault.jpg` : null);
+
+                return (
+                  <div
+                    key={video.id}
+                    onClick={() => setPlayingVideo(video)}
+                    className="group w-72 sm:w-80 shrink-0 snap-start flex flex-col border border-line bg-ink hover:border-red/60 transition-all cursor-pointer overflow-hidden shadow-md"
+                  >
+                    {/* 16:9 Thumbnail with play overlay */}
+                    <div className="relative aspect-video w-full overflow-hidden bg-graphite">
+                      {thumb ? (
+                        <img
+                          src={thumb}
+                          alt={video.title}
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center text-mute font-mono text-xs">
+                          Video Guide
+                        </div>
+                      )}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/35 group-hover:bg-black/15 transition-colors">
+                        <div className="flex h-11 w-11 items-center justify-center rounded-full bg-red text-white shadow-xl group-hover:scale-110 transition-transform">
+                          <Play size={18} className="ml-0.5 fill-white" />
+                        </div>
+                      </div>
+                      {video.pinned && (
+                        <span className="absolute top-2 left-2 flex items-center gap-1 bg-red px-2 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white shadow">
+                          <Pin size={10} /> Pinned
+                        </span>
+                      )}
+                      <span className="absolute bottom-2 right-2 border border-line bg-ink/90 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-bone-dim backdrop-blur-sm">
+                        {video.category}
+                      </span>
+                    </div>
+
+                    {/* Title and details */}
+                    <div className="flex flex-1 flex-col justify-between p-3.5">
+                      <div>
+                        <h3 className="font-display text-lg uppercase tracking-wide text-bone group-hover:text-red transition-colors line-clamp-2">
+                          {video.title}
+                        </h3>
+                        {video.description && (
+                          <p className="mt-1 line-clamp-2 text-xs text-bone-dim leading-relaxed">
+                            {video.description}
+                          </p>
+                        )}
+                      </div>
+                      <div className="mt-3 flex items-center justify-between border-t border-line/50 pt-2 font-mono text-[10px] text-mute">
+                        <span>{video.postedBy ? `Coach ${video.postedBy}` : 'Gym Staff'}</span>
+                        <span className="flex items-center gap-1 text-red group-hover:underline">
+                          Watch Video →
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* 2-Column Responsive Dashboard Layout on Desktop/Tablet */}
+        <div className="grid gap-6 lg:grid-cols-12 items-start">
+          {/* Main Left Column: Workout Routine & Diet Plan (8 cols on lg) */}
+          <div className="space-y-6 lg:col-span-8">
+            {/* Today's Assigned Workout Routine */}
             <section className="border border-line bg-ink-2 p-4 sm:p-6 shadow-xl">
+
 
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
                 <div className="flex items-center gap-2.5">
