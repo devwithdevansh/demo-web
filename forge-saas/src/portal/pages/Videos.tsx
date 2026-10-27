@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
-import { Play, Pin, PinOff, Trash2, ExternalLink, Video, Sparkles, Filter } from 'lucide-react';
+import { Play, Pin, PinOff, Trash2, ExternalLink, Video, Sparkles, Filter, AlertTriangle, CheckCircle2, Loader2 } from 'lucide-react';
+
 
 
 import { ApiError } from '@/lib/api';
@@ -34,8 +35,38 @@ export function Videos() {
   const [activeCategory, setActiveCategory] = useState<string>('All');
   const [previewVideo, setPreviewVideo] = useState<FitnessVideo | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [embedStatus, setEmbedStatus] = useState<'checking' | 'allowed' | 'blocked' | null>(null);
 
   const detectedYtId = extractYouTubeId(videoUrl);
+
+  useEffect(() => {
+    if (!detectedYtId) {
+      setEmbedStatus(null);
+      return;
+    }
+    let cancelled = false;
+    setEmbedStatus('checking');
+    fetch(`https://noembed.com/embed?url=https://www.youtube.com/watch?v=${detectedYtId}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (cancelled) return;
+        if (data.error) {
+          setEmbedStatus('blocked');
+        } else {
+          setEmbedStatus('allowed');
+          if (data.title && !title) {
+            setTitle(data.title);
+          }
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setEmbedStatus('allowed');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [detectedYtId]);
+
 
   const postVideo = async (e: FormEvent) => {
     e.preventDefault();
@@ -132,13 +163,37 @@ export function Videos() {
             </p>
 
 
-            {/* Instant YouTube Preview Thumbnail */}
+            {/* Instant YouTube Preview Thumbnail & Live Embedding Verification */}
             {detectedYtId && (
-              <div className="border border-line/80 bg-ink p-3">
-                <div className="flex items-center gap-2 mb-2 font-mono text-[11px] text-ok">
-                  <Video size={15} className="text-red" />
-                  YouTube Video Detected (ID: {detectedYtId})
+              <div className="border border-line/80 bg-ink p-3 space-y-2">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 font-mono text-[11px] text-bone">
+                    <Video size={14} className="text-red" />
+                    YouTube ID: <span className="text-bone-dim">{detectedYtId}</span>
+                  </div>
+
+                  {embedStatus === 'checking' && (
+                    <span className="flex items-center gap-1 font-mono text-[10px] text-mute">
+                      <Loader2 size={11} className="animate-spin text-bone" /> Checking embedding...
+                    </span>
+                  )}
+                  {embedStatus === 'allowed' && (
+                    <span className="flex items-center gap-1 font-mono text-[10px] text-ok border border-ok/40 bg-ok/10 px-2 py-0.5">
+                      <CheckCircle2 size={11} /> Playable in app
+                    </span>
+                  )}
+                  {embedStatus === 'blocked' && (
+                    <span className="flex items-center gap-1 font-mono text-[10px] text-red border border-red/40 bg-red/10 px-2 py-0.5 font-medium">
+                      <AlertTriangle size={11} /> Embedding blocked by owner
+                    </span>
+                  )}
                 </div>
+
+                {embedStatus === 'blocked' && (
+                  <div className="border border-red/40 bg-red/10 p-2.5 font-mono text-xs text-red leading-relaxed">
+                    <strong>Playback Disabled:</strong> The YouTube creator of this video has turned off embedding on other websites. It cannot play inside the member app. Please paste a different video or enable &quot;Allow embedding&quot; in YouTube Studio.
+                  </div>
+                )}
 
                 <div className="relative aspect-video w-full overflow-hidden border border-line bg-graphite">
                   <img
@@ -182,9 +237,16 @@ export function Videos() {
 
             <FormError message={message} />
 
-            <Btn type="submit" busy={busy} variant="accent" className="w-full justify-center">
+            <Btn
+              type="submit"
+              busy={busy}
+              disabled={embedStatus === 'blocked'}
+              variant="accent"
+              className="w-full justify-center"
+            >
               <Sparkles size={14} /> Publish Video to Members
             </Btn>
+
           </form>
         </Panel>
 

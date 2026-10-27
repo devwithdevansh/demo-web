@@ -53,6 +53,20 @@ router.post(
   ),
   async (req, res) => {
     const youtubeId = extractYouTubeId(req.data.videoUrl);
+    if (youtubeId) {
+      try {
+        const check = await fetch(`https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${youtubeId}&format=json`, { signal: AbortSignal.timeout(3500) });
+        if (check.status === 401) {
+          throw new HttpError(
+            400,
+            'This YouTube video has playback on other websites disabled by its owner. Please choose another video or enable "Allow embedding" in YouTube Studio.',
+            'embedding_disabled',
+          );
+        }
+      } catch (err) {
+        if (err instanceof HttpError) throw err;
+      }
+    }
     const thumbnailUrl = youtubeId ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg` : null;
     const video = await FitnessVideo.create({
       ...req.data,
@@ -61,6 +75,7 @@ router.post(
       thumbnailUrl,
       postedBy: req.user.name,
     });
+
     res.status(201).json({
       video: {
         id: String(video._id),
