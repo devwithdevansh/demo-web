@@ -14,6 +14,7 @@ import portalRoutes from './routes/portal.js';
 import addonRoutes, { payRouter } from './routes/addons.js';
 import webhookRoutes from './routes/webhooks.js';
 import adminRoutes from './routes/admin.js';
+import videoRoutes from './routes/videos.js';
 
 export function createApp() {
   const app = express();
@@ -72,7 +73,7 @@ export function createApp() {
   api.use('/coach', requireAuth, requirePackage('performance'), coachRoutes);
   api.use('/portal', requireAuth, requirePackage('growth'), requireRole('member'), portalRoutes);
   api.use('/addons', requireAuth, requirePackage('growth'), addonRoutes);
-  api.use(requireAuth, requirePackage('growth'), memberRoutes, deskRoutes, insightRoutes);
+  api.use(requireAuth, requirePackage('growth'), memberRoutes, deskRoutes, insightRoutes, videoRoutes);
   api.use((_req, res) => res.status(404).json({ error: 'Not found.', code: 'not_found' }));
 
   app.use('/api', api);

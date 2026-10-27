@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { z } from 'zod';
-import { Member, Attendance, Announcement, CoachLog, ActionLog } from '../models/index.js';
+import { Member, Attendance, Announcement, CoachLog, ActionLog, FitnessVideo } from '../models/index.js';
 import { requireAddon } from '../middleware/auth.js';
 import { body, HttpError } from '../middleware/http.js';
 import { lookups, memberView } from '../lib/members.js';
@@ -21,12 +21,13 @@ router.get('/', async (req, res) => {
   const member = await ownRecord(req);
   const { gymId } = req;
   const today = dayKey();
-  const [look, logs, visits, announcements, slots] = await Promise.all([
+  const [look, logs, visits, announcements, slots, videos] = await Promise.all([
     lookups(gymId),
     CoachLog.find({ gymId, memberId: member._id }).sort({ day: -1, createdAt: -1 }).limit(80),
     Attendance.find({ gymId, memberId: member._id, day: { $gte: shiftDay(today, -29) } }).select('day'),
     Announcement.find({ gymId }).sort({ createdAt: -1 }).limit(10),
     timetableFor(gymId),
+    FitnessVideo.find({ gymId }).sort({ pinned: -1, createdAt: -1 }).limit(50),
   ]);
   const view = memberView(member, look, today, { coaching: true });
   const trainer = member.trainerId ? look.trainers.get(String(member.trainerId)) : null;
@@ -41,10 +42,23 @@ router.get('/', async (req, res) => {
     visits: visits.map((v) => v.day).sort(),
     announcements,
     slots,
+    videos: videos.map((v) => ({
+      id: String(v._id),
+      title: v.title,
+      category: v.category,
+      videoUrl: v.videoUrl,
+      youtubeId: v.youtubeId || null,
+      thumbnailUrl: v.thumbnailUrl || (v.youtubeId ? `https://img.youtube.com/vi/${v.youtubeId}/hqdefault.jpg` : null),
+      description: v.description || '',
+      pinned: !!v.pinned,
+      postedBy: v.postedBy || '',
+      createdAt: v.createdAt,
+    })),
     gymCheckinCode: `FORGE_CHECKIN:${req.gymId}`,
     addons: { autopay: !!req.gym.addons?.autopay },
   });
 });
+
 
 /** Member self-check-in by scanning the Gym's counter/reception QR code */
 router.post('/checkin', body(z.object({ qrCode: z.string().min(1) })), async (req, res) => {

@@ -2,8 +2,9 @@ import { createHash, randomBytes } from 'node:crypto';
 import { config } from '../config.js';
 import { dayKey, shiftDay, shiftMonths, at, weekdayOf } from '../lib/dates.js';
 import {
-  Gym, User, Plan, Member, Attendance, Payment, Lead, ClassSlot, Announcement, CoachLog, TENANT_MODELS,
+  Gym, User, Plan, Member, Attendance, Payment, Lead, ClassSlot, Announcement, CoachLog, FitnessVideo, TENANT_MODELS,
 } from '../models/index.js';
+
 
 /**
  * The sample gym. Every name, number and figure below is invented for the
@@ -266,6 +267,70 @@ export async function seedGym(gym) {
     { gymId, title: 'New Saturday mobility class', body: 'Sara is starting a 45-minute mobility class every Saturday at 10:30 AM. Open to all plans.', postedBy: 'Rhea Kapoor', createdAt: stamp(4) },
     { gymId, title: 'Please carry a towel', body: 'A quick reminder to carry a hand towel and wipe down equipment after use.', postedBy: 'Imran Shaikh', createdAt: stamp(9) },
   ]);
+
+  await FitnessVideo.insertMany([
+    {
+      gymId,
+      title: 'How To Deadlift with Perfect Form (Avoid Injury)',
+      category: 'Workout Form',
+      videoUrl: 'https://www.youtube.com/watch?v=op9kVnSso6Q',
+      youtubeId: 'op9kVnSso6Q',
+      thumbnailUrl: 'https://img.youtube.com/vi/op9kVnSso6Q/hqdefault.jpg',
+      description: 'Master the barbell deadlift: hip hinge, bracing, foot stance, and bar path.',
+      pinned: true,
+      postedBy: 'Rhea Kapoor',
+      createdAt: stamp(2),
+    },
+    {
+      gymId,
+      title: 'How to Squat Properly: Step by Step Guide',
+      category: 'Legs & Glutes',
+      videoUrl: 'https://www.youtube.com/watch?v=bEv6CCg2BC8',
+      youtubeId: 'bEv6CCg2BC8',
+      thumbnailUrl: 'https://img.youtube.com/vi/bEv6CCg2BC8/hqdefault.jpg',
+      description: 'Full barbell squat technique breakdown for knee safety and maximum quad/glute growth.',
+      pinned: true,
+      postedBy: 'Alex Rey',
+      createdAt: stamp(5),
+    },
+    {
+      gymId,
+      title: '10-Minute Full Body Warm-Up & Mobility Routine',
+      category: 'Warmup & Mobility',
+      videoUrl: 'https://www.youtube.com/watch?v=uA_Mbmw2yD4',
+      youtubeId: 'uA_Mbmw2yD4',
+      thumbnailUrl: 'https://img.youtube.com/vi/uA_Mbmw2yD4/hqdefault.jpg',
+      description: 'Do this dynamic warmup before every gym session to prevent muscle strain.',
+      pinned: false,
+      postedBy: 'Sara Khan',
+      createdAt: stamp(8),
+    },
+    {
+      gymId,
+      title: 'Perfect Bench Press: Stop Hurting Your Shoulders',
+      category: 'Chest & Arms',
+      videoUrl: 'https://www.youtube.com/watch?v=vcBig73ojpE',
+      youtubeId: 'vcBig73ojpE',
+      thumbnailUrl: 'https://img.youtube.com/vi/vcBig73ojpE/hqdefault.jpg',
+      description: 'Scapular retraction, arch, leg drive, and bar tuck for a bigger, safer chest press.',
+      pinned: false,
+      postedBy: 'Alex Rey',
+      createdAt: stamp(12),
+    },
+    {
+      gymId,
+      title: 'High Protein Diet Plan for Muscle Gain & Fat Loss',
+      category: 'Diet & Nutrition',
+      videoUrl: 'https://www.youtube.com/watch?v=8YQkK14S14k',
+      youtubeId: '8YQkK14S14k',
+      thumbnailUrl: 'https://img.youtube.com/vi/8YQkK14S14k/hqdefault.jpg',
+      description: 'Simple grocery shopping list and meal prep hacks for everyday gym-goers.',
+      pinned: false,
+      postedBy: 'Rhea Kapoor',
+      createdAt: stamp(15),
+    },
+  ]);
+
 
   const byName = Object.fromEntries(members.map((m) => [m.name, m]));
   const log = (name, trainer, daysAgo, type, extra = {}) => ({

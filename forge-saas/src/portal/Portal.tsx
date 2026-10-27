@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { Navigate, NavLink, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import {
-  BarChart3, CalendarDays, Dumbbell, House, IndianRupee, LayoutDashboard, Megaphone, MessageSquare, Puzzle, QrCode,
+  BarChart3, CalendarDays, Dumbbell, House, IndianRupee, LayoutDashboard, Megaphone, MessageSquare, PlaySquare, Puzzle, QrCode,
   RefreshCw, Repeat, RotateCcw, ScanLine, Tags, TrendingUp, UserCog, Users, Utensils,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -17,7 +17,9 @@ const Renewals = lazy(() => import('./pages/Renewals'));
 const Leads = lazy(() => import('./pages/Leads'));
 const Team = lazy(() => import('./pages/TeamPlans').then((m) => ({ default: m.Team })));
 const Plans = lazy(() => import('./pages/TeamPlans').then((m) => ({ default: m.Plans })));
+const Videos = lazy(() => import('./pages/Videos'));
 const Reports = lazy(() => import('./pages/Reports'));
+
 const Addons = lazy(() => import('./pages/Addons'));
 const Coaching = lazy(() => import('./pages/Coaching'));
 const Timetable = lazy(() => import('./pages/Club').then((m) => ({ default: m.Timetable })));
@@ -68,9 +70,11 @@ function navFor(tier: Tier, role: Role): NavItem[] {
     { to: 'leads', label: 'Leads', icon: MessageSquare },
     ...(perf && owner ? [{ to: 'coaching', label: 'Coaching', icon: Dumbbell }] : []),
     ...(perf ? [{ to: 'timetable', label: 'Timetable', icon: CalendarDays }, { to: 'notices', label: 'Notices', icon: Megaphone }] : []),
+    { to: 'videos', label: 'Videos', icon: PlaySquare },
     { to: 'team', label: 'Team', icon: UserCog },
     { to: 'plans', label: 'Plans', icon: Tags },
     ...(owner ? [{ to: 'reports', label: 'Reports', icon: BarChart3 }] : []),
+
     { to: 'addons', label: 'Add-ons', icon: Puzzle },
   ];
 }
@@ -193,7 +197,9 @@ function Shell() {
                   <Route path="leads" element={<Leads />} />
                   <Route path="team" element={<Team />} />
                   <Route path="plans" element={<Plans />} />
+                  <Route path="videos" element={<Videos />} />
                   <Route path="addons" element={<Addons />} />
+
                   {role === 'owner' && <Route path="reports" element={<Reports />} />}
                   {perf && <Route path="timetable" element={<Timetable />} />}
                   {perf && <Route path="notices" element={<Notices />} />}

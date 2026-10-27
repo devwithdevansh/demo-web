@@ -67,10 +67,25 @@ export interface MemberPortalData {
     durationMin: number;
     trainerName?: string;
   }[];
+  videos?: FitnessVideo[];
   addons: {
     autopay: boolean;
   };
 }
+
+export interface FitnessVideo {
+  id: string;
+  title: string;
+  category: string;
+  videoUrl: string;
+  youtubeId?: string | null;
+  thumbnailUrl?: string | null;
+  description?: string;
+  pinned: boolean;
+  postedBy?: string;
+  createdAt: string;
+}
+
 
 export interface Session {
   token: string;

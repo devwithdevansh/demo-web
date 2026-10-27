@@ -137,3 +137,28 @@ export const PAY_METHODS = [
 export const methodLabel = (value: string) => PAY_METHODS.find((m) => m.value === value)?.label ?? value;
 
 export const CATEGORIES = ['General fitness', 'Weight loss', 'Strength', 'Beginner', 'Senior', 'Student', 'Personal training'];
+
+export interface FitnessVideo {
+  id: string;
+  title: string;
+  category: string;
+  videoUrl: string;
+  youtubeId?: string | null;
+  thumbnailUrl?: string | null;
+  description?: string;
+  pinned: boolean;
+  postedBy?: string;
+  createdAt: string;
+}
+
+export const VIDEO_CATEGORIES = [
+  'Workout Form',
+  'Warmup & Mobility',
+  'Chest & Arms',
+  'Back & Core',
+  'Legs & Glutes',
+  'Diet & Nutrition',
+  'Machine Guide',
+  'Motivation',
+];
+

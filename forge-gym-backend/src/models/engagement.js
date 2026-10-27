@@ -77,8 +77,36 @@ const actionLogSchema = new Schema(
   { timestamps: true },
 );
 
+export const VIDEO_CATEGORIES = [
+  'Workout Form',
+  'Warmup & Mobility',
+  'Chest & Arms',
+  'Back & Core',
+  'Legs & Glutes',
+  'Diet & Nutrition',
+  'Machine Guide',
+  'Motivation',
+];
+
+const fitnessVideoSchema = new Schema(
+  {
+    gymId: gymRef,
+    title: str(120, { required: true }),
+    category: { type: String, enum: VIDEO_CATEGORIES, default: 'Workout Form' },
+    videoUrl: str(500, { required: true }),
+    youtubeId: str(50),
+    thumbnailUrl: str(500),
+    description: str(1000),
+    pinned: { type: Boolean, default: false },
+    postedBy: str(80),
+  },
+  { timestamps: true },
+);
+
 export const Lead = model('Lead', leadSchema);
 export const ClassSlot = model('ClassSlot', classSlotSchema);
 export const Announcement = model('Announcement', announcementSchema);
 export const CoachLog = model('CoachLog', coachLogSchema);
 export const ActionLog = model('ActionLog', actionLogSchema);
+export const FitnessVideo = model('FitnessVideo', fitnessVideoSchema);
+
