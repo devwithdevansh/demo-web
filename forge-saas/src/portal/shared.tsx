@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link } from 'react-router-dom';
+import { MessageCircle, CheckCircle2 } from 'lucide-react';
 import QRCode from 'qrcode';
 import { inr, prettyDay, relDays } from '@/lib/format';
 import { useData, useSession } from './session';
@@ -27,6 +28,44 @@ export function QrImage({ text, label, size = 180 }: { text: string; label: stri
 
 // ---- Member add / edit ----------------------------------------------------
 
+export function buildWhatsAppWelcomeUrl({
+  phone,
+  memberName,
+  memberCode,
+  password,
+  gymName,
+  planName,
+  expiryDate,
+}: {
+  phone: string;
+  memberName: string;
+  memberCode: string;
+  password?: string;
+  gymName: string;
+  planName?: string;
+  expiryDate?: string;
+}) {
+  const cleanPhone = phone.replace(/[^0-9]/g, '');
+  const memberAppUrl = 'https://demo-web-gym-member.onrender.com';
+
+  const text = `🏋️ *Welcome to ${gymName}, ${memberName.split(' ')[0]}!*
+
+Your gym membership is officially active! Here are your digital pass and app access details:
+
+📱 *Member App:* ${memberAppUrl}
+🆔 *Member ID:* ${memberCode}
+📞 *Registered Phone:* ${phone}
+${password ? `🔑 *Password:* ${password}\n` : ''}${planName ? `📅 *Plan:* ${planName}\n` : ''}${expiryDate ? `⏳ *Valid Until:* ${expiryDate}\n` : ''}
+👉 *How to access your gym pass:*
+1. Tap the link above to open your Member App
+2. Add it to your phone Home Screen for 1-tap pass access
+3. When you arrive at the gym, tap *"Scan Gym QR"* at the reception desk to check in!
+
+_Have a great workout!_ 💪`;
+
+  return `https://wa.me/${cleanPhone.startsWith('91') || cleanPhone.length > 10 ? cleanPhone : `91${cleanPhone}`}?text=${encodeURIComponent(text)}`;
+}
+
 interface MemberFormProps {
   member?: Member;
   prefill?: { name?: string; phone?: string; notes?: string };
@@ -35,11 +74,12 @@ interface MemberFormProps {
 }
 
 export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProps) {
-  const { api } = useSession();
+  const { api, session } = useSession();
   const toast = useToast();
   const plans = useData<{ plans: Plan[] }>('/plans');
   const team = useData<{ team: { id: string; name: string; role: string; title?: string; active: boolean }[] }>('/team');
   const { busy, fields, message, run } = useSubmit();
+  const [createdMember, setCreatedMember] = useState<{ member: Member; password?: string } | null>(null);
   const [form, setForm] = useState({
     name: member?.name ?? prefill?.name ?? '',
     phone: member?.phone ?? prefill?.phone ?? '',
@@ -75,10 +115,92 @@ export function MemberForm({ member, prefill, onClose, onSaved }: MemberFormProp
       const res = member
         ? await api<{ member: Member }>(`/members/${member.id}`, { method: 'PATCH', body: { ...shared, expiryDate: form.expiryDate } })
         : await api<{ member: Member }>('/members', { method: 'POST', body: { ...shared, paidNow: num(form.paidNow) ?? 0, method: form.method } });
-      toast(member ? `${res.member.name} updated.` : `${res.member.name} added as ${res.member.memberCode}.`);
-      onSaved(res.member);
+      
+      if (member) {
+        toast(`${res.member.name} updated.`);
+        onSaved(res.member);
+      } else {
+        toast(`${res.member.name} added as ${res.member.memberCode}.`);
+        setCreatedMember({ member: res.member, password: form.password.trim() });
+      }
     });
   };
+
+  if (createdMember) {
+    const cm = createdMember.member;
+    const whatsappUrl = buildWhatsAppWelcomeUrl({
+      phone: cm.phone,
+      memberName: cm.name,
+      memberCode: cm.memberCode,
+      password: createdMember.password,
+      gymName: session.gym.name,
+      planName: cm.planName || plan?.name,
+      expiryDate: prettyDay(cm.expiryDate),
+    });
+
+    return (
+      <Modal title="Member Added Successfully" onClose={() => onSaved(cm)}>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3 border border-ok/40 bg-ok/10 p-3.5">
+            <CheckCircle2 size={24} className="shrink-0 text-ok" />
+            <div>
+              <p className="font-mono text-xs font-semibold uppercase tracking-wider text-ok">
+                Member Registered
+              </p>
+              <p className="font-mono text-[11px] text-bone-dim">
+                {cm.name} has been enrolled with ID <strong className="text-bone">{cm.memberCode}</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div className="border border-line bg-ink p-4 space-y-2 text-xs font-mono">
+            <div className="flex justify-between">
+              <span className="text-mute">Member ID:</span>
+              <span className="text-bone font-bold">{cm.memberCode}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-mute">Phone:</span>
+              <span className="text-bone">{cm.phone}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-mute">Plan:</span>
+              <span className="text-bone">{cm.planName || plan?.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-mute">Valid Until:</span>
+              <span className="text-bone">{prettyDay(cm.expiryDate)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-mute">App Password:</span>
+              <span className={createdMember.password ? 'text-ok font-bold' : 'text-mute'}>
+                {createdMember.password || '(not set)'}
+              </span>
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-col gap-2.5">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 bg-[#25D366] text-black font-mono text-xs font-bold uppercase tracking-wider py-3 px-4 hover:bg-[#20ba59] transition-colors shadow-lg"
+            >
+              <MessageCircle size={16} />
+              Send Welcome WhatsApp Message
+            </a>
+
+            <Btn
+              variant="ghost"
+              onClick={() => onSaved(cm)}
+              className="w-full"
+            >
+              Done / Close
+            </Btn>
+          </div>
+        </div>
+      </Modal>
+    );
+  }
 
   return (
     <Modal title={member ? 'Edit member' : 'Add member'} onClose={onClose}>
@@ -599,6 +721,23 @@ export function MemberDetail({ memberId, onClose, onChanged }: { memberId: strin
               </Btn>
               <Btn size="sm" variant="ghost" onClick={() => setPanel('edit')}>
                 Edit details
+              </Btn>
+              <Btn
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  const url = buildWhatsAppWelcomeUrl({
+                    phone: m.phone,
+                    memberName: m.name,
+                    memberCode: m.memberCode,
+                    gymName: session.gym.name,
+                    planName: m.planName,
+                    expiryDate: prettyDay(m.expiryDate),
+                  });
+                  window.open(url, '_blank');
+                }}
+              >
+                <MessageCircle size={13} className="text-[#25D366]" /> Send App Pass
               </Btn>
               {addons.whatsapp && (
                 <Btn size="sm" variant="ghost" onClick={() => setPanel('message')}>
