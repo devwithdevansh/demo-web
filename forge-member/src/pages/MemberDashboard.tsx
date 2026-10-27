@@ -140,7 +140,7 @@ export default function MemberDashboard() {
     <div className="min-h-svh bg-ink pb-16 text-bone">
       {/* Top Header */}
       <header className="sticky top-0 z-40 border-b border-line bg-ink/95 backdrop-blur-md">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3.5 sm:px-6">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-3 py-3 sm:px-6 lg:px-8">
           <div>
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-red">
               {gymName}
@@ -172,7 +172,7 @@ export default function MemberDashboard() {
       </header>
 
       {/* Main Screen Feed */}
-      <main className="mx-auto max-w-4xl space-y-6 px-4 pt-6 sm:px-6">
+      <main className="mx-auto max-w-7xl space-y-5 px-3 pt-4 sm:px-6 lg:px-8 sm:pt-6">
         {/* Scan Gym QR Check-in Banner */}
         {checkinSuccessMsg && (
           <div className="flex items-center justify-between border border-ok/40 bg-ok/10 p-3.5 font-mono text-xs text-ok">
@@ -218,7 +218,7 @@ export default function MemberDashboard() {
         )}
 
         {/* 1. Digital Member Pass & Attendance Status */}
-        <section className="border border-line bg-ink-2 p-5 sm:p-6 shadow-xl">
+        <section className="border border-line bg-ink-2 p-4 sm:p-6 shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
@@ -291,227 +291,260 @@ export default function MemberDashboard() {
           </div>
         </section>
 
-        {/* 2. Today's Assigned Workout Routine */}
-        <section className="border border-line bg-ink-2 p-5 sm:p-6 shadow-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-9 w-9 items-center justify-center border border-red/40 bg-red/10 text-red">
-                <Dumbbell size={18} />
-              </div>
-              <div>
-                <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
-                  Today's Workout
-                </h2>
-                <p className="mt-0.5 font-mono text-[11px] text-mute">
-                  {m.workout?.title || 'Personal Training Routine'}
-                  {m.workout?.updatedBy ? ` · by ${m.workout.updatedBy}` : ''}
-                </p>
-              </div>
-            </div>
-
-            {workoutList.length > 0 && (
-              <div className="font-mono text-xs text-mute">
-                <span className="text-bone font-medium">{completedCount}</span> of {workoutList.length} completed ({progressPercent}%)
-              </div>
-            )}
-          </div>
-
-          {/* Day Tabs */}
-          {m.workout?.days && m.workout.days.length > 1 && (
-            <div className="mt-4 flex gap-2 overflow-x-auto pb-1 scroll-x font-mono text-xs">
-              {m.workout.days.map((d, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveDayIdx(idx)}
-                  className={`whitespace-nowrap px-3 py-1.5 uppercase tracking-wider border transition-colors ${
-                    activeDayIdx === idx
-                      ? 'border-red bg-red/15 text-bone'
-                      : 'border-line bg-ink text-mute hover:text-bone'
-                  }`}
-                >
-                  {d.day || `Day ${idx + 1}`}: {d.focus || 'Routine'}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Exercises Checklist */}
-          {workoutList.length === 0 ? (
-            <div className="mt-4 py-8 text-center font-mono text-xs text-mute border border-dashed border-line">
-              No workout routine assigned yet. Your personal trainer or gym coach will assign your routine soon.
-            </div>
-          ) : (
-            <div className="mt-4 divide-y divide-line/60">
-              {workoutList.map((ex, i) => {
-                const key = `${activeDayIdx}-${i}`;
-                const done = !!completedExercises[key];
-                return (
-                  <div
-                    key={i}
-                    onClick={() => toggleExercise(key)}
-                    className={`flex items-start gap-3 py-3.5 px-2 cursor-pointer transition-colors hover:bg-graphite/40 ${
-                      done ? 'opacity-50' : ''
-                    }`}
-                  >
-                    <button type="button" className="mt-0.5 text-mute hover:text-bone shrink-0">
-                      {done ? (
-                        <CheckSquare size={18} className="text-ok" />
-                      ) : (
-                        <Square size={18} />
-                      )}
-                    </button>
-
-                    <div className="min-w-0 flex-1">
-                      <p className={`text-sm font-medium ${done ? 'line-through text-mute' : 'text-bone'}`}>
-                        {ex.name}
-                      </p>
-                      <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-mute">
-                        {ex.sets && <span>Sets: <strong className="text-bone-dim">{ex.sets}</strong></span>}
-                        {ex.reps && <span>Reps: <strong className="text-bone-dim">{ex.reps}</strong></span>}
-                        {ex.note && <span className="text-bone-dim/80">({ex.note})</span>}
-                      </div>
-                    </div>
+        {/* 2-Column Responsive Dashboard Layout on Desktop/Tablet */}
+        <div className="grid gap-6 lg:grid-cols-12 items-start">
+          {/* Main Left Column: Workout Routine & Diet Plan (8 cols on lg) */}
+          <div className="space-y-6 lg:col-span-8">
+            {/* 2. Today's Assigned Workout Routine */}
+            <section className="border border-line bg-ink-2 p-4 sm:p-6 shadow-xl">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line pb-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="flex h-9 w-9 items-center justify-center border border-red/40 bg-red/10 text-red">
+                    <Dumbbell size={18} />
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
+                  <div>
+                    <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
+                      Today's Workout
+                    </h2>
+                    <p className="mt-0.5 font-mono text-[11px] text-mute">
+                      {m.workout?.title || 'Personal Training Routine'}
+                      {m.workout?.updatedBy ? ` · by ${m.workout.updatedBy}` : ''}
+                    </p>
+                  </div>
+                </div>
 
-        {/* 3. My Personal Trainer Card */}
-        {m.trainerName && (
-          <section className="border border-line bg-ink-2 p-5 sm:p-6 shadow-xl">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-line bg-graphite font-display text-2xl text-bone">
-                  {m.trainerName.charAt(0)}
+                {workoutList.length > 0 && (
+                  <div className="font-mono text-xs text-mute">
+                    <span className="text-bone font-medium">{completedCount}</span> of {workoutList.length} completed ({progressPercent}%)
+                  </div>
+                )}
+              </div>
+
+              {/* Day Tabs */}
+              {m.workout?.days && m.workout.days.length > 1 && (
+                <div className="mt-4 flex gap-2 overflow-x-auto pb-1 scroll-x font-mono text-xs">
+                  {m.workout.days.map((d, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveDayIdx(idx)}
+                      className={`whitespace-nowrap px-3 py-1.5 uppercase tracking-wider border transition-colors ${
+                        activeDayIdx === idx
+                          ? 'border-red bg-red/15 text-bone'
+                          : 'border-line bg-ink text-mute hover:text-bone'
+                      }`}
+                    >
+                      {d.day || `Day ${idx + 1}`}: {d.focus || 'Routine'}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Exercises Checklist */}
+              {workoutList.length === 0 ? (
+                <div className="mt-4 py-8 text-center font-mono text-xs text-mute border border-dashed border-line">
+                  No workout routine assigned yet. Your personal trainer or gym coach will assign your routine soon.
+                </div>
+              ) : (
+                <div className="mt-4 divide-y divide-line/60">
+                  {workoutList.map((ex, i) => {
+                    const key = `${activeDayIdx}-${i}`;
+                    const done = !!completedExercises[key];
+                    return (
+                      <div
+                        key={i}
+                        onClick={() => toggleExercise(key)}
+                        className={`flex items-start gap-3 py-3.5 px-2 cursor-pointer transition-colors hover:bg-graphite/40 ${
+                          done ? 'opacity-50' : ''
+                        }`}
+                      >
+                        <button type="button" className="mt-0.5 text-mute hover:text-bone shrink-0">
+                          {done ? (
+                            <CheckSquare size={18} className="text-ok" />
+                          ) : (
+                            <Square size={18} />
+                          )}
+                        </button>
+
+                        <div className="min-w-0 flex-1">
+                          <p className={`text-sm font-medium ${done ? 'line-through text-mute' : 'text-bone'}`}>
+                            {ex.name}
+                          </p>
+                          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 font-mono text-xs text-mute">
+                            {ex.sets && <span>Sets: <strong className="text-bone-dim">{ex.sets}</strong></span>}
+                            {ex.reps && <span>Reps: <strong className="text-bone-dim">{ex.reps}</strong></span>}
+                            {ex.note && <span className="text-bone-dim/80">({ex.note})</span>}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+
+            {/* 3. Diet & Nutrition Guidance */}
+            {m.diet && (m.diet.meals?.length > 0 || m.diet.note) && (
+              <section className="border border-line bg-ink-2 p-4 sm:p-6 shadow-xl">
+                <div className="flex items-center gap-2.5 border-b border-line pb-4">
+                  <div className="flex h-9 w-9 items-center justify-center border border-ok/40 bg-ok/10 text-ok">
+                    <Utensils size={18} />
+                  </div>
+                  <div>
+                    <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
+                      Diet & Meal Guide
+                    </h2>
+                    <p className="mt-0.5 font-mono text-[11px] text-mute">
+                      {m.diet.title || 'Personal Nutrition Plan'}
+                    </p>
+                  </div>
+                </div>
+
+                {m.diet.note && (
+                  <p className="mt-4 border-l-2 border-ok/70 pl-3 font-mono text-xs leading-relaxed text-bone-dim">
+                    {m.diet.note}
+                  </p>
+                )}
+
+                <div className="mt-4 divide-y divide-line/60">
+                  {m.diet.meals?.map((meal, idx) => (
+                    <div key={idx} className="py-3 sm:grid sm:grid-cols-[10rem_1fr] sm:gap-4">
+                      <span className="font-mono text-xs uppercase tracking-wider text-mute block sm:pt-0.5">
+                        {meal.label}
+                      </span>
+                      <span className="mt-1 sm:mt-0 text-sm text-bone font-medium leading-relaxed block">
+                        {meal.items}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* 4. Today's Classes & Timetable */}
+            <section className="border border-line bg-ink-2 p-4 sm:p-6 shadow-xl">
+              <div className="flex items-center gap-2.5 border-b border-line pb-4">
+                <div className="flex h-9 w-9 items-center justify-center border border-line bg-graphite text-bone">
+                  <Clock size={18} />
                 </div>
                 <div>
-                  <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-red">
-                    Assigned Trainer
-                  </span>
-                  <h3 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
-                    {m.trainerName}
-                  </h3>
-                  <p className="mt-0.5 font-mono text-xs text-mute">
-                    {m.trainerTitle || 'Fitness & Strength Coach'}
-                    {m.pt.total > 0 && ` · ${m.pt.total - m.pt.used} PT sessions left`}
+                  <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
+                    Classes Today · {data.weekday}
+                  </h2>
+                  <p className="mt-0.5 font-mono text-[11px] text-mute">
+                    Group fitness & training sessions
                   </p>
                 </div>
               </div>
 
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(
-                  `Hi Coach ${m.trainerName}, I am ${m.name} (${m.memberCode}) from ${gymName}. I had a question regarding my training.`
-                )}`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 border border-ok/60 bg-ok/10 px-4 py-2 font-mono text-xs uppercase tracking-wider text-ok hover:bg-ok hover:text-ink transition-colors"
-              >
-                <MessageCircle size={15} />
-                WhatsApp Trainer
-              </a>
-            </div>
-          </section>
-        )}
-
-        {/* 4. Diet & Nutrition Guidance */}
-        {m.diet && (m.diet.meals?.length > 0 || m.diet.note) && (
-          <section className="border border-line bg-ink-2 p-5 sm:p-6 shadow-xl">
-            <div className="flex items-center gap-2.5 border-b border-line pb-4">
-              <div className="flex h-9 w-9 items-center justify-center border border-ok/40 bg-ok/10 text-ok">
-                <Utensils size={18} />
-              </div>
-              <div>
-                <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
-                  Diet & Meal Guide
-                </h2>
-                <p className="mt-0.5 font-mono text-[11px] text-mute">
-                  {m.diet.title || 'Personal Nutrition Plan'}
+              {todayClasses.length === 0 ? (
+                <p className="mt-4 py-4 text-center font-mono text-xs text-mute">
+                  No group classes scheduled for today.
                 </p>
-              </div>
-            </div>
-
-            {m.diet.note && (
-              <p className="mt-4 border-l-2 border-ok/70 pl-3 font-mono text-xs leading-relaxed text-bone-dim">
-                {m.diet.note}
-              </p>
-            )}
-
-            <div className="mt-4 divide-y divide-line/60">
-              {m.diet.meals?.map((meal, idx) => (
-                <div key={idx} className="py-3 sm:grid sm:grid-cols-[10rem_1fr] sm:gap-4">
-                  <span className="font-mono text-xs uppercase tracking-wider text-mute block sm:pt-0.5">
-                    {meal.label}
-                  </span>
-                  <span className="mt-1 sm:mt-0 text-sm text-bone font-medium leading-relaxed block">
-                    {meal.items}
-                  </span>
+              ) : (
+                <div className="mt-4 divide-y divide-line/60">
+                  {todayClasses.map((s) => (
+                    <div key={s.id} className="flex items-center justify-between py-3">
+                      <div>
+                        <p className="text-sm font-medium text-bone">{s.name}</p>
+                        <p className="font-mono text-xs text-mute">
+                          {time12(s.time)} · {s.durationMin} mins
+                          {s.trainerName ? ` · with ${s.trainerName}` : ''}
+                        </p>
+                      </div>
+                      <span className="border border-line px-2.5 py-1 font-mono text-[10px] uppercase text-mute">
+                        Open Slot
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* 5. Today's Classes & Timetable */}
-        <section className="border border-line bg-ink-2 p-5 sm:p-6 shadow-xl">
-          <div className="flex items-center gap-2.5 border-b border-line pb-4">
-            <div className="flex h-9 w-9 items-center justify-center border border-line bg-graphite text-bone">
-              <Clock size={18} />
-            </div>
-            <div>
-              <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
-                Classes Today · {data.weekday}
-              </h2>
-              <p className="mt-0.5 font-mono text-[11px] text-mute">
-                Group fitness & training sessions
-              </p>
-            </div>
+              )}
+            </section>
           </div>
 
-          {todayClasses.length === 0 ? (
-            <p className="mt-4 py-4 text-center font-mono text-xs text-mute">
-              No group classes scheduled for today.
-            </p>
-          ) : (
-            <div className="mt-4 divide-y divide-line/60">
-              {todayClasses.map((s) => (
-                <div key={s.id} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="text-sm font-medium text-bone">{s.name}</p>
-                    <p className="font-mono text-xs text-mute">
-                      {time12(s.time)} · {s.durationMin} mins
-                      {s.trainerName ? ` · with ${s.trainerName}` : ''}
-                    </p>
-                  </div>
-                  <span className="border border-line px-2.5 py-1 font-mono text-[10px] uppercase text-mute">
-                    Open Slot
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
+          {/* Right Column: Pass Standee, Trainer Card, Notices (4 cols on lg) */}
+          <div className="space-y-6 lg:col-span-4">
+            {/* Front Desk QR Pass Standee */}
+            <section className="border border-line bg-ink-2 p-5 shadow-xl text-center">
+              <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-red">
+                Front Desk QR Pass
+              </span>
+              <h3 className="mt-1 font-display text-2xl uppercase tracking-wider text-bone">
+                {m.name}
+              </h3>
+              <p className="font-mono text-xs uppercase tracking-widest text-mute">
+                Member ID: {m.memberCode}
+              </p>
+              <div className="my-4 flex justify-center">
+                <QrPass code={m.memberCode} size={170} />
+              </div>
+              <p className="font-mono text-[11px] text-bone-dim">
+                Hold QR code near front desk scanner to check in.
+              </p>
+            </section>
 
-        {/* 6. Gym Notices */}
-        {announcements.length > 0 && (
-          <section className="border border-line bg-ink-2 p-5 sm:p-6 shadow-xl">
-            <div className="flex items-center gap-2.5 border-b border-line pb-4">
-              <Megaphone size={18} className="text-red" />
-              <h2 className="font-display text-2xl uppercase tracking-wider text-bone leading-none">
-                Gym Notices
-              </h2>
-            </div>
-            <div className="mt-4 space-y-4">
-              {announcements.map((a) => (
-                <div key={a.id} className="border-l-2 border-red pl-3.5">
-                  <p className="text-sm font-medium text-bone">{a.title}</p>
-                  {a.body && <p className="mt-1 text-xs text-bone-dim leading-relaxed">{a.body}</p>}
+            {/* My Personal Trainer Card */}
+            {m.trainerName && (
+              <section className="border border-line bg-ink-2 p-4 sm:p-5 shadow-xl">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full border border-line bg-graphite font-display text-xl text-bone">
+                      {m.trainerName.charAt(0)}
+                    </div>
+                    <div>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-red">
+                        Assigned Trainer
+                      </span>
+                      <h3 className="font-display text-xl uppercase tracking-wider text-bone leading-none">
+                        {m.trainerName}
+                      </h3>
+                      <p className="mt-0.5 font-mono text-[11px] text-mute">
+                        {m.trainerTitle || 'Fitness & Strength Coach'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {m.pt.total > 0 && (
+                    <p className="font-mono text-xs text-bone-dim border-t border-line/60 pt-2">
+                      PT Sessions: <strong className="text-bone">{m.pt.total - m.pt.used}</strong> of {m.pt.total} remaining
+                    </p>
+                  )}
+
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `Hi Coach ${m.trainerName}, I am ${m.name} (${m.memberCode}) from ${gymName}. I had a question regarding my training.`
+                    )}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 flex items-center justify-center gap-2 border border-ok/60 bg-ok/10 py-2 px-3 font-mono text-xs uppercase tracking-wider text-ok hover:bg-ok hover:text-ink transition-colors"
+                  >
+                    <MessageCircle size={15} />
+                    WhatsApp Trainer
+                  </a>
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
+              </section>
+            )}
+
+            {/* Gym Notices */}
+            {announcements.length > 0 && (
+              <section className="border border-line bg-ink-2 p-4 sm:p-5 shadow-xl">
+                <div className="flex items-center gap-2.5 border-b border-line pb-3">
+                  <Megaphone size={16} className="text-red" />
+                  <h2 className="font-display text-xl uppercase tracking-wider text-bone leading-none">
+                    Gym Notices
+                  </h2>
+                </div>
+                <div className="mt-3 space-y-3">
+                  {announcements.map((a) => (
+                    <div key={a.id} className="border-l-2 border-red pl-3">
+                      <p className="text-xs font-medium text-bone">{a.title}</p>
+                      {a.body && <p className="mt-0.5 text-[11px] text-bone-dim leading-relaxed">{a.body}</p>}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
       </main>
 
       {/* QR Code Pass Modal */}

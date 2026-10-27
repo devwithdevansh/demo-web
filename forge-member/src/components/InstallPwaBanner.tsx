@@ -63,8 +63,8 @@ export function InstallPwaBanner() {
   if (!visible) return null;
 
   return (
-    <aside aria-label="Install App" className="sticky top-0 z-50 border-b border-red/40 bg-ink-2/95 px-4 py-2.5 backdrop-blur-md">
-      <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
+    <aside aria-label="Install App" className="sticky top-0 z-50 border-b border-red/40 bg-ink-2/95 px-3 py-2.5 backdrop-blur-md">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-1 sm:px-4">
         <div className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center border border-red/50 bg-red/10 text-red">
             <Smartphone size={16} />
