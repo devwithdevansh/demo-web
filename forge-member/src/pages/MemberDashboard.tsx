@@ -757,15 +757,17 @@ export default function MemberDashboard() {
             <div className="mt-4 relative aspect-video w-full overflow-hidden border border-line bg-black">
               {playingVideo.youtubeId || extractYouTubeId(playingVideo.videoUrl) ? (
                 <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${
+                  src={`https://www.youtube.com/embed/${
                     playingVideo.youtubeId || extractYouTubeId(playingVideo.videoUrl)
-                  }?autoplay=1&rel=0`}
+                  }?autoplay=1&rel=0&playsinline=1`}
                   title={playingVideo.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
                   className="h-full w-full"
                 />
               ) : (
+
                 <video
                   src={playingVideo.videoUrl}
                   controls

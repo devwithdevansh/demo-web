@@ -127,6 +127,10 @@ export function Videos() {
               placeholder="e.g. https://www.youtube.com/watch?v=... or https://youtu.be/..."
               required
             />
+            <p className="font-mono text-[10px] text-mute -mt-2">
+              Tip: The video creator must have "Allow Embedding" turned on in YouTube Studio for it to play in-app.
+            </p>
+
 
             {/* Instant YouTube Preview Thumbnail */}
             {detectedYtId && (
@@ -345,15 +349,17 @@ export function Videos() {
             <div className="relative aspect-video w-full overflow-hidden border border-line bg-black">
               {previewVideo.youtubeId || extractYouTubeId(previewVideo.videoUrl) ? (
                 <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${
+                  src={`https://www.youtube.com/embed/${
                     previewVideo.youtubeId || extractYouTubeId(previewVideo.videoUrl)
-                  }?autoplay=1`}
+                  }?autoplay=1&rel=0&playsinline=1`}
                   title={previewVideo.title}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                   allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
                   className="h-full w-full"
                 />
               ) : (
+
                 <video
                   src={previewVideo.videoUrl}
                   controls
