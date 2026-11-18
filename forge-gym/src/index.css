@@ -13,6 +13,9 @@
   --color-mute: #85837c;
   --color-red: #ff2e2e;
   --color-red-dim: #3a0d0d;
+  /* status colours for the portals; always paired with a text label */
+  --color-ok: #5fc98a;
+  --color-warn: #f0b24a;
 
   /* ---- type ---- */
   --font-display: 'Bebas Neue', 'Archivo Black', sans-serif;
@@ -99,9 +102,26 @@ body {
 
 /* focus visibility kept even with custom cursor */
 a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible {
+button:focus-visible {
   outline: 2px solid var(--color-red);
   outline-offset: 3px;
+}
+/* form fields use a neutral ring so focus is never mistaken for an error */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-bone);
+  outline-offset: 2px;
+}
+
+/* date and select controls follow the dark surface */
+input, select, textarea {
+  color-scheme: dark;
+}
+
+/* thin horizontal scroller used by portal tab bars and wide tables */
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-line) transparent;
 }

@@ -1,0 +1,31 @@
+# Render blueprint for the FORGE API (forge-gym-backend/).
+#
+# The FORGE site stays on its existing static hosting. This adds the Node
+# service that the Growth and Performance demos need. In Render: New > Blueprint,
+# pick this repository, then enter MONGODB_URI when asked.
+#
+# After it is live, set VITE_API_URL on the static site to this service's
+# address and redeploy the site (see forge-gym-backend/README.md, "Deploy on Render").
+services:
+  - type: web
+    name: forge-gym-api
+    runtime: node
+    plan: free
+    rootDir: forge-gym-backend
+    # Production packages only: skips the development database download.
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # MongoDB Atlas connection string. Entered in the dashboard, never stored in the repo.
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: gym
+      - key: JWT_SECRET
+        generateValue: true
+      # The site address that is allowed to call this API.
+      - key: CORS_ORIGIN
+        value: https://demo-web-forge-gym.onrender.com

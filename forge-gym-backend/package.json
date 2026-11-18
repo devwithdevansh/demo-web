@@ -1,0 +1,31 @@
+{
+  "name": "forge-gym-backend",
+  "private": true,
+  "version": "0.0.0",
+  "description": "FORGE API: members, attendance, payments, coaching and the demo sandboxes.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch-path=src server.js",
+    "build": "node -e \"console.log('No build step: this is a plain Node.js API.')\"",
+    "test": "node --test \"src/test/*.test.js\"",
+    "demo:clear": "node src/scripts/clear-demo.js",
+    "gym:create": "node src/scripts/create-gym.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.10.4",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "mongodb-memory-server-core": "^11.3.0"
+  }
+}

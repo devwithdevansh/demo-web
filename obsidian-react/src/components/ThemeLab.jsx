@@ -69,9 +69,14 @@ export default function ThemeLab() {
       </div>
 
       <div className="grid lg:grid-cols-[1fr_1.1fr] gap-[32px] items-start">
-        {/* Live preview -- reflects whatever is currently selected below */}
-        <div className="lg:sticky lg:top-[100px]">
-          <div className="lab-preview" style={{ background: bg, color: text }}>
+        {/* Live preview -- reflects whatever is currently selected below.
+            Below lg the columns stack, so tapping a palette on a tablet used
+            to change a preview that had already scrolled off screen. There,
+            this wrapper becomes `contents` so the preview can stick to the top
+            of the whole grid while the controls scroll under it, and the CSS
+            output drops below the controls. */}
+        <div className="lg:sticky lg:top-[100px] max-lg:contents">
+          <div className="lab-preview max-lg:sticky max-lg:top-[12px] max-lg:z-[5] max-lg:shadow-[0_14px_36px_rgba(0,0,0,.35)]" style={{ background: bg, color: text }}>
             <span
               className="inline-flex items-center gap-[8px] font-mono text-[10px] uppercase tracking-[.18em] px-[12px] py-[6px] rounded-full border"
               style={{ borderColor: `${accent}55`, color: accent }}
@@ -93,7 +98,7 @@ export default function ThemeLab() {
             </button>
           </div>
 
-          <div className="mt-[16px] relative">
+          <div className="mt-[16px] relative max-lg:mt-0 max-lg:order-last">
             <pre className="m-0 p-[16px] rounded-[14px] bg-[var(--graphite)] border border-[var(--line)] font-mono text-[12px] leading-[1.6] text-[var(--paper-dim)] overflow-x-auto whitespace-pre">{css}</pre>
             <button
               type="button"

@@ -39,16 +39,20 @@ export default function CatalogCard({ site }) {
         className="relative h-[220px] flex items-center justify-center px-[24px] overflow-hidden"
         style={{ background: `radial-gradient(circle at 30% 20%, ${site.accent}33, transparent 60%), ${site.previewBg}` }}
       >
-        <span
-          className="absolute top-[16px] left-[16px] font-mono text-[10px] uppercase tracking-[.14em] px-[11px] py-[5px] rounded-full border opacity-80"
-          style={{ color: site.textOn, borderColor: `${site.textOn}33` }}
-        >
-          Palette preview
-        </span>
-        <span className="absolute top-[16px] right-[16px] inline-flex items-center gap-[6px] font-mono text-[10px] font-bold uppercase tracking-[.05em] px-[11px] py-[5px] rounded-full bg-[rgba(111,227,164,.15)] text-[#6fe3a4]">
-          <span className="w-[6px] h-[6px] rounded-full bg-current" />
-          Included in this site
-        </span>
+        {/* One wrapping row, not two absolutely-placed corners: at three
+            cards per row on a 1024px tablet the two badges used to overlap. */}
+        <div className="absolute top-[16px] inset-x-[16px] flex flex-wrap justify-between gap-[8px]">
+          <span
+            className="font-mono text-[10px] uppercase tracking-[.14em] px-[11px] py-[5px] rounded-full border opacity-80"
+            style={{ color: site.textOn, borderColor: `${site.textOn}33` }}
+          >
+            Palette preview
+          </span>
+          <span className="inline-flex items-center gap-[6px] font-mono text-[10px] font-bold uppercase tracking-[.05em] px-[11px] py-[5px] rounded-full bg-[rgba(111,227,164,.15)] text-[#6fe3a4]">
+            <span className="w-[6px] h-[6px] rounded-full bg-current" />
+            Included in this site
+          </span>
+        </div>
         <span
           className="text-center leading-[0.95] select-none"
           style={{ fontFamily: site.fonts[0].family, fontWeight: site.fonts[0].weight, fontSize: 'clamp(30px, 3.4vw, 44px)', color: site.textOn }}
@@ -93,7 +97,7 @@ export default function CatalogCard({ site }) {
         </div>
 
         <div className="mt-auto pt-[2px]">
-          <a href={`/${site.route}`} className="btn solid w-full justify-center">
+          <a href={`/${site.route}/`} className="btn solid w-full justify-center">
             Open {site.name} &rarr;
           </a>
         </div>
