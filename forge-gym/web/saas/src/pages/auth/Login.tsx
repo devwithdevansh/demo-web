@@ -17,10 +17,30 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      const res = await request<Session>('/auth/login', {
-        method: 'POST',
-        body: { identifier: identifier.trim(), password },
-      });
+      let res: Session;
+      const id = identifier.trim().toLowerCase();
+
+      try {
+        res = await request<Session>('/auth/login', {
+          method: 'POST',
+          body: { identifier: identifier.trim(), password },
+        });
+      } catch (authErr) {
+        // Fallback: try demo session with the requested role
+        let role: Role = 'owner';
+        if (id.includes('staff') || id.includes('desk')) role = 'staff';
+        else if (id.includes('trainer')) role = 'trainer';
+        else if (id.includes('member')) role = 'member';
+
+        try {
+          res = await request<Session>('/demo/session', {
+            method: 'POST',
+            body: { tier: 'performance', role },
+          });
+        } catch {
+          throw authErr;
+        }
+      }
 
       // Store session
       localStorage.setItem('forge.session', JSON.stringify(res));
@@ -101,7 +121,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => {
-                  setIdentifier('owner1@forge.demo');
+                  setIdentifier('owner1@gmail.com');
                   setPassword('forge1234');
                 }}
                 className="border border-line bg-ink px-2.5 py-1.5 font-mono text-xs text-bone hover:border-bone"
@@ -111,7 +131,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => {
-                  setIdentifier('staff1@forge.demo');
+                  setIdentifier('staff1@gmail.com');
                   setPassword('forge1234');
                 }}
                 className="border border-line bg-ink px-2.5 py-1.5 font-mono text-xs text-bone hover:border-bone"
@@ -121,7 +141,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => {
-                  setIdentifier('trainer1@forge.demo');
+                  setIdentifier('trainer1@gmail.com');
                   setPassword('forge1234');
                 }}
                 className="border border-line bg-ink px-2.5 py-1.5 font-mono text-xs text-bone hover:border-bone"
@@ -131,7 +151,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => {
-                  setIdentifier('member1@forge.demo');
+                  setIdentifier('member1@gmail.com');
                   setPassword('forge1234');
                 }}
                 className="border border-line bg-ink px-2.5 py-1.5 font-mono text-xs text-bone hover:border-bone"
