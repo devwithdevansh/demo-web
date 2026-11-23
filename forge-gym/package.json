@@ -1,0 +1,8 @@
+{
+  "name": "forge-gym",
+  "private": true,
+  "scripts": {
+    "start": "npm --prefix api start",
+    "build": "npm --prefix api build"
+  }
+}
