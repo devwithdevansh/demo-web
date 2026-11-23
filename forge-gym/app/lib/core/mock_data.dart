@@ -20,49 +20,37 @@ class MockData {
   static final Map<String, ForgeUser> demoUsers = {
     'owner': const ForgeUser(
       id: 'usr_owner_1',
-      name: 'Test Owner 1',
+      name: 'Owner 1',
       role: 'owner',
       title: 'Gym Owner & Head Coach',
     ),
-    'owner2': const ForgeUser(
-      id: 'usr_owner_2',
-      name: 'Test Owner 2',
-      role: 'owner',
-      title: 'Co-Owner',
-    ),
     'staff': const ForgeUser(
       id: 'usr_staff_1',
-      name: 'Test Staff 1',
+      name: 'Staff 1',
       role: 'staff',
       title: 'Front Desk & Operations',
     ),
-    'staff2': const ForgeUser(
-      id: 'usr_staff_2',
-      name: 'Test Staff 2',
-      role: 'staff',
-      title: 'Front Desk',
-    ),
     'trainer': const ForgeUser(
       id: 'usr_trainer_1',
-      name: 'Test Trainer 1',
+      name: 'Trainer 1',
       role: 'trainer',
-      title: 'Senior Strength Coach',
+      title: 'Head Strength Coach',
     ),
     'trainer2': const ForgeUser(
       id: 'usr_trainer_2',
-      name: 'Test Trainer 2',
+      name: 'Trainer 2',
       role: 'trainer',
       title: 'Fitness Coach',
     ),
+    'trainer3': const ForgeUser(
+      id: 'usr_trainer_3',
+      name: 'Trainer 3',
+      role: 'trainer',
+      title: 'Conditioning Coach',
+    ),
     'member': const ForgeUser(
       id: 'usr_member_1',
-      name: 'Test Member 1',
-      role: 'member',
-      title: 'Member',
-    ),
-    'member2': const ForgeUser(
-      id: 'usr_member_2',
-      name: 'Test Member 2',
+      name: 'Member 1',
       role: 'member',
       title: 'Member',
     ),
@@ -107,20 +95,16 @@ class MockData {
       String role = 'owner';
       if (reqRole.isNotEmpty && demoUsers.containsKey(reqRole)) {
         role = reqRole;
+      } else if (identifier.contains('trainer3')) {
+        role = 'trainer3';
       } else if (identifier.contains('trainer2')) {
         role = 'trainer2';
-      } else if (identifier.contains('trainer') || identifier.contains('coach') || identifier.contains('alex')) {
+      } else if (identifier.contains('trainer') || identifier.contains('coach')) {
         role = 'trainer';
-      } else if (identifier.contains('member2')) {
-        role = 'member2';
-      } else if (identifier.contains('member') || identifier.contains('aarav')) {
+      } else if (identifier.contains('member')) {
         role = 'member';
-      } else if (identifier.contains('staff2')) {
-        role = 'staff2';
-      } else if (identifier.contains('staff') || identifier.contains('desk') || identifier.contains('imran')) {
+      } else if (identifier.contains('staff') || identifier.contains('desk')) {
         role = 'staff';
-      } else if (identifier.contains('owner2')) {
-        role = 'owner2';
       } else {
         role = 'owner';
       }
@@ -831,10 +815,10 @@ class MockData {
     return [
       {
         'id': 'mem_1',
-        'memberCode': 'F-1001',
-        'name': 'Test Member 1',
+        'memberCode': 'IP-1001',
+        'name': 'Member 1',
         'phone': '+91 98000 00001',
-        'email': 'member1@forge.demo',
+        'email': 'member1@gmail.com',
         'category': 'Strength',
         'planId': 'plan_quarterly',
         'planName': 'Quarterly Fit',
@@ -843,8 +827,8 @@ class MockData {
         'expiryDate': now.add(const Duration(days: 18)).toIso8601String().substring(0, 10),
         'feeDue': 0,
         'trainerId': 'usr_trainer_1',
-        'trainerName': 'Test Trainer 1',
-        'notes': 'Consistent attendee, training goals progressing well.',
+        'trainerName': 'Trainer 1',
+        'notes': 'Consistent attendee, strength goals progressing well.',
         'ptTotal': 12,
         'ptUsed': 7,
         'autopayStatus': 'active',
@@ -858,26 +842,107 @@ class MockData {
       },
       {
         'id': 'mem_2',
-        'memberCode': 'F-1002',
-        'name': 'Test Member 2',
+        'memberCode': 'IP-1002',
+        'name': 'Member 2',
         'phone': '+91 98000 00002',
-        'email': 'member2@forge.demo',
+        'email': 'member2@gmail.com',
         'category': 'Weight loss',
         'planId': 'plan_monthly',
         'planName': 'Single Month',
         'planPrice': 1499,
         'startDate': start,
         'expiryDate': now.add(const Duration(days: 3)).toIso8601String().substring(0, 10),
-        'feeDue': 1499,
+        'feeDue': 1500,
         'trainerId': 'usr_trainer_2',
-        'trainerName': 'Test Trainer 2',
-        'notes': 'Renewal due soon, focus on weight loss.',
+        'trainerName': 'Trainer 2',
+        'notes': 'Renewal due soon, focus on fat loss circuit.',
         'ptTotal': 0,
         'ptUsed': 0,
         'autopayStatus': 'inactive',
         'autopayAmount': 1499,
         'status': 'active',
         'daysLeft': 3,
+        'hasAppAccess': true,
+        'createdAt': start,
+        'workout': _sampleWorkout(),
+        'diet': _sampleDiet(),
+      },
+      {
+        'id': 'mem_3',
+        'memberCode': 'IP-1003',
+        'name': 'Member 3',
+        'phone': '+91 98000 00003',
+        'email': 'member3@gmail.com',
+        'category': 'General fitness',
+        'planId': 'plan_monthly',
+        'planName': 'Single Month',
+        'planPrice': 1499,
+        'startDate': start,
+        'expiryDate': now.subtract(const Duration(days: 2)).toIso8601String().substring(0, 10),
+        'feeDue': 0,
+        'trainerId': null,
+        'trainerName': null,
+        'notes': 'Lapsed recently, follow up for renewal.',
+        'ptTotal': 0,
+        'ptUsed': 0,
+        'autopayStatus': 'none',
+        'autopayAmount': 0,
+        'status': 'lapsed',
+        'daysLeft': -2,
+        'hasAppAccess': false,
+        'createdAt': start,
+        'workout': _sampleWorkout(),
+        'diet': _sampleDiet(),
+      },
+      {
+        'id': 'mem_4',
+        'memberCode': 'IP-1004',
+        'name': 'Member 4',
+        'phone': '+91 98000 00004',
+        'email': 'member4@gmail.com',
+        'category': 'Weight loss',
+        'planId': 'plan_quarterly',
+        'planName': 'Pro Quarterly',
+        'planPrice': 7999,
+        'startDate': start,
+        'expiryDate': now.add(const Duration(days: 41)).toIso8601String().substring(0, 10),
+        'feeDue': 0,
+        'trainerId': 'usr_trainer_2',
+        'trainerName': 'Trainer 2',
+        'notes': 'Progressing well on cardio circuit.',
+        'ptTotal': 8,
+        'ptUsed': 3,
+        'autopayStatus': 'active',
+        'autopayAmount': 7999,
+        'status': 'active',
+        'daysLeft': 41,
+        'hasAppAccess': true,
+        'createdAt': start,
+        'workout': _sampleWorkout(),
+        'diet': _sampleDiet(),
+      },
+      {
+        'id': 'mem_5',
+        'memberCode': 'IP-1005',
+        'name': 'Member 5',
+        'phone': '+91 98000 00005',
+        'email': 'member5@gmail.com',
+        'category': 'Strength',
+        'planId': 'plan_yearly',
+        'planName': 'Elite Yearly',
+        'planPrice': 54990,
+        'startDate': start,
+        'expiryDate': now.add(const Duration(days: 212)).toIso8601String().substring(0, 10),
+        'feeDue': 0,
+        'trainerId': 'usr_trainer_1',
+        'trainerName': 'Trainer 1',
+        'notes': 'Yearly VIP member, advanced strength lifting.',
+        'ptTotal': 24,
+        'ptUsed': 10,
+        'autopayStatus': 'active',
+        'autopayAmount': 54990,
+        'status': 'active',
+        'daysLeft': 212,
         'hasAppAccess': true,
         'createdAt': start,
         'workout': _sampleWorkout(),
@@ -963,12 +1028,11 @@ class MockData {
   ];
 
   static List<Json> _initTeam() => [
-    {'id': 'usr_owner_1', 'name': 'Test Owner 1', 'role': 'owner', 'title': 'Founder & Head Coach', 'phone': '+91 98000 11111', 'email': 'owner1@forge.demo', 'active': true},
-    {'id': 'usr_owner_2', 'name': 'Test Owner 2', 'role': 'owner', 'title': 'Co-Owner', 'phone': '+91 98000 11112', 'email': 'owner2@forge.demo', 'active': true},
-    {'id': 'usr_staff_1', 'name': 'Test Staff 1', 'role': 'staff', 'title': 'Front Desk & Operations', 'phone': '+91 98000 22221', 'email': 'staff1@forge.demo', 'active': true},
-    {'id': 'usr_staff_2', 'name': 'Test Staff 2', 'role': 'staff', 'title': 'Front Desk', 'phone': '+91 98000 22222', 'email': 'staff2@forge.demo', 'active': true},
-    {'id': 'usr_trainer_1', 'name': 'Test Trainer 1', 'role': 'trainer', 'title': 'Senior Strength Coach', 'phone': '+91 98000 33331', 'email': 'trainer1@forge.demo', 'active': true},
-    {'id': 'usr_trainer_2', 'name': 'Test Trainer 2', 'role': 'trainer', 'title': 'Fitness & Nutrition Coach', 'phone': '+91 98000 33332', 'email': 'trainer2@forge.demo', 'active': true},
+    {'id': 'usr_owner_1', 'name': 'Owner 1', 'role': 'owner', 'title': 'Founder & Head Coach', 'phone': '+91 98000 11111', 'email': 'owner1@gmail.com', 'active': true},
+    {'id': 'usr_staff_1', 'name': 'Staff 1', 'role': 'staff', 'title': 'Front Desk & Operations', 'phone': '+91 98000 22221', 'email': 'staff1@gmail.com', 'active': true},
+    {'id': 'usr_trainer_1', 'name': 'Trainer 1', 'role': 'trainer', 'title': 'Head Strength Coach', 'phone': '+91 98000 33331', 'email': 'trainer1@gmail.com', 'active': true},
+    {'id': 'usr_trainer_2', 'name': 'Trainer 2', 'role': 'trainer', 'title': 'Fitness & Nutrition Coach', 'phone': '+91 98000 33332', 'email': 'trainer2@gmail.com', 'active': true},
+    {'id': 'usr_trainer_3', 'name': 'Trainer 3', 'role': 'trainer', 'title': 'Conditioning Coach', 'phone': '+91 98000 33333', 'email': 'trainer3@gmail.com', 'active': true},
   ];
 
   static List<Json> _initAnnouncements() => [

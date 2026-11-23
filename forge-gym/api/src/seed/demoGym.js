@@ -31,36 +31,17 @@ const phone = (n) => `+91 00000 ${String(10000 + n).slice(-5)}`;
 
 // name, plan, days until expiry, fee due, category, trainer, PT total, PT used, paid periods
 const MEMBERS = [
-  ['Aarav Shah', 3, 18, 0, 'Strength', 0, 12, 7, 5],
-  ['Diya Patel', 1, 3, 1500, 'Weight loss', 1, 0, 0, 4],
-  ['Kabir Rao', 0, -2, 0, 'General fitness', null, 0, 0, 3],
-  ['Ananya Iyer', 2, 41, 0, 'Weight loss', 1, 8, 3, 2],
-  ['Vihaan Desai', 4, 212, 0, 'Strength', 0, 24, 10, 1],
-  ['Ishita Verma', 0, 6, 0, 'Beginner', 3, 0, 0, 2],
-  ['Rohan Gupta', 1, -9, 0, 'General fitness', null, 0, 0, 4],
-  ['Meera Nair', 1, 12, 1000, 'Senior', 3, 0, 0, 6],
-  ['Aditya Singh', 0, 1, 0, 'Student', null, 0, 0, 3],
-  ['Sana Khan', 3, 24, 0, 'Personal training', 2, 12, 11, 5],
-  ['Dev Malhotra', 2, 67, 0, 'Strength', 0, 0, 0, 2],
-  ['Tara Menon', 0, 15, 0, 'Beginner', 3, 0, 0, 1],
-  ['Nikhil Joshi', 1, -21, 0, 'General fitness', null, 0, 0, 3],
-  ['Pooja Reddy', 1, 9, 0, 'Weight loss', 1, 0, 0, 5],
-  ['Arnav Kulkarni', 0, 27, 0, 'Student', null, 0, 0, 2],
-  ['Riya Chawla', 3, 5, 0, 'Personal training', 2, 12, 4, 3],
-  ['Yash Thakur', 1, 20, 2999, 'General fitness', null, 0, 0, 6],
-  ['Kavya Pillai', 2, 52, 0, 'Weight loss', 1, 0, 0, 2],
-  ['Manav Bhatt', 0, 11, 499, 'Beginner', 3, 0, 0, 4],
-  ['Zoya Mirza', 1, 2, 0, 'General fitness', null, 0, 0, 6],
-  ['Harsh Agarwal', 0, -35, 0, 'General fitness', null, 0, 0, 2],
-  ['Naina Kapoor', 4, 140, 0, 'Strength', 0, 0, 0, 1],
-  ['Sameer Dutta', 1, 29, 0, 'Senior', 3, 0, 0, 5],
-  ['Lavanya Rao', 1, 16, 0, 'General fitness', null, 0, 0, 3],
+  ['Member One', 3, 18, 0, 'Strength', 0, 12, 7, 5],
+  ['Member Two', 1, 3, 1500, 'Weight loss', 1, 0, 0, 4],
+  ['Member Three', 0, -2, 0, 'General fitness', null, 0, 0, 3],
+  ['Member Four', 2, 41, 0, 'Weight loss', 1, 8, 3, 2],
+  ['Member Five', 4, 212, 0, 'Strength', 0, 24, 10, 1],
 ];
 
 const ex = (name, sets, reps, note = '', videoUrl = '') => ({ name, sets, reps, note, videoUrl });
 
 const WORKOUTS = {
-  'Aarav Shah': {
+  'Member One': {
     title: 'Strength Block · Week 3',
     days: [
       { day: 'Monday', focus: 'Push', exercises: [
@@ -88,20 +69,12 @@ const WORKOUTS = {
       ] },
     ],
   },
-  'Vihaan Desai': {
+  'Member Two': {
     title: 'Upper / Lower Split',
     days: [
       { day: 'Tuesday', focus: 'Upper', exercises: [ex('Bench Press', '5', '5', '', SAMPLE_CLIP), ex('Pull-up', '4', '6'), ex('Dumbbell Row', '3', '10')] },
       { day: 'Thursday', focus: 'Lower', exercises: [ex('Back Squat', '5', '5'), ex('Leg Press', '3', '12'), ex('Calf Raise', '3', '15')] },
     ],
-  },
-  'Dev Malhotra': {
-    title: 'Foundation Strength',
-    days: [{ day: 'Mon / Wed / Fri', focus: 'Full body', exercises: [ex('Goblet Squat', '3', '10'), ex('Push-up', '3', '12'), ex('Seated Row', '3', '12')] }],
-  },
-  'Diya Patel': {
-    title: 'Fat Loss Circuit',
-    days: [{ day: 'Mon / Thu', focus: 'Circuit', exercises: [ex('Kettlebell Swing', '4', '15'), ex('Step-up', '4', '12 each side'), ex('Rowing Machine', '4', '2 min')] }],
   },
 };
 
@@ -118,12 +91,12 @@ const AARAV_DIET = {
 
 const TIMETABLE = [
   ['MON', '06:00', 'Strength', 0], ['MON', '07:30', 'HIIT', 1], ['MON', '18:00', 'Boxing', 2],
-  ['TUE', '06:30', 'Mobility', 3], ['TUE', '18:00', 'CrossFit', 2], ['TUE', '19:30', 'Yoga', 3],
+  ['TUE', '06:30', 'Mobility', 0], ['TUE', '18:00', 'CrossFit', 1], ['TUE', '19:30', 'Yoga', 2],
   ['WED', '06:00', 'Strength', 0], ['WED', '18:00', 'HIIT', 1],
-  ['THU', '06:30', 'Boxing', 2], ['THU', '18:00', 'CrossFit', 2], ['THU', '19:30', 'Mobility', 3],
-  ['FRI', '06:00', 'Strength', 0], ['FRI', '07:30', 'HIIT', 1], ['FRI', '18:00', 'Yoga', 3],
-  ['SAT', '08:00', 'CrossFit', 2], ['SAT', '09:30', 'Boxing', 2],
-  ['SUN', '09:00', 'Mobility', 3],
+  ['THU', '06:30', 'Boxing', 2], ['THU', '18:00', 'CrossFit', 1], ['THU', '19:30', 'Mobility', 0],
+  ['FRI', '06:00', 'Strength', 0], ['FRI', '07:30', 'HIIT', 1], ['FRI', '18:00', 'Yoga', 2],
+  ['SAT', '08:00', 'CrossFit', 1], ['SAT', '09:30', 'Boxing', 2],
+  ['SUN', '09:00', 'Mobility', 0],
 ];
 
 // name, source, status, follow-up offset in days (null = none), interest, notes
@@ -150,16 +123,15 @@ export async function seedGym(gym) {
   const demo = { gymId, isDemo: true };
 
   const users = await User.insertMany([
-    { ...demo, name: 'Rhea Kapoor', role: 'owner', title: 'Owner', phone: phone(1), demoPrimary: true },
-    { ...demo, name: 'Imran Shaikh', role: 'staff', title: 'Front desk', phone: phone(2), demoPrimary: true },
-    { ...demo, name: 'Alex Rey', role: 'trainer', title: 'Strength Coach', phone: phone(3), demoPrimary: true },
-    { ...demo, name: 'Priya Nair', role: 'trainer', title: 'Fitness Coach', phone: phone(4) },
-    { ...demo, name: 'Rahul Mehta', role: 'trainer', title: 'Performance Coach', phone: phone(5) },
-    { ...demo, name: 'Sara Kade', role: 'trainer', title: 'Conditioning Coach', phone: phone(6) },
-    { ...demo, name: 'Aarav Shah', role: 'member', demoPrimary: true },
+    { ...demo, name: 'Owner 1', email: 'owner1@gmail.com', role: 'owner', title: 'Gym Owner', phone: phone(1), demoPrimary: true },
+    { ...demo, name: 'Staff 1', email: 'staff1@gmail.com', role: 'staff', title: 'Front Desk & Operations', phone: phone(2), demoPrimary: true },
+    { ...demo, name: 'Trainer 1', email: 'trainer1@gmail.com', role: 'trainer', title: 'Head Strength Coach', phone: phone(3), demoPrimary: true },
+    { ...demo, name: 'Trainer 2', email: 'trainer2@gmail.com', role: 'trainer', title: 'Fitness Coach', phone: phone(4) },
+    { ...demo, name: 'Trainer 3', email: 'trainer3@gmail.com', role: 'trainer', title: 'Conditioning Coach', phone: phone(5) },
+    { ...demo, name: 'Member 1', email: 'member1@gmail.com', role: 'member', phone: phone(100), demoPrimary: true },
   ]);
-  const trainers = users.slice(2, 6);
-  const memberUser = users[6];
+  const trainers = users.slice(2, 5);
+  const memberUser = users[5];
 
   const plans = await Plan.insertMany([
     { gymId, name: 'Basic Monthly', price: 1499, durationMonths: 1 },
@@ -222,7 +194,7 @@ export async function seedGym(gym) {
 
   // Attendance: three weeks of history plus a handful of check-ins already made today.
   const attendance = [];
-  const todays = [1, 4, 5, 9, 10, 13, 16, 21];
+  const todays = [0, 1, 3];
   const opened = at(today, '05:35').getTime();
   const openFor = Date.now() - opened;
   members.forEach((m, i) => {
@@ -333,21 +305,19 @@ export async function seedGym(gym) {
 
 
   const byName = Object.fromEntries(members.map((m) => [m.name, m]));
-  const log = (name, trainer, daysAgo, type, extra = {}) => ({
-    gymId, memberId: byName[name]._id, trainerName: trainer, day: shiftDay(today, -daysAgo), type, ...extra, createdAt: stamp(daysAgo),
-  });
+  const log = (name, trainer, daysAgo, type, extra = {}) => {
+    const mem = byName[name] || members[0];
+    return {
+      gymId, memberId: mem._id, trainerName: trainer, day: shiftDay(today, -daysAgo), type, ...extra, createdAt: stamp(daysAgo),
+    };
+  };
   const weights = [82.4, 82.0, 81.5, 81.1, 80.6, 80.3, 79.9, 79.6];
   await CoachLog.insertMany([
-    ...weights.map((weightKg, i) => log('Aarav Shah', 'Alex Rey', 56 - i * 7, 'measurement', { weightKg, waistCm: 92 - i * 0.5 })),
-    ...[30, 26, 23, 19, 16, 12, 5].map((d) => log('Aarav Shah', 'Alex Rey', d, 'pt_session', { note: 'PT session completed.' })),
-    log('Aarav Shah', 'Alex Rey', 9, 'checkin', { note: 'Bench press moving well. Sleep has been short this week, so keep Saturday light.' }),
-    log('Aarav Shah', 'Alex Rey', 23, 'checkin', { note: 'Good consistency, four sessions a week. Added a conditioning day.' }),
-    log('Vihaan Desai', 'Alex Rey', 2, 'checkin', { note: 'Squat depth improved. Keep the same load next week.' }),
-    log('Dev Malhotra', 'Alex Rey', 12, 'checkin', { note: 'Missed a week for travel. Restart at 90% of previous loads.' }),
-    log('Diya Patel', 'Priya Nair', 4, 'checkin', { note: 'Enjoying the circuit. Add one extra walk per week.' }),
-    log('Ananya Iyer', 'Priya Nair', 1, 'measurement', { weightKg: 68.2, waistCm: 81 }),
-    log('Sana Khan', 'Rahul Mehta', 6, 'checkin', { note: 'One PT session left. Wants to discuss the next pack.' }),
-    log('Riya Chawla', 'Rahul Mehta', 15, 'checkin', { note: 'Shoulder feels fine again. Resume overhead work slowly.' }),
+    ...weights.map((weightKg, i) => log('Member One', 'Trainer 1', 56 - i * 7, 'measurement', { weightKg, waistCm: 92 - i * 0.5 })),
+    ...[30, 26, 23, 19, 16, 12, 5].map((d) => log('Member One', 'Trainer 1', d, 'pt_session', { note: 'PT session completed.' })),
+    log('Member One', 'Trainer 1', 9, 'checkin', { note: 'Bench press moving well. Sleep has been good this week.' }),
+    log('Member One', 'Trainer 1', 23, 'checkin', { note: 'Good consistency, four sessions a week. Added a conditioning day.' }),
+    log('Member Two', 'Trainer 2', 4, 'checkin', { note: 'Enjoying the circuit. Add one extra walk per week.' }),
   ]);
 }
 

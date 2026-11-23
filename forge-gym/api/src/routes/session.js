@@ -121,19 +121,35 @@ router.post(
     const id = (req.data.identifier || req.data.email || '').trim().toLowerCase();
     if (!id) throw new HttpError(400, 'Please enter your phone number or email.', 'missing_identifier');
 
-    // Check for demo accounts (e.g. staff1@forge.demo, owner1@forge.demo, or forge1234)
-    if (id.includes('@forge.demo') || id.includes('demo') || req.data.password === 'forge1234') {
+    // Check for demo accounts (e.g. staff1@gmail.com, owner1@gmail.com, or forge1234)
+    if (
+      id.includes('@forge.demo') ||
+      id.includes('demo') ||
+      id.includes('owner1') ||
+      id.includes('staff1') ||
+      id.includes('trainer1') ||
+      id.includes('trainer2') ||
+      id.includes('trainer3') ||
+      id.includes('member1') ||
+      req.data.password === 'forge1234'
+    ) {
       let role = 'owner';
-      if (id.includes('staff') || id.includes('desk') || id.includes('imran')) role = 'staff';
-      else if (id.includes('trainer') || id.includes('alex')) role = 'trainer';
-      else if (id.includes('member') || id.includes('aarav')) role = 'member';
+      if (id.includes('staff') || id.includes('desk') || id.includes('imran') || id.includes('staff1')) role = 'staff';
+      else if (id.includes('trainer') || id.includes('alex') || id.includes('trainer1')) role = 'trainer';
+      else if (id.includes('member') || id.includes('aarav') || id.includes('member1')) role = 'member';
 
       let gym = await Gym.findOne({ isDemo: true });
       if (!gym) {
         const created = await createSandbox();
         gym = created.gym;
       }
-      const user = await primaryUser(gym, role);
+      let user;
+      if (id.includes('trainer2')) {
+        user = await User.findOne({ gymId: gym._id, email: 'trainer2@gmail.com' });
+      } else if (id.includes('trainer3')) {
+        user = await User.findOne({ gymId: gym._id, email: 'trainer3@gmail.com' });
+      }
+      if (!user) user = await primaryUser(gym, role);
       if (user) {
         return res.json(sessionPayload(user, gym, 'performance'));
       }
