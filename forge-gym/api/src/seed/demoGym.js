@@ -171,24 +171,21 @@ export async function seedGym(gym) {
     }),
   );
 
-  // Fee history: one payment per membership period, newest first, within the last six months.
-  const methods = ['upi', 'cash', 'upi', 'card', 'upi', 'bank', 'cash'];
-  const horizon = shiftDay(today, -180);
-  const payments = [];
-  members.forEach((m, i) => {
-    const [, planIdx, , feeDue, , , , , periods] = MEMBERS[i];
-    const plan = plans[planIdx];
-    for (let k = 1; k <= periods; k++) {
-      const paidOn = shiftMonths(m.expiryDate, -plan.durationMonths * k);
-      if (k > 1 && paidOn < horizon) break;
-      const amount = k === 1 ? plan.price - feeDue : plan.price;
-      if (amount <= 0) continue;
-      payments.push({
-        gymId, memberId: m._id, amount, method: methods[(i + k) % methods.length], paidOn,
-        note: `${plan.name} fee`, recordedBy: 'Staff 1', createdAt: at(paidOn, '11:00'),
-      });
-    }
-  });
+  // Clean payments for Member 1, Member 4, and Member 5
+  const payments = [
+    {
+      gymId, memberId: members[0]._id, amount: plans[1].price, method: 'upi', paidOn: shiftDay(today, -15),
+      note: `${plans[1].name} fee`, recordedBy: 'Staff 1', createdAt: at(shiftDay(today, -15), '11:00'),
+    },
+    {
+      gymId, memberId: members[3]._id, amount: plans[2].price, method: 'upi', paidOn: shiftDay(today, -40),
+      note: `${plans[2].name} fee`, recordedBy: 'Staff 1', createdAt: at(shiftDay(today, -40), '11:00'),
+    },
+    {
+      gymId, memberId: members[4]._id, amount: plans[4].price, method: 'bank', paidOn: shiftDay(today, -90),
+      note: `${plans[4].name} fee`, recordedBy: 'Staff 1', createdAt: at(shiftDay(today, -90), '11:00'),
+    },
+  ];
   await Payment.insertMany(payments);
 
   // Attendance: three weeks of history plus check-ins made today for members 1, 2, 4

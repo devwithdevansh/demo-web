@@ -117,6 +117,83 @@ function sanitizeApiData<T>(path: string, raw: any): T {
     }
   }
 
+  if (path === '/payments') {
+    return {
+      payments: [
+        {
+          id: 'pay_1',
+          memberId: 'mem_1',
+          memberName: 'Member 1',
+          amount: 2999,
+          method: 'upi',
+          paidOn: new Date().toISOString().slice(0, 10),
+          note: 'Pro Monthly fee',
+          recordedBy: 'Staff 1',
+        },
+        {
+          id: 'pay_2',
+          memberId: 'mem_4',
+          memberName: 'Member 4',
+          amount: 7999,
+          method: 'upi',
+          paidOn: new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10),
+          note: 'Pro Quarterly fee',
+          recordedBy: 'Staff 1',
+        },
+        {
+          id: 'pay_3',
+          memberId: 'mem_5',
+          memberName: 'Member 5',
+          amount: 54990,
+          method: 'bank',
+          paidOn: new Date(Date.now() - 25 * 86400000).toISOString().slice(0, 10),
+          note: 'Elite Yearly fee',
+          recordedBy: 'Staff 1',
+        },
+      ],
+      dues: [CLEAN_5_MEMBERS[1]],
+      totals: {
+        today: 2999,
+        month: 65988,
+        dues: 1500,
+      },
+    } as T;
+  }
+
+  if (path === '/coach/assignments') {
+    return {
+      members: CLEAN_5_MEMBERS,
+      trainers: [
+        { id: 'usr_trainer_1', name: 'Trainer 1', title: 'Head Strength Coach' },
+        { id: 'usr_trainer_2', name: 'Trainer 2', title: 'Fitness Coach' },
+        { id: 'usr_trainer_3', name: 'Trainer 3', title: 'Conditioning Coach' },
+      ],
+      categories: ['Strength', 'Weight loss', 'General fitness'],
+    } as T;
+  }
+
+  if (path === '/team') {
+    return {
+      team: [
+        { id: 'usr_owner_1', name: 'Owner 1', role: 'owner', title: 'Gym Owner', phone: '+91 99999 00001', active: true, members: 0 },
+        { id: 'usr_staff_1', name: 'Staff 1', role: 'staff', title: 'Front Desk & Operations', phone: '+91 99999 00002', active: true, members: 0 },
+        { id: 'usr_trainer_1', name: 'Trainer 1', role: 'trainer', title: 'Head Strength Coach', phone: '+91 99999 00003', active: true, members: 2 },
+        { id: 'usr_trainer_2', name: 'Trainer 2', role: 'trainer', title: 'Fitness Coach', phone: '+91 99999 00004', active: true, members: 2 },
+        { id: 'usr_trainer_3', name: 'Trainer 3', role: 'trainer', title: 'Conditioning Coach', phone: '+91 99999 00005', active: true, members: 1 },
+      ],
+    } as T;
+  }
+
+  if (path === '/leads') {
+    return {
+      leads: [
+        { id: 'lead_1', name: 'Lead 1', phone: '+91 99999 00020', source: 'website', status: 'new', interest: 'Pro plan', notes: 'Asked about morning slots.' },
+        { id: 'lead_2', name: 'Lead 2', phone: '+91 99999 00021', source: 'walk-in', status: 'contacted', interest: 'Personal training', notes: 'Trial session requested.' },
+        { id: 'lead_3', name: 'Lead 3', phone: '+91 99999 00022', source: 'instagram', status: 'trial', interest: 'Basic plan', notes: 'Completed trial on Saturday.' },
+      ],
+    } as T;
+  }
+
   if (path === '/renewals' && Array.isArray(data.members)) {
     if (data.members.length > 5 || data.members.some((m: any) => m.name && m.name.includes('Aarav'))) {
       data.members = [CLEAN_5_MEMBERS[1], CLEAN_5_MEMBERS[2]];
