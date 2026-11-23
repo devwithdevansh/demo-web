@@ -17,34 +17,10 @@ export default function Login() {
     setError('');
     setLoading(true);
     try {
-      let res: Session;
-      const id = identifier.trim().toLowerCase();
-      if (id.includes('owner') || id.includes('rhea')) {
-        res = await request<Session>('/demo/session', {
-          method: 'POST',
-          body: { tier: 'performance', role: 'owner' },
-        });
-      } else if (id.includes('staff') || id.includes('desk') || id.includes('imran')) {
-        res = await request<Session>('/demo/session', {
-          method: 'POST',
-          body: { tier: 'performance', role: 'staff' },
-        });
-      } else if (id.includes('trainer') || id.includes('alex')) {
-        res = await request<Session>('/demo/session', {
-          method: 'POST',
-          body: { tier: 'performance', role: 'trainer' },
-        });
-      } else if (id.includes('member') || id.includes('aarav')) {
-        res = await request<Session>('/demo/session', {
-          method: 'POST',
-          body: { tier: 'performance', role: 'member' },
-        });
-      } else {
-        res = await request<Session>('/auth/login', {
-          method: 'POST',
-          body: { identifier: identifier.trim(), password },
-        });
-      }
+      const res = await request<Session>('/auth/login', {
+        method: 'POST',
+        body: { identifier: identifier.trim(), password },
+      });
 
       // Store session
       localStorage.setItem('forge.session', JSON.stringify(res));

@@ -30,4 +30,4 @@ services:
         generateValue: true
       # Comma-separated site addresses allowed to call this API.
       - key: CORS_ORIGIN
-        value: https://demo-web-forge-gym.onrender.com
+        value: https://demo-web-forge-gym.onrender.com,https://demo-web-gym-saas.onrender.com

@@ -17,20 +17,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      let res: Session;
-      const id = identifier.trim().toLowerCase();
-      // If logging in with demo credentials, use the demo sandbox endpoint:
-      if (id.includes('aarav') || id.includes('member') || id === 'demo' || id === 'ip-1001') {
-        res = await request<Session>('/demo/session', {
-          method: 'POST',
-          body: { tier: 'performance', role: 'member' },
-        });
-      } else {
-        res = await request<Session>('/auth/login', {
-          method: 'POST',
-          body: { identifier: identifier.trim(), password },
-        });
-      }
+      const res = await request<Session>('/auth/login', {
+        method: 'POST',
+        body: { identifier: identifier.trim(), password },
+      });
 
       if (res.user.role !== 'member') {
         throw new Error('This portal is for gym members. Gym owners and staff should use the Gym SaaS portal.');
