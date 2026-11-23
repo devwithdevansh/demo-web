@@ -1,7 +1,7 @@
 import { config } from './config.js';
 import { connectDb, disconnectDb } from './db.js';
 import { createApp } from './app.js';
-import { sweepSandboxes } from './seed/demoGym.js';
+import { sweepSandboxes, purgeAllOldDemoSandboxes } from './seed/demoGym.js';
 import { ensureDefaultLiveUsers } from './seed/ensureUsers.js';
 import { demoSender, razorpayMode, signupReady, whatsappTracking } from './lib/providers.js';
 
@@ -11,6 +11,7 @@ async function main() {
   try {
     const source = await connectDb();
     console.log(`[api] database: ${source}`);
+    await purgeAllOldDemoSandboxes();
     await ensureDefaultLiveUsers();
   } catch (err) {
     // Deliberately terse: connection errors can echo parts of the connection string.

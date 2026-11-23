@@ -10,7 +10,7 @@ import {
  * The sample gym. Every name, number and figure below is invented for the
  * demo. Dates are generated relative to today so the data always looks current.
  */
-export const SAMPLE_GYM_NAME = 'Ironpeak Fitness (Sample Gym)';
+export const SAMPLE_GYM_NAME = 'Iron Forge Gym';
 const DEMO_ADDONS = { whatsapp: true, upiLinks: true, autopay: true, leadFollowup: true, trainerPlus: true };
 export const SAMPLE_CLIP = '/demo/sample-clip';
 
@@ -31,17 +31,17 @@ const phone = (n) => `+91 00000 ${String(10000 + n).slice(-5)}`;
 
 // name, plan, days until expiry, fee due, category, trainer, PT total, PT used, paid periods
 const MEMBERS = [
-  ['Member One', 3, 18, 0, 'Strength', 0, 12, 7, 5],
-  ['Member Two', 1, 3, 1500, 'Weight loss', 1, 0, 0, 4],
-  ['Member Three', 0, -2, 0, 'General fitness', null, 0, 0, 3],
-  ['Member Four', 2, 41, 0, 'Weight loss', 1, 8, 3, 2],
-  ['Member Five', 4, 212, 0, 'Strength', 0, 24, 10, 1],
+  ['Member 1', 3, 18, 0, 'Strength', 0, 12, 7, 5],
+  ['Member 2', 1, 3, 1500, 'Weight loss', 1, 0, 0, 4],
+  ['Member 3', 0, -2, 0, 'General fitness', null, 0, 0, 3],
+  ['Member 4', 2, 41, 0, 'Weight loss', 1, 8, 3, 2],
+  ['Member 5', 4, 212, 0, 'Strength', 0, 24, 10, 1],
 ];
 
 const ex = (name, sets, reps, note = '', videoUrl = '') => ({ name, sets, reps, note, videoUrl });
 
 const WORKOUTS = {
-  'Member One': {
+  'Member 1': {
     title: 'Strength Block · Week 3',
     days: [
       { day: 'Monday', focus: 'Push', exercises: [
@@ -69,7 +69,7 @@ const WORKOUTS = {
       ] },
     ],
   },
-  'Member Two': {
+  'Member 2': {
     title: 'Upper / Lower Split',
     days: [
       { day: 'Tuesday', focus: 'Upper', exercises: [ex('Bench Press', '5', '5', '', SAMPLE_CLIP), ex('Pull-up', '4', '6'), ex('Dumbbell Row', '3', '10')] },
@@ -78,7 +78,7 @@ const WORKOUTS = {
   },
 };
 
-const AARAV_DIET = {
+const MEMBER_DIET = {
   title: 'Eating guide from your coach',
   note: 'General guidance shared by the gym team to support your training. Adjust portions with your coach.',
   meals: [
@@ -101,14 +101,9 @@ const TIMETABLE = [
 
 // name, source, status, follow-up offset in days (null = none), interest, notes
 const LEADS = [
-  ['Ritika Sen', 'website', 'new', 0, 'Pro plan', 'Asked about the morning batch.'],
-  ['Farhan Ali', 'walk-in', 'contacted', 1, 'Personal training', 'Wants a trial session with a trainer.'],
-  ['Sneha Kulkarni', 'instagram', 'trial', 0, 'Basic or Pro plan', 'Trial done on Saturday. Deciding between two plans.'],
-  ['Gaurav Jain', 'referral', 'new', -2, 'Strength training', 'Referred by an existing member.'],
-  ['Pallavi Shetty', 'phone', 'contacted', 3, 'Yoga classes', 'Call back after her exams.'],
-  ['Deepak Rana', 'website', 'new', -1, 'Weight loss', 'Prefers evening slots.'],
-  ['Tanvi Mehra', 'walk-in', 'joined', null, 'Pro plan', 'Joined Pro Monthly.'],
-  ['Omkar Patil', 'website', 'lost', null, 'Basic plan', 'Chose a gym closer to home.'],
+  ['Lead 1', 'website', 'new', 0, 'Pro plan', 'Asked about the morning batch.'],
+  ['Lead 2', 'walk-in', 'contacted', 1, 'Personal training', 'Wants a trial session with a trainer.'],
+  ['Lead 3', 'instagram', 'trial', 0, 'Basic or Pro plan', 'Trial done on Saturday. Deciding between two plans.'],
 ];
 
 export async function purgeGym(gymId) {
@@ -129,9 +124,13 @@ export async function seedGym(gym) {
     { ...demo, name: 'Trainer 2', email: 'trainer2@gmail.com', role: 'trainer', title: 'Fitness Coach', phone: phone(4) },
     { ...demo, name: 'Trainer 3', email: 'trainer3@gmail.com', role: 'trainer', title: 'Conditioning Coach', phone: phone(5) },
     { ...demo, name: 'Member 1', email: 'member1@gmail.com', role: 'member', phone: phone(100), demoPrimary: true },
+    { ...demo, name: 'Member 2', email: 'member2@gmail.com', role: 'member', phone: phone(101) },
+    { ...demo, name: 'Member 3', email: 'member3@gmail.com', role: 'member', phone: phone(102) },
+    { ...demo, name: 'Member 4', email: 'member4@gmail.com', role: 'member', phone: phone(103) },
+    { ...demo, name: 'Member 5', email: 'member5@gmail.com', role: 'member', phone: phone(104) },
   ]);
   const trainers = users.slice(2, 5);
-  const memberUser = users[5];
+  const memberUsers = users.slice(5, 10);
 
   const plans = await Plan.insertMany([
     { gymId, name: 'Basic Monthly', price: 1499, durationMonths: 1 },
@@ -153,21 +152,21 @@ export async function seedGym(gym) {
         memberCode: `IP-${1001 + i}`,
         name,
         phone: phone(100 + i),
-        email: `${name.split(' ')[0].toLowerCase()}@example.com`,
+        email: `member${i + 1}@gmail.com`,
         category,
         planId: plan._id,
         startDate: shiftMonths(expiryDate, -plan.durationMonths * periods),
         expiryDate,
         feeDue,
         trainerId: trainer?._id ?? null,
-        userId: i === 0 ? memberUser._id : null,
+        userId: memberUsers[i]?._id ?? null,
         pt: { total: ptTotal, used: ptUsed },
         autopay:
-          name === 'Sana Khan' ? { status: 'active', amount: plan.price, updatedAt: stamp(40) }
-          : name === 'Riya Chawla' ? { status: 'requested', amount: plan.price, updatedAt: stamp(1) }
+          name === 'Member 1' ? { status: 'active', amount: plan.price, updatedAt: stamp(40) }
+          : name === 'Member 2' ? { status: 'requested', amount: plan.price, updatedAt: stamp(1) }
           : { status: 'none' },
         workout: workout ? { ...workout, updatedAt: stamp(5), updatedBy: trainer?.name } : undefined,
-        diet: i === 0 ? { ...AARAV_DIET, updatedAt: stamp(12), updatedBy: trainer?.name } : undefined,
+        diet: i === 0 ? { ...MEMBER_DIET, updatedAt: stamp(12), updatedBy: trainer?.name } : undefined,
       };
     }),
   );
@@ -186,13 +185,13 @@ export async function seedGym(gym) {
       if (amount <= 0) continue;
       payments.push({
         gymId, memberId: m._id, amount, method: methods[(i + k) % methods.length], paidOn,
-        note: `${plan.name} fee`, recordedBy: 'Imran Shaikh', createdAt: at(paidOn, '11:00'),
+        note: `${plan.name} fee`, recordedBy: 'Staff 1', createdAt: at(paidOn, '11:00'),
       });
     }
   });
   await Payment.insertMany(payments);
 
-  // Attendance: three weeks of history plus a handful of check-ins already made today.
+  // Attendance: three weeks of history plus check-ins made today for members 1, 2, 4
   const attendance = [];
   const todays = [0, 1, 3];
   const opened = at(today, '05:35').getTime();
@@ -235,9 +234,9 @@ export async function seedGym(gym) {
   );
 
   await Announcement.insertMany([
-    { gymId, title: 'Sunday timings', body: 'From this Sunday the gym is open 7:00 AM to 1:00 PM. Evening slots stay closed on Sundays.', postedBy: 'Rhea Kapoor', createdAt: stamp(1) },
-    { gymId, title: 'New Saturday mobility class', body: 'Sara is starting a 45-minute mobility class every Saturday at 10:30 AM. Open to all plans.', postedBy: 'Rhea Kapoor', createdAt: stamp(4) },
-    { gymId, title: 'Please carry a towel', body: 'A quick reminder to carry a hand towel and wipe down equipment after use.', postedBy: 'Imran Shaikh', createdAt: stamp(9) },
+    { gymId, title: 'Sunday timings', body: 'From this Sunday the gym is open 7:00 AM to 1:00 PM. Evening slots stay closed on Sundays.', postedBy: 'Owner 1', createdAt: stamp(1) },
+    { gymId, title: 'New Saturday mobility class', body: 'Mobility class every Saturday at 10:30 AM. Open to all plans.', postedBy: 'Owner 1', createdAt: stamp(4) },
+    { gymId, title: 'Please carry a towel', body: 'A quick reminder to carry a hand towel and wipe down equipment after use.', postedBy: 'Staff 1', createdAt: stamp(9) },
   ]);
 
   await FitnessVideo.insertMany([
@@ -250,7 +249,7 @@ export async function seedGym(gym) {
       thumbnailUrl: 'https://img.youtube.com/vi/op9kVnSso6Q/hqdefault.jpg',
       description: 'Master the barbell deadlift: hip hinge, bracing, foot stance, and bar path.',
       pinned: true,
-      postedBy: 'Rhea Kapoor',
+      postedBy: 'Owner 1',
       createdAt: stamp(2),
     },
     {
@@ -262,7 +261,7 @@ export async function seedGym(gym) {
       thumbnailUrl: 'https://img.youtube.com/vi/bEv6CCg2BC8/hqdefault.jpg',
       description: 'Full barbell squat technique breakdown for knee safety and maximum quad/glute growth.',
       pinned: true,
-      postedBy: 'Alex Rey',
+      postedBy: 'Trainer 1',
       createdAt: stamp(5),
     },
     {
@@ -274,7 +273,7 @@ export async function seedGym(gym) {
       thumbnailUrl: 'https://img.youtube.com/vi/uA_Mbmw2yD4/hqdefault.jpg',
       description: 'Do this dynamic warmup before every gym session to prevent muscle strain.',
       pinned: false,
-      postedBy: 'Sara Khan',
+      postedBy: 'Trainer 2',
       createdAt: stamp(8),
     },
     {
@@ -286,7 +285,7 @@ export async function seedGym(gym) {
       thumbnailUrl: 'https://img.youtube.com/vi/vcBig73ojpE/hqdefault.jpg',
       description: 'Scapular retraction, arch, leg drive, and bar tuck for a bigger, safer chest press.',
       pinned: false,
-      postedBy: 'Alex Rey',
+      postedBy: 'Trainer 1',
       createdAt: stamp(12),
     },
     {
@@ -298,11 +297,10 @@ export async function seedGym(gym) {
       thumbnailUrl: 'https://img.youtube.com/vi/8YQkK14S14k/hqdefault.jpg',
       description: 'Simple grocery shopping list and meal prep hacks for everyday gym-goers.',
       pinned: false,
-      postedBy: 'Rhea Kapoor',
+      postedBy: 'Owner 1',
       createdAt: stamp(15),
     },
   ]);
-
 
   const byName = Object.fromEntries(members.map((m) => [m.name, m]));
   const log = (name, trainer, daysAgo, type, extra = {}) => {
@@ -313,11 +311,11 @@ export async function seedGym(gym) {
   };
   const weights = [82.4, 82.0, 81.5, 81.1, 80.6, 80.3, 79.9, 79.6];
   await CoachLog.insertMany([
-    ...weights.map((weightKg, i) => log('Member One', 'Trainer 1', 56 - i * 7, 'measurement', { weightKg, waistCm: 92 - i * 0.5 })),
-    ...[30, 26, 23, 19, 16, 12, 5].map((d) => log('Member One', 'Trainer 1', d, 'pt_session', { note: 'PT session completed.' })),
-    log('Member One', 'Trainer 1', 9, 'checkin', { note: 'Bench press moving well. Sleep has been good this week.' }),
-    log('Member One', 'Trainer 1', 23, 'checkin', { note: 'Good consistency, four sessions a week. Added a conditioning day.' }),
-    log('Member Two', 'Trainer 2', 4, 'checkin', { note: 'Enjoying the circuit. Add one extra walk per week.' }),
+    ...weights.map((weightKg, i) => log('Member 1', 'Trainer 1', 56 - i * 7, 'measurement', { weightKg, waistCm: 92 - i * 0.5 })),
+    ...[30, 26, 23, 19, 16, 12, 5].map((d) => log('Member 1', 'Trainer 1', d, 'pt_session', { note: 'PT session completed.' })),
+    log('Member 1', 'Trainer 1', 9, 'checkin', { note: 'Bench press moving well. Sleep has been good this week.' }),
+    log('Member 1', 'Trainer 1', 23, 'checkin', { note: 'Good consistency, four sessions a week. Added a conditioning day.' }),
+    log('Member 2', 'Trainer 2', 4, 'checkin', { note: 'Enjoying the circuit. Add one extra walk per week.' }),
   ]);
 }
 
@@ -351,10 +349,28 @@ export async function findSandbox(key) {
   return Gym.findOne({ isDemo: true, demoKeyHash: hashKey(key) });
 }
 
+export async function purgeAllOldDemoSandboxes() {
+  try {
+    const staleGyms = await Gym.find({
+      $or: [
+        { name: /Ironpeak/i },
+        { isDemo: true },
+      ],
+    }).select('_id');
+    for (const { _id } of staleGyms) {
+      await purgeGym(_id);
+      await Gym.deleteOne({ _id });
+    }
+  } catch (err) {
+    console.error('[demo] Error cleaning old sandboxes:', err);
+  }
+}
+
 /** Restores a sandbox to the original sample data. Refuses to touch anything that is not a demo gym. */
 export async function resetSandbox(gym) {
   if (!gym.isDemo) throw new Error('Only demo gyms can be reset.');
   await purgeGym(gym._id);
+  gym.name = SAMPLE_GYM_NAME;
   gym.addons = DEMO_ADDONS;
   gym.lastUsedAt = new Date();
   await gym.save();

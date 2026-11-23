@@ -54,10 +54,10 @@ Sign in from any surface, or use the demo picker on the sign-in screen.
 
 | Role | Name | Email | Password |
 |---|---|---|---|
-| Owner | Rhea Kapoor | `rhea@forge.demo` | `forge1234` |
-| Front desk | Imran Shaikh | `imran@forge.demo` | `forge1234` |
-| Trainer | Alex Rey | `alex@forge.demo` | `forge1234` |
-| Member | Aarav Shah | `aarav@forge.demo` | `forge1234` |
+| Owner | Owner 1 | `owner1@gmail.com` | `forge1234` |
+| Front desk | Staff 1 | `staff1@gmail.com` | `forge1234` |
+| Trainers | Trainer 1, 2, 3 | `trainer1@gmail.com` ... `trainer3@gmail.com` | `forge1234` |
+| Members | Member 1 - 5 | `member1@gmail.com` ... `member5@gmail.com` | `forge1234` |
 
 The Performance demo sandbox supports all four roles. Demo accounts share `forge1234`; live gyms created through the admin console set their own password from the invite link.
 

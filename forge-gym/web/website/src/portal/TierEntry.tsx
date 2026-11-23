@@ -15,14 +15,14 @@ interface RoleCard {
 
 const ROLES: Record<Tier, RoleCard[]> = {
   growth: [
-    { role: 'owner', title: 'Owner', person: 'Rhea Kapoor', sees: 'The full picture: today’s activity, members, fees, renewals, enquiries, team, plans and reports.' },
-    { role: 'staff', title: 'Front desk', person: 'Imran Shaikh', sees: 'Day-to-day work: check-ins, members, payments, renewals and enquiries. No revenue reports or plan changes.' },
+    { role: 'owner', title: 'Owner', person: 'Owner 1', sees: 'The full picture: today’s activity, members, fees, renewals, enquiries, team, plans and reports.' },
+    { role: 'staff', title: 'Front desk', person: 'Staff 1', sees: 'Day-to-day work: check-ins, members, payments, renewals and enquiries. No revenue reports or plan changes.' },
   ],
   performance: [
-    { role: 'owner', title: 'Owner', person: 'Rhea Kapoor', sees: 'Everything in Growth, plus trainer assignments, member categories, PT packs, the timetable and notices.' },
-    { role: 'trainer', title: 'Trainer', person: 'Alex Rey', sees: 'Only their own members: today’s tasks, workout plans, check-ins, measurements and PT sessions.' },
-    { role: 'member', title: 'Member', person: 'Aarav Shah', sees: 'Only their own membership: plan status, workout, progress history, timetable, diet guide and check-in pass.' },
-    { role: 'staff', title: 'Front desk', person: 'Imran Shaikh', sees: 'Check-ins, members, payments, renewals, enquiries and notices.' },
+    { role: 'owner', title: 'Owner', person: 'Owner 1', sees: 'Everything in Growth, plus trainer assignments, member categories, PT packs, the timetable and notices.' },
+    { role: 'trainer', title: 'Trainer', person: 'Trainer 1', sees: 'Only their own members: today’s tasks, workout plans, check-ins, measurements and PT sessions.' },
+    { role: 'member', title: 'Member', person: 'Member 1', sees: 'Only their own membership: plan status, workout, progress history, timetable, diet guide and check-in pass.' },
+    { role: 'staff', title: 'Front desk', person: 'Staff 1', sees: 'Check-ins, members, payments, renewals, enquiries and notices.' },
   ],
 };
 
