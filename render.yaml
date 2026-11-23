@@ -1,17 +1,19 @@
-# Render blueprint for the FORGE API (forge-gym-backend/).
+# Render blueprint for the FORGE API (forge-gym/api/).
 #
-# The FORGE site stays on its existing static hosting. This adds the Node
-# service that the Growth and Performance demos need. In Render: New > Blueprint,
-# pick this repository, then enter MONGODB_URI when asked.
+# The FORGE sites stay on their existing static hosting. This adds the Node
+# service that every portal, the website demo and the Flutter app talk to.
+# In Render: New > Blueprint, pick this repository, then enter MONGODB_URI
+# when asked.
 #
-# After it is live, set VITE_API_URL on the static site to this service's
-# address and redeploy the site (see forge-gym-backend/README.md, "Deploy on Render").
+# After it is live, set VITE_API_URL on each static site (and
+# --dart-define=API_BASE_URL for the Flutter app) to this service's address,
+# then redeploy (see forge-gym/README.md).
 services:
   - type: web
     name: forge-gym-api
     runtime: node
     plan: free
-    rootDir: forge-gym-backend
+    rootDir: forge-gym/api
     # Production packages only: skips the development database download.
     buildCommand: npm ci --omit=dev
     startCommand: npm start
@@ -26,6 +28,6 @@ services:
         value: gym
       - key: JWT_SECRET
         generateValue: true
-      # The site address that is allowed to call this API.
+      # Comma-separated site addresses allowed to call this API.
       - key: CORS_ORIGIN
         value: https://demo-web-forge-gym.onrender.com

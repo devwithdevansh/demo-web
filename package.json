@@ -2,11 +2,20 @@
   "name": "forge-monorepo",
   "private": true,
   "scripts": {
-    "dev:api": "npm --prefix forge-gym-backend run dev",
-    "dev:web": "npm --prefix forge-website run dev",
-    "dev:saas": "npm --prefix forge-saas run dev",
-    "dev:admin": "npm --prefix forge-admin run dev",
-    "dev:member": "npm --prefix forge-member run dev",
-    "dev:all": "npx concurrently -k -n api,web,saas,admin,member -c gray,cyan,green,magenta,yellow \"npm:dev:api\" \"npm:dev:web\" \"npm:dev:saas\" \"npm:dev:admin\" \"npm:dev:member\""
+    "dev": "npm run dev:all",
+    "dev:api": "npm --prefix forge-gym/api run dev",
+    "dev:web": "npm --prefix forge-gym/web/website run dev",
+    "dev:saas": "npm --prefix forge-gym/web/saas run dev",
+    "dev:admin": "npm --prefix forge-gym/web/admin run dev",
+    "dev:member": "npm --prefix forge-gym/web/member run dev",
+    "dev:app": "cd forge-gym/app && flutter run -d chrome",
+    "dev:all": "npx concurrently -k -n api,web,saas,admin,member -c gray,cyan,green,magenta,yellow \"npm:dev:api\" \"npm:dev:web\" \"npm:dev:saas\" \"npm:dev:admin\" \"npm:dev:member\"",
+    "build:web": "npm --prefix forge-gym/web/website run build",
+    "build:saas": "npm --prefix forge-gym/web/saas run build",
+    "build:admin": "npm --prefix forge-gym/web/admin run build",
+    "build:member": "npm --prefix forge-gym/web/member run build",
+    "build:app": "cd forge-gym/app && flutter build web --release",
+    "test:api": "npm --prefix forge-gym/api test",
+    "test:app": "cd forge-gym/app && flutter test"
   }
 }

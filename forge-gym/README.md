@@ -1,114 +1,68 @@
-# FORGE
+# FORGE Gym
 
-Software for gym owners, shown as one combined demo: a product homepage and three package demos that share a fictional sample gym, **Ironpeak Fitness**.
+One gym product, five surfaces and one API:
 
-This folder is the **site** (React + Vite). The API it talks to is a separate project in [`../forge-gym-backend`](../forge-gym-backend).
-
-| Route | What it shows | Needs the API |
+| Folder | What it is | Runs on |
 |---|---|---|
-| `/` | FORGE homepage: packages, comparison, add-ons, contact | No |
-| `/demo/essential` | **Essential — Get Found Online.** The sample gym's public website | No (the enquiry form saves only when the API is up) |
-| `/demo/growth` | **Growth — Run Your Gym.** Owner and front-desk portal | Yes |
-| `/demo/performance` | **Performance — Coach & Retain.** Growth plus trainer and member portals | Yes |
+| [`api/`](./api) | Node.js + MongoDB API shared by everything | `http://localhost:4000` |
+| [`web/website/`](./web/website) | Product website and the cinematic sample-gym demo | `http://localhost:5173` |
+| [`web/saas/`](./web/saas) | SaaS console for the gym business | `http://localhost:5174` |
+| [`web/admin/`](./web/admin) | Installation admin console | `http://localhost:5175` |
+| [`web/member/`](./web/member) | Member PWA (pass, check-in, plans) | `http://localhost:5176` |
+| [`app/`](./app) | Flutter gym app for owner, front desk, trainer and member | Android, iOS, web, Windows |
+| [`legacy/`](./legacy) | Earlier single-app site, kept for reference only | — |
 
-Each demo has a bar at the top that leads back to the homepage and across to the other demos.
-
-## Run it
-
-Install both folders once:
+## Quick start
 
 ```bash
-cd forge-gym-backend && npm install
-cd ../forge-gym && npm install
+npm install --prefix api
+npm install --prefix web/website
+npm install --prefix web/saas
+npm install --prefix web/admin
+npm install --prefix web/member
+
+npm run dev        # from the repository root: API + all four web apps
 ```
 
-Then, from this folder:
+Without `MONGODB_URI` the API starts a private MongoDB in `api/.data/`, so no local setup is needed. Health check: `http://localhost:4000/api/health`.
+
+### Flutter app
 
 ```bash
-npm run dev:all    # site on http://localhost:5173 and API on http://localhost:4000
+cd app
+flutter pub get
+flutter run -d chrome      # or: flutter run -d windows, flutter run -d <device>
 ```
 
-Or run them in two terminals: `npm run dev` in `forge-gym-backend`, and `npm run dev` here. The site forwards `/api` to `http://localhost:4000`.
+The app calls `https://coral-rabbit-267767.hostingersite.com` by default. Point it at a local API with:
 
-No database setup is needed locally; see the backend README.
-
-| Command | Purpose |
-|---|---|
-| `npm run dev` | Site only |
-| `npm run dev:all` | Site and API together |
-| `npm run build` | Type-check and build the site into `dist/` |
-| `npm run lint` | Lint |
-| `npm run preview` | Serve the built site locally |
-
-## Settings
-
-The site has two optional settings, both public (they are built into the site). Secrets belong in the backend, never here.
-
-| Variable | When | Purpose |
-|---|---|---|
-| `VITE_API_URL` | Hosted site | Address of the API, for example `https://forge-gym-api.onrender.com`. Set it in the host's build environment and redeploy |
-| `VITE_DEV_API_URL` | Local, rarely | Where `npm run dev` forwards `/api`. Defaults to `http://localhost:4000` |
-
-## Deploying
-
-The site is a static site: build command `npm run build`, publish directory `dist`.
-
-For the Growth and Performance demos to work on the hosted site:
-
-1. Deploy the API from [`../forge-gym-backend`](../forge-gym-backend) as a Node web service. Its README has the exact settings.
-2. On this static site, set `VITE_API_URL` to the API's address and redeploy, so the address is built in.
-3. On the API, set `CORS_ORIGIN` to this site's address.
-4. On the static site, the catch-all rule `/*` to `/index.html` must be a **Rewrite**, not a Redirect. With a Redirect, refreshing or sharing a link such as `/demo/growth/owner` lands on the homepage instead.
-
-Without the API, the homepage, the role pages and the Essential site still work, and entering a portal says that no server is connected.
-
-## How the demo works
-
-- **Entering a demo.** `/demo/growth` and `/demo/performance` list the roles you can enter as. There are no passwords to type and none in the site: the API issues a short session for the chosen sample account.
-- **Private sandbox.** Each visitor gets their own copy of the sample gym, so nothing one visitor types is visible to another. The sandbox key is kept in the browser; the same sandbox is shared across the Essential, Growth and Performance demos, which is why an enquiry sent from the sample website shows up under Leads.
-- **Reset.** "Reset demo data" in any portal restores the original sample data for that visitor only.
-- **Sleeping server.** On free hosting the API sleeps when idle. The site pings it when someone opens the homepage, and the portals wait with a "waking the demo server" message.
-
-### Demo roles
-
-| Role | Sample account | Available in |
-|---|---|---|
-| Owner | Rhea Kapoor | Growth, Performance |
-| Front desk | Imran Shaikh | Growth, Performance |
-| Trainer | Alex Rey | Performance |
-| Member | Aarav Shah | Performance |
-
-## Integrations: what is real and what is simulated
-
-Payments and WhatsApp can be connected in the backend's settings (see its README, "Payments and WhatsApp"). The site shows which mode is active.
-
-| Add-on | State | What happens |
-|---|---|---|
-| WhatsApp notifications | Available in demo | Connected: the reminder is sent to the presenter's demo phone only, with delivery status. Not connected: drafted and logged as simulated |
-| UPI payment links | Available in demo | Connected (Razorpay test keys): a real test payment on Razorpay's checkout, verified and recorded automatically. Not connected: a practice page. No real money moves either way |
-| UPI Autopay | Preview | Gym can request; only the member can approve, pause or cancel. No mandate is created |
-| Lead follow-up | Available in demo | Follow-up queue and message drafts |
-| Trainer Plus | Preview | Three workout templates in the plan editor |
-| Additional location | Coming soon | Not built |
-
-## Things to change without touching pages
-
-- `src/config/forge.ts` — package copy, **proposed** pricing, add-on catalogue, contact address.
-- `src/config/sampleGym.ts` — the sample gym's name, plans, trainers, timings and gallery.
-- `src/index.css` — colours and fonts. `--color-red` is the accent used everywhere.
-
-## Project layout
-
-```
-src/
-  pages/Home.tsx              FORGE homepage
-  pages/essential/            Essential demo (sample gym website)
-  components/sections/        Cinematic gym sections reused by the Essential demo
-  portal/                     Growth and Performance portals (shell, session, screens)
-  config/                     Product and sample-gym content
-  lib/api.ts                  Client for the API in ../forge-gym-backend
+```bash
+flutter run -d chrome --dart-define=API_BASE_URL=http://localhost:4000
 ```
 
-## Media
+The server address can also be changed at runtime from the app's sign-in screen and Settings page.
 
-The only local media is the hero frame sequence in `public/frames/`. Gallery photos are stills from it and the "video" plays the same frames, all labelled as sample media. Trainer tiles are monogram placeholders. Replace them with the gym's own photos for a real site.
+```bash
+flutter analyze
+flutter test
+flutter build web --release     # or: flutter build apk --release
+```
+
+### Demo accounts
+
+Sign in from any surface, or use the demo picker on the sign-in screen.
+
+| Role | Name | Email | Password |
+|---|---|---|---|
+| Owner | Rhea Kapoor | `rhea@forge.demo` | `forge1234` |
+| Front desk | Imran Shaikh | `imran@forge.demo` | `forge1234` |
+| Trainer | Alex Rey | `alex@forge.demo` | `forge1234` |
+| Member | Aarav Shah | `aarav@forge.demo` | `forge1234` |
+
+The Performance demo sandbox supports all four roles. Demo accounts share `forge1234`; live gyms created through the admin console set their own password from the invite link.
+
+## Configuration
+
+Each web app reads `VITE_API_URL` at build time; copy its `.env.example`/`.env.production` and set the deployed API address. The API's own variables (`MONGODB_URI`, `JWT_SECRET`, `CORS_ORIGIN`, optional Razorpay/WhatsApp keys) are documented in [`api/README.md`](./api/README.md).
+
+Deploying: [`render.yaml`](../render.yaml) defines the API service on Render. Host the four web apps as static sites — see the Hostinger/Render notes in [`api/README.md`](./api/README.md).
