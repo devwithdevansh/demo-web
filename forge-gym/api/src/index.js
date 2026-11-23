@@ -2,6 +2,7 @@ import { config } from './config.js';
 import { connectDb, disconnectDb } from './db.js';
 import { createApp } from './app.js';
 import { sweepSandboxes } from './seed/demoGym.js';
+import { ensureDefaultLiveUsers } from './seed/ensureUsers.js';
 import { demoSender, razorpayMode, signupReady, whatsappTracking } from './lib/providers.js';
 
 // Kept inside a function (no top-level await) so hosts that load the entry
@@ -10,6 +11,7 @@ async function main() {
   try {
     const source = await connectDb();
     console.log(`[api] database: ${source}`);
+    await ensureDefaultLiveUsers();
   } catch (err) {
     // Deliberately terse: connection errors can echo parts of the connection string.
     console.error(`[api] could not connect to the database (${err?.name ?? 'Error'}). Check MONGODB_URI and network access.`);

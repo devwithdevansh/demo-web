@@ -121,40 +121,7 @@ router.post(
     const id = (req.data.identifier || req.data.email || '').trim().toLowerCase();
     if (!id) throw new HttpError(400, 'Please enter your phone number or email.', 'missing_identifier');
 
-    // Check for demo accounts (e.g. staff1@gmail.com, owner1@gmail.com, or forge1234)
-    if (
-      id.includes('@forge.demo') ||
-      id.includes('demo') ||
-      id.includes('owner1') ||
-      id.includes('staff1') ||
-      id.includes('trainer1') ||
-      id.includes('trainer2') ||
-      id.includes('trainer3') ||
-      id.includes('member1') ||
-      req.data.password === 'forge1234'
-    ) {
-      let role = 'owner';
-      if (id.includes('staff') || id.includes('desk') || id.includes('imran') || id.includes('staff1')) role = 'staff';
-      else if (id.includes('trainer') || id.includes('alex') || id.includes('trainer1')) role = 'trainer';
-      else if (id.includes('member') || id.includes('aarav') || id.includes('member1')) role = 'member';
-
-      let gym = await Gym.findOne({ isDemo: true });
-      if (!gym) {
-        const created = await createSandbox();
-        gym = created.gym;
-      }
-      let user;
-      if (id.includes('trainer2')) {
-        user = await User.findOne({ gymId: gym._id, email: 'trainer2@gmail.com' });
-      } else if (id.includes('trainer3')) {
-        user = await User.findOne({ gymId: gym._id, email: 'trainer3@gmail.com' });
-      }
-      if (!user) user = await primaryUser(gym, role);
-      if (user) {
-        return res.json(sessionPayload(user, gym, 'performance'));
-      }
-    }
-
+    // 1. Try real database user first (with password verification)
     const cleanPhone = id.replace(/\D/g, '');
     let user = await User.findOne({
       $or: [
@@ -162,7 +129,6 @@ router.post(
         { phone: id },
         ...(cleanPhone.length >= 10 ? [{ phone: { $regex: cleanPhone + '$' } }] : []),
       ],
-      isDemo: false,
       active: true,
     });
 
@@ -172,14 +138,47 @@ router.post(
         memberCode: new RegExp(`^${id}$`, 'i'),
       });
       if (member?.userId) {
-        user = await User.findOne({ _id: member.userId, isDemo: false, active: true });
+        user = await User.findOne({ _id: member.userId, active: true });
       }
     }
 
-    const matches = await bcrypt.compare(req.data.password, user?.passwordHash || DUMMY_HASH);
-    const gym = user && matches ? await Gym.findOne({ _id: user.gymId, isDemo: false }) : null;
-    if (!gym) throw new HttpError(401, 'Member ID/Phone or password is incorrect.', 'bad_credentials');
-    res.json(sessionPayload(user, gym, gym.package));
+    if (user && user.passwordHash) {
+      const matches = await bcrypt.compare(req.data.password, user.passwordHash);
+      if (matches) {
+        const gym = await Gym.findOne({ _id: user.gymId });
+        if (gym) {
+          return res.json(sessionPayload(user, gym, gym.package || 'performance'));
+        }
+      }
+    }
+
+    // 2. Fallback to demo sandbox accounts
+    if (
+      id.includes('@forge.demo') ||
+      id.includes('demo') ||
+      id.includes('owner1') ||
+      id.includes('staff1') ||
+      id.includes('trainer') ||
+      id.includes('member') ||
+      req.data.password === 'forge1234'
+    ) {
+      let role = 'owner';
+      if (id.includes('staff') || id.includes('desk') || id.includes('staff1')) role = 'staff';
+      else if (id.includes('trainer')) role = 'trainer';
+      else if (id.includes('member')) role = 'member';
+
+      let gym = await Gym.findOne({ isDemo: true });
+      if (!gym) {
+        const created = await createSandbox();
+        gym = created.gym;
+      }
+      let demoUser = await primaryUser(gym, role);
+      if (demoUser) {
+        return res.json(sessionPayload(demoUser, gym, 'performance'));
+      }
+    }
+
+    throw new HttpError(401, 'Member ID/Phone or password is incorrect.', 'bad_credentials');
   },
 );
 
