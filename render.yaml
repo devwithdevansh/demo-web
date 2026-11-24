@@ -31,3 +31,43 @@ services:
       # Comma-separated site addresses allowed to call this API.
       - key: CORS_ORIGIN
         value: https://demo-web-forge-gym.onrender.com,https://demo-web-gym-saas.onrender.com
+
+  - type: static
+    name: nuance-react
+    rootDir: nuance-react
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  - type: static
+    name: amber-ash
+    rootDir: amber-ash
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  - type: static
+    name: saltlight
+    rootDir: saltlight
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+
+  - type: static
+    name: salon-dashboard
+    rootDir: salon-dashboard/frontend
+    buildCommand: npm install && npm run build
+    publishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

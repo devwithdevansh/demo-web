@@ -60,10 +60,6 @@ function loadGoogleFont(fontFamily) {
 }
 
 export default function DevThemeModifier() {
-  const isDev = Boolean(
-    (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.DEV) ||
-    (typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development')
-  );
 
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('type'); // 'type' | 'colors' | 'export'
@@ -92,7 +88,6 @@ export default function DevThemeModifier() {
 
   // Restore saved state from localStorage on mount
   useEffect(() => {
-    if (!isDev) return;
     try {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved) {
@@ -116,11 +111,10 @@ export default function DevThemeModifier() {
     } catch {
       // Ignore storage read errors
     }
-  }, [isDev]);
+  }, []);
 
   // Save to localStorage when modified
   useEffect(() => {
-    if (!isDev) return;
     try {
       if (isActive) {
         localStorage.setItem(
@@ -137,18 +131,17 @@ export default function DevThemeModifier() {
     } catch {
       // Ignore storage write errors
     }
-  }, [isActive, bg, text, accent, panel, muted, paletteName, displayFont, displayW, bodyFont, bodyW, letterSpacing, typeName, isDev]);
+  }, [isActive, bg, text, accent, panel, muted, paletteName, displayFont, displayW, bodyFont, bodyW, letterSpacing, typeName]);
 
   // Load Google Fonts dynamically
   useEffect(() => {
-    if (!isDev || !isActive) return;
+    if (!isActive) return;
     loadGoogleFont(displayFont);
     loadGoogleFont(bodyFont);
-  }, [displayFont, bodyFont, isDev, isActive]);
+  }, [displayFont, bodyFont, isActive]);
 
   // Universal CSS injection into document
   useEffect(() => {
-    if (!isDev) return;
     let styleEl = document.getElementById('__dev_theme_modifier_styles__');
     if (!isActive) {
       if (styleEl) styleEl.remove();
@@ -236,11 +229,10 @@ export default function DevThemeModifier() {
         font-family: ${bodyFont} !important;
       }
     `;
-  }, [isActive, bg, text, accent, panel, muted, displayFont, displayW, bodyFont, bodyW, letterSpacing, isDev]);
+  }, [isActive, bg, text, accent, panel, muted, displayFont, displayW, bodyFont, bodyW, letterSpacing]);
 
   // Keyboard shortcut (Alt + M to toggle)
   useEffect(() => {
-    if (!isDev) return;
     const handleKeyDown = (e) => {
       if ((e.altKey && (e.key === 'm' || e.key === 'M')) || (e.ctrlKey && e.shiftKey && (e.key === 'm' || e.key === 'M'))) {
         e.preventDefault();
@@ -251,7 +243,7 @@ export default function DevThemeModifier() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, isDev]);
+  }, [isOpen]);
 
   const cssOutput = useMemo(() => {
     return `:root {
@@ -329,7 +321,8 @@ export default function DevThemeModifier() {
     if (styleEl) styleEl.remove();
   };
 
-  if (!isDev) return null;
+  const isHidden = typeof window !== 'undefined' && window.location.search.includes('nomod=1');
+  if (isHidden) return null;
 
   return (
     <>
