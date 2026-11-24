@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import Login from '@/pages/Login';
 import MemberDashboard from '@/pages/MemberDashboard';
 import { InstallPwaBanner } from '@/components/InstallPwaBanner';
+import DevThemeModifier from '@/components/DevThemeModifier';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem('forge.member.token');
@@ -14,6 +15,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <>
+      <DevThemeModifier />
       <InstallPwaBanner />
       <Routes>
         <Route path="/login" element={<Login />} />

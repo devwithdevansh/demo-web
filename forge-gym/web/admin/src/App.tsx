@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
+import DevThemeModifier from '@/components/DevThemeModifier';
 
 const SuperAdmin = lazy(() => import('@/pages/SuperAdmin'));
 const WhatsAppAdmin = lazy(() => import('@/pages/admin/WhatsAppAdmin'));
@@ -14,12 +15,15 @@ function PageLoading() {
 
 export default function App() {
   return (
-    <Suspense fallback={<PageLoading />}>
-      <Routes>
-        <Route path="/" element={<SuperAdmin />} />
-        <Route path="/whatsapp" element={<WhatsAppAdmin />} />
-        <Route path="*" element={<SuperAdmin />} />
-      </Routes>
-    </Suspense>
+    <>
+      <DevThemeModifier />
+      <Suspense fallback={<PageLoading />}>
+        <Routes>
+          <Route path="/" element={<SuperAdmin />} />
+          <Route path="/whatsapp" element={<WhatsAppAdmin />} />
+          <Route path="*" element={<SuperAdmin />} />
+        </Routes>
+      </Suspense>
+    </>
   );
 }

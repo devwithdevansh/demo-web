@@ -1,0 +1,15 @@
+{
+  "name": "forge-marketing",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FORGE marketing materials: editable HTML sources and a script that exports them to PNG and PDF.",
+  "type": "module",
+  "scripts": {
+    "export": "node scripts/export.mjs",
+    "screens": "node scripts/capture-screens.mjs"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.0.0",
+    "qrcode": "^1.5.4"
+  }
+}

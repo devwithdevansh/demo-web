@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>FORGE brochure (A4, 6 pages)</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  @page { size: 210mm 297mm; margin: 0; }
+  .a4 { width: 794px; height: 1123px; padding: 52px 56px 0; display: flex; flex-direction: column; }
+  .a4 > *:not(.photo):not(.shade) { position: relative; }
+
+  /* running header and footer */
+  .head { display: flex; align-items: center; justify-content: space-between; flex: none; }
+  .head .mark { font-size: 24px; }
+  .head .byline { font-size: 8.5px; }
+  .folio { margin-top: auto; flex: none; display: flex; justify-content: space-between; padding: 16px 0 26px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
+
+  .eyebrow { font-size: 9.5px; }
+  h2.display { font-size: 104px; }
+  .lead { font-size: 15px; line-height: 1.55; color: var(--dim); }
+
+  /* 1. cover */
+  .cover .shade { background: linear-gradient(180deg, rgba(10, 10, 10, 0.55) 0%, rgba(10, 10, 10, 0.35) 30%, rgba(10, 10, 10, 0.92) 68%, #0a0a0a 100%); }
+  .cover .head .mark { font-size: 34px; }
+  .cover .body { margin-top: auto; padding-bottom: 40px; }
+  .cover h1 { margin-top: 18px; font-size: 158px; }
+  .cover .lead { margin-top: 22px; max-width: 520px; font-size: 17px; }
+  .cover .guj { margin-top: 12px; font-size: 15px; }
+  .cover .plans { margin-top: 34px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(241, 239, 232, 0.3); }
+  .cover .plans div { padding: 14px 0 0; }
+  .cover .plans .n { font-family: var(--display); font-size: 26px; letter-spacing: 0.02em; text-transform: uppercase; }
+  .cover .plans .p { margin-top: 2px; font-family: var(--mono); font-size: 11px; color: var(--dim); }
+
+  /* 2. problems */
+  .why h2 { margin-top: 48px; font-size: 116px; }
+  .why .lead { margin-top: 20px; max-width: 590px; font-size: 16.5px; }
+  .rows { margin-top: 38px; border-top: 1px solid var(--line); }
+  .row { display: grid; grid-template-columns: 1fr 40px 1.08fr; gap: 12px; align-items: start; padding: 25px 0; border-bottom: 1px solid var(--line); }
+  .row .k { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); }
+  .row p.t { margin-top: 8px; font-size: 14.5px; line-height: 1.5; color: var(--dim); }
+  .row .with p.t { color: var(--bone); }
+  .row .with .k { color: var(--red); }
+  .row .arrow { align-self: center; font-family: var(--heavy); font-size: 22px; color: var(--red); text-align: center; }
+  .noapp { margin-top: 38px; display: grid; grid-template-columns: 1.05fr 1fr; }
+  .noapp .l { padding: 28px 28px; background: var(--bone); color: var(--ink); }
+  .noapp .l .display { font-size: 62px; }
+  .noapp .r { padding: 28px 28px; background: var(--ink-2); color: var(--dim); border: 1px solid var(--line); border-left: 0; font-size: 14.5px; line-height: 1.55; }
+  .noapp .r .guj { display: block; margin-top: 12px; font-size: 15px; }
+
+  /* 3-5. plan pages: title across the page, then details beside real demo screens, then a band */
+  .title { margin-top: 42px; flex: none; }
+  .title h2.display { font-size: 116px; }
+  .title .line { margin-top: 8px; font-family: var(--mono); font-size: 11.5px; letter-spacing: 0.24em; text-transform: uppercase; color: var(--red); }
+  .plan { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 34px; align-items: start; align-content: center; margin-top: 30px; flex: 1 1 auto; min-height: 0; }
+  .plan .price { font-size: 92px; }
+  .plan .for { margin-top: 14px; font-family: var(--heavy); font-weight: 600; font-size: 16.5px; line-height: 1.4; }
+  .plan .label { margin-top: 28px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); }
+  .plan .ticks { margin-top: 15px; font-size: 14.5px; }
+  .plan .ticks li + li { margin-top: 0.85em; }
+  .plan .guj { margin-top: 26px; font-size: 17px; }
+  .shots { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .shots .pair { display: flex; gap: 12px; align-items: flex-start; }
+  .shots .pair .phone:nth-child(2) { margin-top: 60px; }
+  .shots .cap { font-family: var(--mono); font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); text-align: center; max-width: 300px; line-height: 1.6; }
+
+  .band { margin-top: 12px; flex: none; }
+  .band .eyebrow { margin-bottom: 12px; }
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+  .tile { padding: 16px 16px 17px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--ink-2); }
+  .tile b { display: block; font-family: var(--mono); font-weight: 500; font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--bone); }
+  .tile span { display: block; margin-top: 7px; font-size: 12.5px; line-height: 1.45; color: var(--dim); }
+  .band .after { margin-top: 14px; font-size: 11.5px; line-height: 1.5; color: var(--mute); }
+  .band + .folio { margin-top: 26px; }
+
+  /* 6. modules and call to action */
+  .last h2 { margin-top: 40px; font-size: 92px; }
+  .last .lead { margin-top: 12px; max-width: 580px; font-size: 13.5px; }
+  .modules { margin-top: 20px; font-size: 13.5px; }
+  .modules .module { padding: 0.74em 0; }
+  .modules .module-note { font-size: 11.5px; }
+  .modules .chip { font-size: 8px; }
+  .recap { margin-top: 26px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .recap div { border: 1px solid var(--line); padding: 14px 16px; }
+  .recap .n { font-family: var(--display); font-size: 30px; line-height: 1; text-transform: uppercase; }
+  .recap .l { margin-top: 4px; font-family: var(--mono); font-size: 8px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); }
+  .recap .price { margin-top: 12px; font-size: 40px; }
+  .closer { margin-top: 12px; display: grid; grid-template-columns: 1fr auto; gap: 28px; align-items: center; background: var(--bone); color: var(--ink); padding: 26px 28px; }
+  .closer h3 { font-size: 60px; }
+  .closer .url { margin-top: 8px; font-size: 15.5px; color: var(--ink); }
+  .closer .say { margin-top: 10px; font-size: 13.5px; line-height: 1.5; color: #3a3a36; }
+  .closer .contact { margin-top: 6px; font-family: var(--heavy); font-weight: 700; font-size: 15px; }
+  .closer .qr { width: 122px; height: 122px; border: 1px solid #cfcdc4; }
+  .closer .scan p { margin-top: 7px; font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; color: #5c5a54; text-align: center; }
+  .small { margin-top: 16px; font-size: 9.5px; }
+  .small p + p { margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Cover -->
+<section class="sheet a4 cover">
+  <img class="photo" src="../assets/photos/bench-wide.jpg" alt="" />
+  <div class="shade"></div>
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline"><span data-t="brand.by"></span> · <span data-t="brand.place"></span></span>
+  </div>
+  <div class="body">
+    <p class="eyebrow">For independent gyms</p>
+    <h1 class="display">Your gym,<br />online and<br /><span class="red">organised.</span></h1>
+    <p class="lead">A website for your gym, a simple way to run the day, and tools for your trainers and members. All of it opens in the browser.</p>
+    <p class="guj">Tamaru gym, have online.</p>
+    <div class="plans">
+      <div><p class="n" data-t="packages.essential.name"></p><p class="p"><span data-t="packages.essential.price"></span>/month</p></div>
+      <div><p class="n" data-t="packages.growth.name"></p><p class="p"><span data-t="packages.growth.price"></span>/month</p></div>
+      <div><p class="n" data-t="packages.performance.name"></p><p class="p"><span data-t="packages.performance.price"></span>/month</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. The problems FORGE addresses -->
+<section class="sheet a4 why">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Why FORGE</span>
+  </div>
+  <h2 class="display">Sound <span class="red">familiar?</span></h2>
+  <p class="lead">If your gym runs on a register, a spreadsheet and a lot of WhatsApp chats, FORGE puts the important parts in one place.</p>
+
+  <div class="rows">
+    <div class="row">
+      <div><p class="k">Today</p><p class="t">People look for a gym online, but your timings, plans and photos are scattered or out of date.</p></div>
+      <p class="arrow">&rarr;</p>
+      <div class="with"><p class="k">With FORGE · Essential</p><p class="t">Your own gym website, with an enquiry form and a WhatsApp link.</p></div>
+    </div>
+    <div class="row">
+      <div><p class="k">Today</p><p class="t">Member details and expiry dates sit in a register or a spreadsheet.</p></div>
+      <p class="arrow">&rarr;</p>
+      <div class="with"><p class="k">With FORGE · Growth</p><p class="t">One member list with plans and expiry dates, and check-in at the front desk or by QR.</p></div>
+    </div>
+    <div class="row">
+      <div><p class="k">Today</p><p class="t">Working out who has paid and who still owes means going through pages.</p></div>
+      <p class="arrow">&rarr;</p>
+      <div class="with"><p class="k">With FORGE · Growth</p><p class="t">Payment records with dues shown, and a list of renewals and enquiries to follow up.</p></div>
+    </div>
+    <div class="row">
+      <div><p class="k">Today</p><p class="t">Workout plans and member progress live in chats and notebooks.</p></div>
+      <p class="arrow">&rarr;</p>
+      <div class="with"><p class="k">With FORGE · Performance</p><p class="t">Trainers set plans and note progress. Members see their own in a web portal.</p></div>
+    </div>
+  </div>
+
+  <div class="noapp">
+    <div class="l"><p class="display">No app<br />to download.</p></div>
+    <div class="r">FORGE opens like any website, on a phone or a computer. You, your staff and your members have nothing to install.<span class="guj">App download karvani jarur nathi.</span></div>
+  </div>
+  <div class="folio"><span>FORGE · <span data-t="brand.by"></span></span><span>02</span></div>
+</section>
+
+<!-- 3. Essential -->
+<section class="sheet a4">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Plan 01 of 03</span>
+  </div>
+  <div class="title">
+    <h2 class="display" data-t="packages.essential.name"></h2>
+    <p class="line" data-t="packages.essential.line"></p>
+  </div>
+  <div class="plan">
+    <div>
+      <p class="price"><span data-t="packages.essential.price"></span><small>/month</small></p>
+      <p class="for" data-t="packages.essential.forWho"></p>
+      <p class="label" data-t="packages.essential.includesLabel"></p>
+      <ul class="ticks" data-list="packages.essential.includes"></ul>
+      <p class="guj">Tamaru gym, have online.</p>
+    </div>
+    <div class="shots">
+      <div class="phone site" style="--w: 222px"><img src="../assets/screens/website.png" alt="Sample gym website on a phone" /></div>
+      <p class="cap">Sample gym website from the demo</p>
+    </div>
+  </div>
+  <div class="band">
+    <p class="eyebrow">What goes on the website</p>
+    <div class="tiles">
+      <div class="tile"><b>Your gym</b><span>Details and facilities, in your own words.</span></div>
+      <div class="tile"><b>Timings</b><span>Opening hours, shown clearly.</span></div>
+      <div class="tile"><b>Membership</b><span>Your plans and what each one includes.</span></div>
+      <div class="tile"><b>Trainers</b><span>Who coaches at your gym.</span></div>
+      <div class="tile"><b>Photos and video</b><span>From the launch shoot, as per agreed scope.</span></div>
+      <div class="tile"><b>Enquiries</b><span>An enquiry form, plus contact and WhatsApp links.</span></div>
+    </div>
+    <p class="after">One location. Pages, the launch shoot and later changes are delivered to an agreed scope; more can be added after scope confirmation.</p>
+  </div>
+  <div class="folio"><span>FORGE · <span data-t="brand.by"></span></span><span>03</span></div>
+</section>
+
+<!-- 4. Growth -->
+<section class="sheet a4">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Plan 02 of 03</span>
+  </div>
+  <div class="title">
+    <h2 class="display" data-t="packages.growth.name"></h2>
+    <p class="line" data-t="packages.growth.line"></p>
+  </div>
+  <div class="plan">
+    <div>
+      <p class="price"><span data-t="packages.growth.price"></span><small>/month</small></p>
+      <p class="for" data-t="packages.growth.forWho"></p>
+      <p class="label" data-t="packages.growth.includesLabel"></p>
+      <ul class="ticks" data-list="packages.growth.includes"></ul>
+      <p class="guj">Badhu ek j jagya par.</p>
+    </div>
+    <div class="shots">
+      <div class="pair">
+        <div class="phone" style="--w: 178px"><img src="../assets/screens/owner-today.png" alt="Owner's view of the day" /></div>
+        <div class="phone" style="--w: 178px"><img src="../assets/screens/members.png" alt="Member list" /></div>
+      </div>
+      <p class="cap" data-t="demoNote"></p>
+    </div>
+  </div>
+  <div class="band">
+    <p class="eyebrow">A day with Growth</p>
+    <div class="tiles">
+      <div class="tile"><b>Member arrives</b><span>Check them in at the desk, or by their QR pass.</span></div>
+      <div class="tile"><b>Fee received</b><span>Record the payment. What they still owe is updated.</span></div>
+      <div class="tile"><b>End of day</b><span>The owner view shows check-ins, fees and who to follow up.</span></div>
+      <div class="tile"><b>Membership ending</b><span>Expiry dates are tracked, so renewals get a follow-up.</span></div>
+      <div class="tile"><b>New enquiry</b><span>Leads stay on a list until someone has followed up.</span></div>
+      <div class="tile"><b>Reports</b><span>Basic reports on members, attendance and fees.</span></div>
+    </div>
+  </div>
+  <div class="folio"><span>FORGE · <span data-t="brand.by"></span></span><span>04</span></div>
+</section>
+
+<!-- 5. Performance -->
+<section class="sheet a4">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Plan 03 of 03</span>
+  </div>
+  <div class="title">
+    <h2 class="display" data-t="packages.performance.name"></h2>
+    <p class="line" data-t="packages.performance.line"></p>
+  </div>
+  <div class="plan">
+    <div>
+      <p class="price"><span data-t="packages.performance.price"></span><small>/month</small></p>
+      <p class="for" data-t="packages.performance.forWho"></p>
+      <p class="label" data-t="packages.performance.includesLabel"></p>
+      <ul class="ticks" data-list="packages.performance.includes"></ul>
+    </div>
+    <div class="shots">
+      <div class="pair">
+        <div class="phone" style="--w: 178px"><img src="../assets/screens/trainer.png" alt="Trainer's dashboard" /></div>
+        <div class="phone" style="--w: 178px"><img src="../assets/screens/member-workout.png" alt="Member's workout plan" /></div>
+      </div>
+      <p class="cap" data-t="demoNote"></p>
+    </div>
+  </div>
+  <div class="band">
+    <p class="eyebrow">Who uses what</p>
+    <div class="tiles">
+      <div class="tile"><b>Trainer</b><span>Sets the workout plan, and records progress and PT sessions.</span></div>
+      <div class="tile"><b>Member</b><span>Opens a link to see their plan, timetable and progress.</span></div>
+      <div class="tile"><b>Diet guidance</b><span>Written and managed by your staff. Not medical advice.</span></div>
+      <div class="tile"><b>Training videos</b><span>Video links sit next to the exercises in the plan.</span></div>
+      <div class="tile"><b>Progress</b><span>Notes and measurements, kept member by member.</span></div>
+      <div class="tile"><b>PT sessions</b><span>Personal-training sessions are tracked as they happen.</span></div>
+    </div>
+  </div>
+  <div class="folio"><span>FORGE · <span data-t="brand.by"></span></span><span>05</span></div>
+</section>
+
+<!-- 6. Optional modules, readiness and call to action -->
+<section class="sheet a4 last">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Optional modules</span>
+  </div>
+  <h2 class="display">Add what <span class="red">you need.</span></h2>
+  <p class="lead">These are extras on top of a plan. Each one is labelled with where it stands today, and none of their third-party charges are included in the plan prices.</p>
+  <div class="modules" data-modules></div>
+
+  <div class="recap">
+    <div><p class="n" data-t="packages.essential.name"></p><p class="l" data-t="packages.essential.line"></p><p class="price"><span data-t="packages.essential.price"></span><small>/month</small></p></div>
+    <div><p class="n" data-t="packages.growth.name"></p><p class="l" data-t="packages.growth.line"></p><p class="price"><span data-t="packages.growth.price"></span><small>/month</small></p></div>
+    <div><p class="n" data-t="packages.performance.name"></p><p class="l" data-t="packages.performance.line"></p><p class="price"><span data-t="packages.performance.price"></span><small>/month</small></p></div>
+  </div>
+  <div class="closer">
+    <div>
+      <h3 class="display">Explore <span class="red">the demo.</span></h3>
+      <p class="url" data-t="demoUrlShort"></p>
+      <p class="say" data-t="cta"></p>
+      <p class="contact" data-if="contactLine" data-t="contactLine"></p>
+    </div>
+    <div class="scan" data-if="showQr">
+      <div class="qr"><img src="../assets/qr-demo.svg" alt="QR code that opens the FORGE demo" /></div>
+      <p>Scan to open the demo</p>
+    </div>
+  </div>
+  <div class="small">
+    <p class="fine" data-t="pricingNote"></p>
+    <p class="fine">Plan features are part of the FORGE offer and are delivered to an agreed scope. The demo uses a sample gym with sample data.</p>
+  </div>
+  <div class="folio"><span>FORGE · <span data-t="brand.by"></span> · <span data-t="brand.place"></span></span><span>06</span></div>
+</section>
+
+<script src="content.js"></script>
+<script src="render.js"></script>
+</body>
+</html>

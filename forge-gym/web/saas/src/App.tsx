@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
+import DevThemeModifier from '@/components/DevThemeModifier';
 
 const Login = lazy(() => import('@/pages/auth/Login'));
 const Activate = lazy(() => import('@/pages/auth/Activate'));
@@ -30,19 +31,22 @@ function PageLoading() {
 
 export default function App() {
   return (
-    <Suspense fallback={<PageLoading />}>
-      <Routes>
-        <Route path="/" element={<RootRedirect />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/activate" element={<Activate />} />
-        {/* Role portals: /owner/*, /staff/*, /trainer/*, /member/* */}
-        <Route path="/owner/*" element={<Portal role="owner" />} />
-        <Route path="/staff/*" element={<Portal role="staff" />} />
-        <Route path="/trainer/*" element={<Portal role="trainer" />} />
-        <Route path="/member/*" element={<Portal role="member" />} />
-        {/* Fallback */}
-        <Route path="*" element={<RootRedirect />} />
-      </Routes>
-    </Suspense>
+    <>
+      <DevThemeModifier />
+      <Suspense fallback={<PageLoading />}>
+        <Routes>
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/activate" element={<Activate />} />
+          {/* Role portals: /owner/*, /staff/*, /trainer/*, /member/* */}
+          <Route path="/owner/*" element={<Portal role="owner" />} />
+          <Route path="/staff/*" element={<Portal role="staff" />} />
+          <Route path="/trainer/*" element={<Portal role="trainer" />} />
+          <Route path="/member/*" element={<Portal role="member" />} />
+          {/* Fallback */}
+          <Route path="*" element={<RootRedirect />} />
+        </Routes>
+      </Suspense>
+    </>
   );
 }

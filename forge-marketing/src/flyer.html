@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>FORGE flyer (A4)</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  @page { size: 210mm 297mm; margin: 0; }
+  .a4 { width: 794px; height: 1123px; display: flex; flex-direction: column; }
+
+  /* hero */
+  .hero { position: relative; height: 348px; flex: none; padding: 34px 44px 0; }
+  .hero .shade { background: linear-gradient(180deg, rgba(10, 10, 10, 0.72) 0%, rgba(10, 10, 10, 0.55) 45%, #0a0a0a 100%); }
+  .hero > *:not(.photo):not(.shade) { position: relative; }
+  .top { display: flex; align-items: center; justify-content: space-between; }
+  .top .mark { font-size: 30px; }
+  .top .byline { font-size: 9px; }
+  .hero h1 { margin-top: 44px; font-size: 96px; }
+  .hero .lead { margin-top: 16px; max-width: 520px; font-size: 14.5px; line-height: 1.5; color: var(--dim); }
+  .hero .guj { margin-top: 10px; font-size: 13px; }
+
+  /* packages */
+  .plans { flex: none; padding: 26px 44px 0; }
+  .plans .eyebrow { font-size: 9px; margin-bottom: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .plan { display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--ink-2); padding: 18px 16px 16px; }
+  .plan.mid { border-color: rgba(241, 239, 232, 0.45); }
+  .plan .step { font-family: var(--mono); font-size: 9px; color: var(--mute); letter-spacing: 0.14em; }
+  .plan h2 { margin-top: 6px; font-size: 42px; }
+  .plan .line { margin-top: 3px; font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); }
+  .plan .price { margin-top: 14px; font-size: 46px; }
+  .plan .for { margin-top: 10px; font-size: 11.5px; line-height: 1.4; color: var(--bone); min-height: 32px; }
+  .plan .label { margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--line); font-family: var(--mono); font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+  .plan .ticks { margin-top: 9px; font-size: 11px; }
+
+  /* browser strip */
+  .browser { flex: none; margin: 16px 44px 0; display: grid; grid-template-columns: 1.15fr 1fr 1fr 1fr; border: 1px solid var(--line); }
+  .browser > div { padding: 13px 14px; border-left: 1px solid var(--line); }
+  .browser > div:first-child { border-left: 0; background: var(--bone); color: var(--ink); }
+  .browser .big { font-family: var(--display); font-size: 25px; line-height: 0.95; text-transform: uppercase; }
+  .browser .k { font-family: var(--mono); font-size: 8px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+  .browser .v { margin-top: 4px; font-size: 11px; line-height: 1.35; color: var(--dim); }
+
+  /* call to action */
+  .cta { flex: 1; display: flex; align-items: center; justify-content: space-between; gap: 28px; margin: 16px 44px 0; }
+  .cta h3 { font-size: 46px; }
+  .cta .url { margin-top: 8px; font-size: 14.5px; }
+  .cta .say { margin-top: 10px; font-size: 12.5px; line-height: 1.45; color: var(--dim); max-width: 400px; }
+  .cta .contact { margin-top: 6px; font-family: var(--heavy); font-weight: 600; font-size: 14px; color: var(--bone); }
+  .cta .scan { flex: none; text-align: center; }
+  .cta .qr { width: 104px; height: 104px; }
+  .cta .scan p { margin-top: 6px; font-family: var(--mono); font-size: 7.5px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+
+  .foot { flex: none; padding: 12px 44px 22px; border-top: 1px solid var(--line); margin-top: 14px; }
+  .foot p { font-size: 9px; }
+  .foot p + p { margin-top: 3px; }
+</style>
+</head>
+<body>
+
+<section class="sheet a4">
+  <div class="hero">
+    <img class="photo" src="../assets/photos/bench-wide.jpg" alt="" />
+    <div class="shade"></div>
+    <div class="top">
+      <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+      <span class="byline"><span data-t="brand.by"></span> · <span data-t="brand.place"></span></span>
+    </div>
+    <h1 class="display">Your gym, online<br /><span class="red">and organised.</span></h1>
+    <p class="lead">A website that shows your gym properly, and one place for members, fees and attendance. It opens in any browser, on a phone or a computer.</p>
+    <p class="guj">Tamaru gym, have online.</p>
+  </div>
+
+  <div class="plans">
+    <p class="eyebrow">Three plans · each one builds on the last</p>
+    <div class="grid">
+      <article class="plan">
+        <p class="step">01</p>
+        <h2 class="display" data-t="packages.essential.name"></h2>
+        <p class="line" data-t="packages.essential.line"></p>
+        <p class="price"><span data-t="packages.essential.price"></span><small>/month</small></p>
+        <p class="for" data-t="packages.essential.forWho"></p>
+        <p class="label" data-t="packages.essential.includesLabel"></p>
+        <ul class="ticks" data-list="packages.essential.short"></ul>
+      </article>
+      <article class="plan mid">
+        <p class="step">02</p>
+        <h2 class="display" data-t="packages.growth.name"></h2>
+        <p class="line" data-t="packages.growth.line"></p>
+        <p class="price"><span data-t="packages.growth.price"></span><small>/month</small></p>
+        <p class="for" data-t="packages.growth.forWho"></p>
+        <p class="label" data-t="packages.growth.includesLabel"></p>
+        <ul class="ticks" data-list="packages.growth.short"></ul>
+      </article>
+      <article class="plan">
+        <p class="step">03</p>
+        <h2 class="display" data-t="packages.performance.name"></h2>
+        <p class="line" data-t="packages.performance.line"></p>
+        <p class="price"><span data-t="packages.performance.price"></span><small>/month</small></p>
+        <p class="for" data-t="packages.performance.forWho"></p>
+        <p class="label" data-t="packages.performance.includesLabel"></p>
+        <ul class="ticks" data-list="packages.performance.short"></ul>
+      </article>
+    </div>
+  </div>
+
+  <div class="browser">
+    <div><p class="big">No app<br />to download.</p></div>
+    <div><p class="k">Owner</p><p class="v">Check the day from your phone.</p></div>
+    <div><p class="k">Front desk</p><p class="v">Check-ins and fees on the desk computer.</p></div>
+    <div><p class="k">Members</p><p class="v">Open a link. Nothing to install.</p></div>
+  </div>
+
+  <div class="cta">
+    <div>
+      <h3 class="display">Explore <span class="red">the demo.</span></h3>
+      <p class="url" data-t="demoUrlShort"></p>
+      <p class="say" data-t="cta"></p>
+      <p class="contact" data-if="contactLine" data-t="contactLine"></p>
+    </div>
+    <div class="scan" data-if="showQr">
+      <div class="qr"><img src="../assets/qr-demo.svg" alt="QR code that opens the FORGE demo" /></div>
+      <p>Scan to open the demo</p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <p class="fine" data-t="pricingNote"></p>
+    <p class="fine">Optional, on request: WhatsApp notifications and UPI payment links (third-party charges are separate). UPI Autopay and Trainer Plus are in preview.</p>
+  </div>
+</section>
+
+<script src="content.js"></script>
+<script src="render.js"></script>
+</body>
+</html>

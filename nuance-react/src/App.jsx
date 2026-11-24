@@ -1,4 +1,5 @@
 import React from 'react';
+import DevThemeModifier from './components/DevThemeModifier';
 import Preloader from './components/Preloader';
 import CustomCursor from './components/CustomCursor';
 import Navbar from './components/Navbar';
@@ -18,6 +19,7 @@ import Footer from './components/Footer';
 function App() {
   return (
     <>
+      <DevThemeModifier />
       <a className="skip-link" href="#main">Skip to content</a>
       <div className="grain" aria-hidden="true"></div>
       

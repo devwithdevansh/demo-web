@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>FORGE square post (1080 x 1080)</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  @page { size: 1080px 1080px; margin: 0; }
+  .post { width: 1080px; height: 1080px; padding: 64px 68px 54px; display: flex; flex-direction: column; }
+  .post > *:not(.photo):not(.shade) { position: relative; }
+  .post .shade { background: linear-gradient(180deg, rgba(10, 10, 10, 0.8) 0%, rgba(10, 10, 10, 0.9) 36%, #0a0a0a 58%); }
+
+  .head { display: flex; align-items: center; justify-content: space-between; }
+  .head .mark { font-size: 50px; }
+  .head .byline { font-size: 16px; }
+  h1 { margin-top: 46px; font-size: 150px; }
+  .lead { margin-top: 18px; font-size: 29px; line-height: 1.35; color: var(--dim); }
+
+  .rows { margin-top: 38px; border-top: 2px solid var(--line); }
+  .row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 28px; padding: 22px 0; border-bottom: 2px solid var(--line); }
+  .row .name { font-family: var(--display); font-size: 68px; line-height: 0.9; text-transform: uppercase; }
+  .row .line { margin-top: 6px; font-size: 25px; line-height: 1.3; color: var(--dim); }
+  .row .line b { font-family: var(--mono); font-weight: 500; font-size: 17px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--red); margin-right: 12px; }
+  .row .price { font-size: 92px; }
+
+  .foot { margin-top: auto; display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
+  .foot .url { font-size: 24px; }
+  .foot .k { font-family: var(--mono); font-size: 15px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--mute); margin-bottom: 6px; }
+  .foot .fine { font-size: 15px; max-width: 360px; text-align: right; }
+</style>
+</head>
+<body>
+
+<section class="sheet post">
+  <img class="photo" src="../assets/photos/bench-wide.jpg" alt="" style="opacity: 0.6" />
+  <div class="shade"></div>
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline"><span data-t="brand.by"></span> · <span data-t="brand.place"></span></span>
+  </div>
+  <h1 class="display">Your gym, online<br /><span class="red">and organised.</span></h1>
+  <p class="lead">Three plans. All in the browser, with no app to download.</p>
+
+  <div class="rows">
+    <div class="row">
+      <div><p class="name" data-t="packages.essential.name"></p><p class="line"><b data-t="packages.essential.line"></b>A website for your gym</p></div>
+      <p class="price"><span data-t="packages.essential.price"></span><small>/month</small></p>
+    </div>
+    <div class="row">
+      <div><p class="name" data-t="packages.growth.name"></p><p class="line"><b data-t="packages.growth.line"></b>Members, fees, check-ins</p></div>
+      <p class="price"><span data-t="packages.growth.price"></span><small>/month</small></p>
+    </div>
+    <div class="row">
+      <div><p class="name" data-t="packages.performance.name"></p><p class="line"><b data-t="packages.performance.line"></b>Trainer and member tools</p></div>
+      <p class="price"><span data-t="packages.performance.price"></span><small>/month</small></p>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div><p class="k">Explore the demo</p><p class="url" data-t="demoUrlShort"></p></div>
+    <p class="fine" data-t="pricingNote"></p>
+  </div>
+</section>
+
+<script src="content.js"></script>
+<script src="render.js"></script>
+</body>
+</html>

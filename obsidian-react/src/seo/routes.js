@@ -16,8 +16,17 @@ export const SITE_URL = 'https://car-detailing-by-dwd.onrender.com';
 
 export const ROUTES = [
   {
-    id: 'catalog',
+    id: 'home',
     path: '/',
+    title: 'Kohinoor — Luxury Car Detailing Website Demo | DWD Studio',
+    description:
+      'Demo website for a premium detailing, ceramic coating and PPF studio: dark luxury design, before/after slider, service configurator and booking. Built by DWD Studio.',
+    heading: 'Kohinoor — a demo website for a luxury detailing studio',
+    body: 'A dark, high-contrast site for a premium paint correction, ceramic coating and PPF brand, with a before/after slider, interactive spec configurator and booking form. Kohinoor is a demo studio built by DWD Studio.',
+  },
+  {
+    id: 'catalog',
+    path: '/catalog/',
     title: 'Car Detailing Website Design | DWD Studio',
     description:
       'Custom websites for car detailing, ceramic coating and PPF studios, built to be found on Google. Browse three live demo sites, try the design lab, and see what ads would cost you instead.',
@@ -30,7 +39,7 @@ export const ROUTES = [
     ],
   },
   {
-    id: 'home',
+    id: 'kohinoor',
     path: '/kohinoor/',
     title: 'Kohinoor — Luxury Car Detailing Website Demo | DWD Studio',
     description:
@@ -61,8 +70,8 @@ export const ROUTES = [
 // Old links used hash routes (#/boond etc.) -- still accepted, and App.jsx
 // swaps them for the real path so shared links keep working.
 export const LEGACY_HASHES = {
-  '#/catalog': '/',
-  '#/kohinoor': '/kohinoor/',
+  '#/catalog': '/catalog/',
+  '#/kohinoor': '/',
   '#/boond': '/boond/',
   '#/kavach': '/kavach/',
 };
@@ -75,6 +84,7 @@ const trim = (path) => path.replace(/\/+$/, '') || '/';
 
 export const routeForPath = (pathname) => {
   const clean = trim(pathname);
-  if (clean === '/catalog') return ROUTES[0];
+  if (clean === '/catalog') return ROUTES.find((r) => r.id === 'catalog') ?? null;
+  if (clean === '/kohinoor') return ROUTES.find((r) => r.id === 'home') ?? null;
   return ROUTES.find((r) => trim(r.path) === clean) ?? null;
 };

@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>FORGE WhatsApp Status cards (1080 x 1920)</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  @page { size: 1080px 1920px; margin: 0; }
+  /* Top and bottom are kept clear because WhatsApp and Instagram cover them with their own controls. */
+  .card { width: 1080px; height: 1920px; padding: 230px 84px 250px; display: flex; flex-direction: column; }
+  .card > *:not(.photo):not(.shade) { position: relative; }
+
+  .head { display: flex; align-items: center; justify-content: space-between; flex: none; }
+  .head .mark { font-size: 62px; }
+  .head .byline { font-size: 20px; }
+  .tail { margin-top: auto; flex: none; display: flex; justify-content: space-between; align-items: center; padding-top: 30px; border-top: 2px solid var(--line); font-family: var(--mono); font-size: 22px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); }
+
+  .eyebrow { font-size: 24px; }
+  .body { margin-top: 90px; }
+  h1.display { font-size: 196px; }
+  .sub { margin-top: 44px; font-size: 46px; line-height: 1.32; color: var(--dim); }
+  .guj { margin-top: 36px; font-size: 44px; line-height: 1.25; }
+
+  .photo-card .shade { background: linear-gradient(180deg, rgba(10, 10, 10, 0.78) 0%, rgba(10, 10, 10, 0.5) 32%, rgba(10, 10, 10, 0.86) 62%, #0a0a0a 100%); }
+  .photo-card .tail { border-top-color: rgba(241, 239, 232, 0.28); }
+
+  /* plan cards */
+  .plan-name { margin-top: 26px; font-size: 218px; }
+  .plan-line { margin-top: 10px; font-family: var(--mono); font-size: 30px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--red); }
+  .plan-price { margin-top: 56px; font-size: 208px; }
+  .plan-for { margin-top: 30px; font-family: var(--heavy); font-weight: 600; font-size: 42px; line-height: 1.3; }
+  .plan-label { margin-top: 54px; padding-top: 40px; border-top: 2px solid var(--line); font-family: var(--mono); font-size: 24px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--mute); }
+  .card .ticks { margin-top: 30px; font-size: 41px; }
+  .card .ticks li + li { margin-top: 0.62em; }
+
+  /* the longest plan needs a little less air */
+  .tight .body { margin-top: 64px; }
+  .tight .plan-price { margin-top: 40px; font-size: 184px; }
+  .tight .plan-for { margin-top: 24px; font-size: 39px; }
+  .tight .plan-label { margin-top: 38px; padding-top: 32px; }
+  .tight .ticks { margin-top: 24px; font-size: 38px; }
+  .tight .ticks li + li { margin-top: 0.5em; }
+
+  /* cards with a phone */
+  /* The phone fills whatever height is left and is cut off by the footer line. */
+  .with-phone { flex: 1; min-height: 0; overflow: hidden; display: flex; justify-content: center; align-items: flex-start; margin-top: 64px; }
+  .cap { margin-top: 26px; text-align: center; font-family: var(--mono); font-size: 20px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--mute); }
+
+  /* optional modules */
+  .card .modules { margin-top: 44px; font-size: 40px; }
+  .card .module { padding: 0.72em 0; align-items: center; border-top-width: 2px; }
+  .card .module:last-child { border-bottom-width: 2px; }
+  .card .module-note { font-size: 28px; }
+  .card .chip { font-size: 22px; border-width: 2px; }
+
+  /* call to action */
+  .demo-url { margin-top: 44px; font-size: 40px; }
+  .scan { margin-top: 56px; display: flex; align-items: center; gap: 44px; }
+  .scan .qr { width: 300px; height: 300px; flex: none; }
+  .scan p { font-size: 38px; line-height: 1.35; color: var(--dim); }
+  .contact { margin-top: 28px; font-family: var(--heavy); font-weight: 700; font-size: 46px; }
+  .fine { margin-top: 34px; font-size: 25px; }
+</style>
+</head>
+<body>
+
+<!-- 1. Online visibility -->
+<section class="sheet card photo-card" data-name="online">
+  <img class="photo" src="../assets/photos/bench-wide.jpg" alt="" style="object-position: 62% 50%" />
+  <div class="shade"></div>
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline" data-t="brand.by"></span>
+  </div>
+  <div class="body">
+    <p class="eyebrow">For gym owners</p>
+    <h1 class="display" style="margin-top: 30px">Can people<br />find your<br /><span class="red">gym online?</span></h1>
+    <p class="sub">Timings, plans, trainers and photos, on your own gym website.</p>
+    <p class="guj">Tamaru gym, have online.</p>
+  </div>
+  <div class="tail"><span class="pager"></span><span data-t="brand.place"></span></div>
+</section>
+
+<!-- 2. Browser-first -->
+<section class="sheet card" data-name="no-app">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline" data-t="brand.by"></span>
+  </div>
+  <div class="body">
+    <p class="eyebrow">Works in the browser</p>
+    <h1 class="display" style="margin-top: 30px">No app<br /><span class="red">to download.</span></h1>
+    <p class="sub">FORGE opens like a website, on your phone or the computer at the desk.</p>
+    <p class="guj">App download karvani jarur nathi.</p>
+  </div>
+  <div class="with-phone"><div class="phone" style="--w: 470px"><img src="../assets/screens/owner-today.png" alt="FORGE on a phone" /></div></div>
+  <div class="tail"><span class="pager"></span><span>Demo screen · sample data</span></div>
+</section>
+
+<!-- 3. Essential -->
+<section class="sheet card" data-name="essential">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Plan 01</span>
+  </div>
+  <div class="body">
+    <h1 class="display plan-name" data-t="packages.essential.name"></h1>
+    <p class="plan-line" data-t="packages.essential.line"></p>
+    <p class="price plan-price"><span data-t="packages.essential.price"></span><small>/month</small></p>
+    <p class="plan-for" data-t="packages.essential.forWho"></p>
+    <p class="plan-label" data-t="packages.essential.includesLabel"></p>
+    <ul class="ticks" data-list="packages.essential.short"></ul>
+  </div>
+  <div class="tail"><span class="pager"></span><span>Proposed pricing</span></div>
+</section>
+
+<!-- 4. Growth -->
+<section class="sheet card" data-name="growth">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Plan 02</span>
+  </div>
+  <div class="body">
+    <h1 class="display plan-name" data-t="packages.growth.name"></h1>
+    <p class="plan-line" data-t="packages.growth.line"></p>
+    <p class="price plan-price"><span data-t="packages.growth.price"></span><small>/month</small></p>
+    <p class="plan-for" data-t="packages.growth.forWho"></p>
+    <p class="plan-label" data-t="packages.growth.includesLabel"></p>
+    <ul class="ticks" data-list="packages.growth.short"></ul>
+  </div>
+  <div class="tail"><span class="pager"></span><span>Proposed pricing</span></div>
+</section>
+
+<!-- 5. Performance -->
+<section class="sheet card tight" data-name="performance">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Plan 03</span>
+  </div>
+  <div class="body">
+    <h1 class="display plan-name" style="font-size: 186px" data-t="packages.performance.name"></h1>
+    <p class="plan-line" data-t="packages.performance.line"></p>
+    <p class="price plan-price"><span data-t="packages.performance.price"></span><small>/month</small></p>
+    <p class="plan-for" data-t="packages.performance.forWho"></p>
+    <p class="plan-label" data-t="packages.performance.includesLabel"></p>
+    <ul class="ticks" data-list="packages.performance.short"></ul>
+  </div>
+  <div class="tail"><span class="pager"></span><span>Proposed pricing</span></div>
+</section>
+
+<!-- 6. Trainer and member experience -->
+<section class="sheet card" data-name="trainer-member">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Performance plan</span>
+  </div>
+  <div class="body">
+    <h1 class="display" style="font-size: 168px">Trainer sets<br />the plan.<br /><span class="red">Member sees it.</span></h1>
+    <p class="sub" style="margin-top: 36px; font-size: 42px">Workout plans, progress notes and PT sessions, on the member's own phone.</p>
+  </div>
+  <div class="with-phone" style="margin-top: 56px"><div class="phone" style="--w: 470px"><img src="../assets/screens/member-workout.png" alt="A member's workout plan on a phone" /></div></div>
+  <div class="tail"><span class="pager"></span><span>Demo screen · sample data</span></div>
+</section>
+
+<!-- 7. Optional modules -->
+<section class="sheet card" data-name="optional-modules">
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline">Optional modules</span>
+  </div>
+  <div class="body">
+    <h1 class="display" style="font-size: 154px">Add-ons,<br />when you<br /><span class="red">need them.</span></h1>
+    <div class="modules" data-modules="Optional,Preview" data-notes="short"></div>
+    <p class="fine">Third-party message and payment charges are not included in plan prices.</p>
+  </div>
+  <div class="tail"><span class="pager"></span><span data-t="brand.by"></span></div>
+</section>
+
+<!-- 8. Demo and call to action -->
+<section class="sheet card photo-card" data-name="demo">
+  <img class="photo" src="../assets/photos/bench-low.jpg" alt="" style="object-position: 70% 50%; opacity: 0.55" />
+  <div class="shade" style="background: linear-gradient(180deg, rgba(10,10,10,0.82) 0%, rgba(10,10,10,0.7) 40%, rgba(10,10,10,0.92) 70%, #0a0a0a 100%)"></div>
+  <div class="head">
+    <span class="mark"><svg viewBox="0 0 32 32"><path d="M4 12h4v8H4zM24 12h4v8h-4zM9 14.5h14v3H9z" fill="#ff2e2e" /></svg>FORGE</span>
+    <span class="byline" data-t="brand.by"></span>
+  </div>
+  <div class="body">
+    <p class="eyebrow">See it for yourself</p>
+    <h1 class="display" style="margin-top: 30px">Explore<br /><span class="red">the demo.</span></h1>
+    <p class="guj" style="margin-top: 30px">Aaje j demo juo.</p>
+    <p class="url demo-url" data-t="demoUrlShort"></p>
+    <div class="scan">
+      <div class="qr" data-if="showQr"><img src="../assets/qr-demo.svg" alt="QR code that opens the FORGE demo" /></div>
+      <p data-t="cta"></p>
+    </div>
+    <p class="contact" data-if="contactLine" data-t="contactLine"></p>
+    <p class="fine" data-t="pricingNote"></p>
+  </div>
+  <div class="tail"><span class="pager"></span><span data-t="brand.place"></span></div>
+</section>
+
+<script src="content.js"></script>
+<script src="render.js"></script>
+</body>
+</html>

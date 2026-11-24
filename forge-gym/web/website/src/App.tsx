@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import DevThemeModifier from '@/components/DevThemeModifier';
 import Home from '@/pages/Home';
 
 const EssentialDemo = lazy(() => import('@/pages/essential/EssentialDemo'));
@@ -23,6 +24,7 @@ function PageLoading() {
 export default function App() {
   return (
     <>
+      <DevThemeModifier />
       <ScrollToTop />
       <Suspense fallback={<PageLoading />}>
         <Routes>

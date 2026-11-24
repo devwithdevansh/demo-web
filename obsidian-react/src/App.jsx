@@ -3,6 +3,7 @@ import Loader from './components/Loader';
 import ActionBar from './components/ActionBar';
 import Cursor from './components/Cursor';
 import AmbientSpotlight from './components/AmbientSpotlight';
+import DevThemeModifier from './components/DevThemeModifier';
 import Catalog from './pages/Catalog';
 import BoondPage from './sites/boond/BoondPage';
 import KavachPage from './sites/kavach/KavachPage';
@@ -59,6 +60,7 @@ function App() {
   if (route === 'catalog') {
     return (
       <>
+        <DevThemeModifier />
         <Cursor />
         <AmbientSpotlight />
         <Catalog />
@@ -66,11 +68,27 @@ function App() {
     );
   }
 
-  if (route === 'boond') return <BoondPage />;
-  if (route === 'kavach') return <KavachPage />;
+  if (route === 'boond') {
+    return (
+      <>
+        <DevThemeModifier />
+        <BoondPage />
+      </>
+    );
+  }
+
+  if (route === 'kavach') {
+    return (
+      <>
+        <DevThemeModifier />
+        <KavachPage />
+      </>
+    );
+  }
 
   return (
     <>
+      <DevThemeModifier />
       {!isLoaded && <Loader onComplete={() => setIsLoaded(true)} />}
       <Cursor />
       <AmbientSpotlight />

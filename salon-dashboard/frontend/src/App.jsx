@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import DevThemeModifier from './components/DevThemeModifier';
 import { LayoutDashboard, CalendarDays, Users, Scissors, Settings as SettingsIcon, Bell, Search, LogOut, Star } from 'lucide-react';
 import { Toaster } from 'react-hot-toast';
 import './index.css';
@@ -120,6 +121,7 @@ function App() {
 
   return (
     <Router>
+      <DevThemeModifier />
       <Toaster position="top-right" toastOptions={{ style: { background: 'var(--bg-tertiary)', color: '#fff', border: '1px solid var(--border-color)' } }} />
       <Routes>
         {/* Public Routes */}

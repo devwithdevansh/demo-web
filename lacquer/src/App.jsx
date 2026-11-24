@@ -2,6 +2,7 @@ import { useEffect, lazy, Suspense } from 'react';
 import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import DevThemeModifier from './components/DevThemeModifier';
 import Cursor from './components/Cursor';
 import ActionBar from './components/ActionBar';
 import Header from './components/Header';
@@ -36,6 +37,7 @@ export default function App() {
 
   return (
     <>
+      <DevThemeModifier />
       <a href="#services" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[90] btn solid">Skip to content</a>
       <Cursor />
       <Header />

@@ -1,3 +1,4 @@
+import DevThemeModifier from './components/DevThemeModifier';
 import { sites } from './content';
 import ProjectCard from './components/ProjectCard';
 
@@ -6,6 +7,7 @@ export default function App() {
 
   return (
     <>
+      <DevThemeModifier />
       <header className="wrap pt-16 pb-10 md:pt-24 md:pb-14">
         <span className="eyebrow mb-5">Studio site catalog</span>
         <h1 className="display m-0 text-[clamp(34px,6vw,64px)] leading-[1.02] max-w-[16ch]">
