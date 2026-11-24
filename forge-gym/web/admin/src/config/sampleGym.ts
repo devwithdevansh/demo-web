@@ -10,18 +10,18 @@ export const FRAME_COUNT = 379;
 export const framePath = (i: number) => `/frames/frame_${String(i).padStart(4, '0')}.jpg`;
 
 export const sampleGym = {
-  name: 'Ironpeak Fitness',
-  wordmark: 'IRONPEAK',
+  name: 'Iron Forge Gym',
+  wordmark: 'IRON FORGE',
   tagline: 'Strength. Discipline. Community.',
   address: ['2nd Floor, Sample Arcade', 'Demo Road, Sample City 000000'],
   phone: '+91 00000 00000',
-  email: 'hello@ironpeak.example',
+  email: 'hello@ironforge.example',
   timings: [
     { days: 'Monday to Saturday', hours: '5:30 AM to 10:30 PM' },
     { days: 'Sunday', hours: '7:00 AM to 1:00 PM' },
   ],
   about:
-    'Ironpeak is a neighbourhood strength and conditioning gym. Train on your own, join a class, or work one-to-one with a coach.',
+    'Iron Forge is a neighbourhood strength and conditioning gym. Train on your own, join a class, or work one-to-one with a coach.',
   facilities: [
     { name: 'Free Weight Floor', detail: 'Dumbbells to 50 kg, six benches and plenty of room to move.' },
     { name: 'Power Racks', detail: 'Four racks with platforms for squats, presses and deadlifts.' },
@@ -36,10 +36,9 @@ export const sampleGym = {
     { name: 'Elite', monthly: 5499, yearly: 54990, features: ['Everything in Pro', 'Dedicated trainer access', 'Priority booking', 'Monthly progress review'], highlight: true },
   ],
   trainers: [
-    { name: 'Alex Rey', role: 'Strength Coach', focus: 'Barbell lifting and strength programmes' },
-    { name: 'Priya Nair', role: 'Fitness Coach', focus: 'Fat loss and general fitness' },
-    { name: 'Rahul Mehta', role: 'Performance Coach', focus: 'Boxing, CrossFit and sport conditioning' },
-    { name: 'Sara Kade', role: 'Conditioning Coach', focus: 'Mobility, yoga and beginners' },
+    { name: 'Trainer 1', role: 'Head Strength Coach', focus: 'Barbell lifting and strength programmes' },
+    { name: 'Trainer 2', role: 'Fitness Coach', focus: 'Fat loss, mobility and general fitness' },
+    { name: 'Trainer 3', role: 'Conditioning Coach', focus: 'Boxing, CrossFit and sport conditioning' },
   ],
   // Stills from the hero clip, cropped differently so the gallery has some variety.
   gallery: [

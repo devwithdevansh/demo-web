@@ -111,11 +111,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     final state = context.watch<AppState>();
     final session = state.session;
-    if (session == null) return const SizedBox.shrink();
+    final isPushed = ModalRoute.of(context)?.canPop ?? false;
+
+    if (session == null) {
+      if (isPushed) {
+        return ForgeBackground(
+          child: Scaffold(
+            backgroundColor: Colors.transparent,
+            appBar: AppBar(
+              backgroundColor: ForgeColors.ink.withValues(alpha: 0.92),
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              title: Text('SETTINGS', style: ForgeTheme.mono(11, letterSpacing: 2)),
+            ),
+            body: const Center(
+              child: Text('No active session.', style: TextStyle(color: ForgeColors.mute)),
+            ),
+          ),
+        );
+      }
+      return const SizedBox.shrink();
+    }
     final user = session.user;
     final gym = session.gym;
 
-    return ForgePage(
+    final content = ForgePage(
       maxWidth: 980,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -344,5 +364,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+
+    if (isPushed) {
+      return ForgeBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: ForgeColors.ink.withValues(alpha: 0.92),
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
+            title: Text('SETTINGS', style: ForgeTheme.mono(11, letterSpacing: 2)),
+          ),
+          body: content,
+        ),
+      );
+    }
+
+    return content;
   }
 }

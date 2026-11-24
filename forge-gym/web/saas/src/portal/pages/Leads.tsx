@@ -169,25 +169,27 @@ export default function Leads() {
         <FormError message={error} />
       </div>
       <Async state={list} label="Loading enquiries">
-        {({ leads, today, statuses }) => {
-          const open = leads.filter((l) => OPEN.includes(l.status));
+        {({ leads = [], today, statuses = [] }) => {
+          const safeLeads = Array.isArray(leads) ? leads : [];
+          const safeStatuses = Array.isArray(statuses) ? statuses : [];
+          const open = safeLeads.filter((l) => OPEN.includes(l.status));
           const due = open.filter((l) => l.followUpOn && l.followUpOn <= today).sort((a, b) => a.followUpOn!.localeCompare(b.followUpOn!));
           const later = open.filter((l) => !due.includes(l));
-          const closed = leads.filter((l) => !OPEN.includes(l.status));
+          const closed = safeLeads.filter((l) => !OPEN.includes(l.status));
           return (
             <div className="space-y-6">
-              {addons.leadFollowup && (
+              {addons?.leadFollowup && (
                 <Panel title={`Follow-up queue (${due.length})`} hint="Enquiries due today or overdue, oldest first." actions={<AddonTag />}>
-                  {due.length === 0 ? <Empty title="Queue is clear">No follow-ups are due today.</Empty> : due.map((l) => leadRow(l, today, statuses))}
+                  {due.length === 0 ? <Empty title="Queue is clear">No follow-ups are due today.</Empty> : due.map((l) => leadRow(l, today, safeStatuses))}
                 </Panel>
               )}
-              <Panel title={addons.leadFollowup ? `Upcoming (${later.length})` : `Open enquiries (${open.length})`}>
-                {(addons.leadFollowup ? later : open).length === 0 ? (
+              <Panel title={addons?.leadFollowup ? `Upcoming (${later.length})` : `Open enquiries (${open.length})`}>
+                {(addons?.leadFollowup ? later : open).length === 0 ? (
                   <Empty title="No open enquiries" action={<Btn onClick={() => setEditing('new')}>Add an enquiry</Btn>}>
                     Enquiries from your website form land here automatically.
                   </Empty>
                 ) : (
-                  (addons.leadFollowup ? later : open).map((l) => leadRow(l, today, statuses))
+                  (addons?.leadFollowup ? later : open).map((l) => leadRow(l, today, safeStatuses))
                 )}
               </Panel>
               <Panel
@@ -200,7 +202,7 @@ export default function Leads() {
                   ) : undefined
                 }
               >
-                {closed.length === 0 ? <Empty title="Nothing closed yet" /> : showClosed ? closed.map((l) => leadRow(l, today, statuses)) : <p className="px-4 py-4 text-sm text-mute sm:px-5">Joined and not-joining enquiries are kept here.</p>}
+                {closed.length === 0 ? <Empty title="Nothing closed yet" /> : showClosed ? closed.map((l) => leadRow(l, today, safeStatuses)) : <p className="px-4 py-4 text-sm text-mute sm:px-5">Joined and not-joining enquiries are kept here.</p>}
               </Panel>
             </div>
           );

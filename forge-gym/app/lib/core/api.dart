@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import '../models.dart';
-import 'mock_data.dart';
 
 /// Where the app talks to by default. Override with
 /// `--dart-define=API_BASE_URL=http://localhost:4000` when running locally.
@@ -60,33 +59,21 @@ class ApiClient {
   }) async {
     final uri = Uri.parse('$_baseUrl/api$path');
 
-    // Attempt live database server request
+    final http.Response response;
     try {
-      final response = await _send(
+      response = await _send(
         uri,
         method: method,
         body: body,
         headers: headers,
-      ).timeout(const Duration(seconds: 8));
-
-      final contentType = response.headers['content-type'] ?? '';
-      if (contentType.contains('application/json')) {
-        return _decode(response);
-      }
-      return MockData.handleRequest(path, method: method, body: body);
-    } on ApiException catch (err) {
-      if (err.isAuth && path == '/auth/login') {
-        rethrow;
-      }
-      // If server returned an error (e.g. 404/401/500), let it throw or fall back if unreachable
-      if (err.isUnreachable) {
-        return MockData.handleRequest(path, method: method, body: body);
-      }
-      rethrow;
+      ).timeout(const Duration(seconds: 12));
+    } on TimeoutException {
+      throw const ApiException(0, 'The gym server did not respond. Check the API address and try again.', code: 'offline');
     } catch (_) {
-      // Offline fallback
-      return MockData.handleRequest(path, method: method, body: body);
+      throw const ApiException(0, 'Could not reach the gym server. Check the API address and try again.', code: 'offline');
     }
+
+    return _decode(response);
   }
 
   Future<http.Response> _send(Uri uri, {required String method, Object? body, Map<String, String>? headers}) async {
@@ -269,6 +256,8 @@ class ApiClient {
   Future<Json> timetable() => request('/coach/timetable');
 
   Future<void> addClass(Json body) => request('/coach/timetable', method: 'POST', body: body);
+
+  Future<void> editClass(String id, Json body) => request('/coach/timetable/$id', method: 'PUT', body: body);
 
   Future<void> deleteClass(String id) => request('/coach/timetable/$id', method: 'DELETE');
 

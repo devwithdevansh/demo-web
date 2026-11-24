@@ -5,7 +5,7 @@ import '../models.dart';
 /// Member Portal, Settings, Videos, Reports) when running offline or without an active backend.
 class MockData {
   static final GymSession sampleGym = GymSession(
-    name: 'Ironpeak Fitness (Sample Gym)',
+    name: 'Iron Forge Gym',
     package: 'performance',
     addons: {
       'whatsapp': true,
@@ -22,7 +22,7 @@ class MockData {
       id: 'usr_owner_1',
       name: 'Owner 1',
       role: 'owner',
-      title: 'Gym Owner & Head Coach',
+      title: 'Gym Owner',
     ),
     'staff': const ForgeUser(
       id: 'usr_staff_1',
@@ -180,7 +180,13 @@ class MockData {
           'expiryDate': expiry,
           'feeDue': feeDue,
           'trainerId': jsonBody['trainerId'] != null ? str(jsonBody['trainerId']) : null,
-          'trainerName': jsonBody['trainerId'] != null ? 'Alex Rey' : null,
+          'trainerName': jsonBody['trainerId'] == null
+              ? null
+              : str(jsonBody['trainerId']) == 'usr_trainer_2'
+                  ? 'Trainer 2'
+                  : str(jsonBody['trainerId']) == 'usr_trainer_3'
+                      ? 'Trainer 3'
+                      : 'Trainer 1',
           'notes': str(jsonBody['notes'], ''),
           'ptTotal': intOf(jsonBody['ptTotal'], 0),
           'ptUsed': 0,
@@ -443,8 +449,16 @@ class MockData {
 
     // 10. Coach routes
     if (cleanPath == '/coach/overview') {
-      final trainerName = activeRole == 'trainer2' ? 'Test Trainer 2' : 'Test Trainer 1';
-      final trainerTitle = activeRole == 'trainer2' ? 'Fitness Coach' : 'Senior Strength Coach';
+      final trainerName = activeRole == 'trainer3'
+          ? 'Trainer 3'
+          : activeRole == 'trainer2'
+              ? 'Trainer 2'
+              : 'Trainer 1';
+      final trainerTitle = activeRole == 'trainer3'
+          ? 'Conditioning Coach'
+          : activeRole == 'trainer2'
+              ? 'Fitness Coach'
+              : 'Head Strength Coach';
       final now = DateTime.now();
       const weekdaysShort = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
       const weekdaysFull = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -472,8 +486,8 @@ class MockData {
           'lastLog': 'Bench Press 80kg x 6 reps · RPE 8',
         }).toList(),
         'tasks': [
-          {'id': 't1', 'title': 'Review Test Member 1 workout log', 'done': false, 'memberId': 'mem_1'},
-          {'id': 't2', 'title': 'Send new diet recommendations to Test Member 2', 'done': true, 'memberId': 'mem_2'},
+          {'id': 't1', 'title': 'Review Member 1 workout log', 'done': false, 'memberId': 'mem_1'},
+          {'id': 't2', 'title': 'Send new diet recommendations to Member 2', 'done': true, 'memberId': 'mem_2'},
         ],
         'classesToday': todayClasses.isNotEmpty ? todayClasses : _slots.take(2).toList(),
       };
@@ -537,7 +551,7 @@ class MockData {
       if (m == 'POST') {
         final tId = str(jsonBody['trainerId'], 'usr_trainer_1');
         final tMatch = _team.firstWhere((t) => t['id'] == tId, orElse: () => <String, dynamic>{});
-        final tName = str(tMatch['name'], 'Test Trainer 1');
+        final tName = str(tMatch['name'], 'Trainer 1');
         final newSlot = {
           'id': 'slot_${DateTime.now().millisecondsSinceEpoch}',
           'name': str(jsonBody['name'], 'New Class'),
@@ -573,7 +587,7 @@ class MockData {
           'id': 'ann_${DateTime.now().millisecondsSinceEpoch}',
           'title': str(jsonBody['title'], 'New Announcement'),
           'body': str(jsonBody['body'], str(jsonBody['message'], '')),
-          'postedBy': activeRole.contains('trainer') ? 'Test Trainer 1' : 'Test Owner 1',
+          'postedBy': activeRole.contains('trainer') ? 'Trainer 1' : 'Owner 1',
           'date': 'Today',
           'createdAt': DateTime.now().toIso8601String(),
         };
@@ -597,7 +611,7 @@ class MockData {
       final now = DateTime.now();
       const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
       final weekdayName = weekdays[now.weekday - 1];
-      final targetName = activeRole == 'member2' ? 'Test Member 2' : 'Test Member 1';
+      final targetName = activeRole == 'member2' ? 'Member 2' : 'Member 1';
       final member = _members.firstWhere((m) => m['name'] == targetName, orElse: () => _members.first);
 
       return {
@@ -611,7 +625,7 @@ class MockData {
           now.subtract(const Duration(days: 3)).toIso8601String().substring(0, 10),
         ],
         'announcements': _announcements,
-        'slots': member['slots'] != null ? member['slots'] : _slots,
+        'slots': member['slots'] ?? _slots,
         'videos': _videos,
         'gymCheckinCode': 'FORGE-8842',
         'autopayAddon': true,
@@ -620,7 +634,7 @@ class MockData {
     }
 
     if (cleanPath == '/portal/checkin') {
-      final targetName = activeRole == 'member2' ? 'Test Member 2' : 'Test Member 1';
+      final targetName = activeRole == 'member2' ? 'Member 2' : 'Member 1';
       return {'ok': true, 'member': targetName, 'time': 'Just now'};
     }
 
@@ -731,14 +745,14 @@ class MockData {
       return {
         'addons': sampleGym.addons,
         'providers': {
-          'whatsapp': {'status': 'connected', 'phone': '+91 98765 43210'},
+          'whatsapp': {'status': 'connected', 'phone': '+91 00000 00000'},
           'upi': {'status': 'active', 'vpa': 'forgegym@upi'},
           'autopay': {'status': 'active'},
         },
         'activity': [
-          {'action': 'WhatsApp renewal reminder sent to Test Member 2', 'time': '10:30 AM', 'status': 'delivered'},
-          {'action': 'UPI payment link created for Test Member 1 (₹1,499)', 'time': '09:15 AM', 'status': 'sent'},
-          {'action': 'Autopay mandate approved for Test Member 1', 'time': 'Yesterday', 'status': 'success'},
+          {'action': 'WhatsApp renewal reminder sent to Member 2', 'time': '10:30 AM', 'status': 'delivered'},
+          {'action': 'UPI payment link created for Member 1 (₹1,499)', 'time': '09:15 AM', 'status': 'sent'},
+          {'action': 'Autopay mandate approved for Member 1', 'time': 'Yesterday', 'status': 'success'},
         ],
       };
     }
@@ -767,7 +781,7 @@ class MockData {
             'memberCount': 0,
             'createdAt': DateTime.now().toIso8601String().substring(0, 10),
             'lastUsedAt': 'Just now',
-            'owner': {'name': str(jsonBody['ownerName'], 'Test Owner 1'), 'email': str(jsonBody['ownerEmail'], '')},
+            'owner': {'name': str(jsonBody['ownerName'], 'Owner 1'), 'email': str(jsonBody['ownerEmail'], '')},
             'addons': sampleGym.addons,
           }
         };
@@ -776,12 +790,12 @@ class MockData {
         'gyms': [
           {
             'id': 'gym_demo_1',
-            'name': 'Ironpeak Fitness',
+            'name': 'Iron Forge Gym',
             'package': 'performance',
             'memberCount': _members.length,
             'createdAt': '2026-01-15',
             'lastUsedAt': 'Just now',
-            'owner': {'name': 'Test Owner 1', 'email': 'owner1@forge.demo'},
+            'owner': {'name': 'Owner 1', 'email': 'owner1@gmail.com'},
             'addons': sampleGym.addons,
           }
         ]
@@ -802,29 +816,30 @@ class MockData {
   // --- Seed Initializers ---
 
   static List<Json> _initPlans() => [
-    {'id': 'plan_monthly', 'name': 'Single Month', 'price': 1499, 'durationMonths': 1, 'active': true},
-    {'id': 'plan_quarterly', 'name': 'Quarterly Fit', 'price': 3799, 'durationMonths': 3, 'active': true},
-    {'id': 'plan_halfyear', 'name': 'Half-Year Transformation', 'price': 6499, 'durationMonths': 6, 'active': true},
-    {'id': 'plan_annual', 'name': 'Annual Peak', 'price': 10999, 'durationMonths': 12, 'active': true},
-    {'id': 'plan_pt12', 'name': 'Personal Training (12 Sessions)', 'price': 7999, 'durationMonths': 3, 'active': true},
+    {'id': 'plan_basic', 'name': 'Basic Monthly', 'price': 1499, 'durationMonths': 1, 'active': true},
+    {'id': 'plan_pro', 'name': 'Pro Monthly', 'price': 2999, 'durationMonths': 1, 'active': true},
+    {'id': 'plan_quarterly', 'name': 'Pro Quarterly', 'price': 7999, 'durationMonths': 3, 'active': true},
+    {'id': 'plan_elite_monthly', 'name': 'Elite Monthly', 'price': 5499, 'durationMonths': 1, 'active': true},
+    {'id': 'plan_elite_yearly', 'name': 'Elite Yearly', 'price': 54990, 'durationMonths': 12, 'active': true},
   ];
 
   static List<Json> _initMembers() {
     final now = DateTime.now();
+    String dateIn(int days) => now.add(Duration(days: days)).toIso8601String().substring(0, 10);
     final start = now.subtract(const Duration(days: 60)).toIso8601String().substring(0, 10);
     return [
       {
         'id': 'mem_1',
         'memberCode': 'IP-1001',
         'name': 'Member 1',
-        'phone': '+91 98000 00001',
+        'phone': '+91 99999 00006',
         'email': 'member1@gmail.com',
         'category': 'Strength',
-        'planId': 'plan_quarterly',
-        'planName': 'Quarterly Fit',
-        'planPrice': 3799,
+        'planId': 'plan_pro',
+        'planName': 'Pro Monthly',
+        'planPrice': 2999,
         'startDate': start,
-        'expiryDate': now.add(const Duration(days: 18)).toIso8601String().substring(0, 10),
+        'expiryDate': dateIn(22),
         'feeDue': 0,
         'trainerId': 'usr_trainer_1',
         'trainerName': 'Trainer 1',
@@ -832,9 +847,9 @@ class MockData {
         'ptTotal': 12,
         'ptUsed': 7,
         'autopayStatus': 'active',
-        'autopayAmount': 3799,
+        'autopayAmount': 2999,
         'status': 'active',
-        'daysLeft': 18,
+        'daysLeft': 22,
         'hasAppAccess': true,
         'createdAt': start,
         'workout': _sampleWorkout(),
@@ -844,21 +859,21 @@ class MockData {
         'id': 'mem_2',
         'memberCode': 'IP-1002',
         'name': 'Member 2',
-        'phone': '+91 98000 00002',
+        'phone': '+91 99999 00007',
         'email': 'member2@gmail.com',
         'category': 'Weight loss',
-        'planId': 'plan_monthly',
-        'planName': 'Single Month',
+        'planId': 'plan_basic',
+        'planName': 'Basic Monthly',
         'planPrice': 1499,
         'startDate': start,
-        'expiryDate': now.add(const Duration(days: 3)).toIso8601String().substring(0, 10),
+        'expiryDate': dateIn(3),
         'feeDue': 1500,
         'trainerId': 'usr_trainer_2',
         'trainerName': 'Trainer 2',
         'notes': 'Renewal due soon, focus on fat loss circuit.',
         'ptTotal': 0,
         'ptUsed': 0,
-        'autopayStatus': 'inactive',
+        'autopayStatus': 'requested',
         'autopayAmount': 1499,
         'status': 'active',
         'daysLeft': 3,
@@ -871,14 +886,14 @@ class MockData {
         'id': 'mem_3',
         'memberCode': 'IP-1003',
         'name': 'Member 3',
-        'phone': '+91 98000 00003',
+        'phone': '+91 99999 00008',
         'email': 'member3@gmail.com',
         'category': 'General fitness',
-        'planId': 'plan_monthly',
-        'planName': 'Single Month',
+        'planId': 'plan_basic',
+        'planName': 'Basic Monthly',
         'planPrice': 1499,
         'startDate': start,
-        'expiryDate': now.subtract(const Duration(days: 2)).toIso8601String().substring(0, 10),
+        'expiryDate': dateIn(-2),
         'feeDue': 0,
         'trainerId': null,
         'trainerName': null,
@@ -898,24 +913,24 @@ class MockData {
         'id': 'mem_4',
         'memberCode': 'IP-1004',
         'name': 'Member 4',
-        'phone': '+91 98000 00004',
+        'phone': '+91 99999 00009',
         'email': 'member4@gmail.com',
         'category': 'Weight loss',
         'planId': 'plan_quarterly',
         'planName': 'Pro Quarterly',
         'planPrice': 7999,
         'startDate': start,
-        'expiryDate': now.add(const Duration(days: 41)).toIso8601String().substring(0, 10),
+        'expiryDate': dateIn(43),
         'feeDue': 0,
         'trainerId': 'usr_trainer_2',
         'trainerName': 'Trainer 2',
         'notes': 'Progressing well on cardio circuit.',
         'ptTotal': 8,
         'ptUsed': 3,
-        'autopayStatus': 'active',
-        'autopayAmount': 7999,
+        'autopayStatus': 'none',
+        'autopayAmount': 0,
         'status': 'active',
-        'daysLeft': 41,
+        'daysLeft': 43,
         'hasAppAccess': true,
         'createdAt': start,
         'workout': _sampleWorkout(),
@@ -925,24 +940,24 @@ class MockData {
         'id': 'mem_5',
         'memberCode': 'IP-1005',
         'name': 'Member 5',
-        'phone': '+91 98000 00005',
+        'phone': '+91 99999 00010',
         'email': 'member5@gmail.com',
         'category': 'Strength',
-        'planId': 'plan_yearly',
+        'planId': 'plan_elite_yearly',
         'planName': 'Elite Yearly',
         'planPrice': 54990,
         'startDate': start,
-        'expiryDate': now.add(const Duration(days: 212)).toIso8601String().substring(0, 10),
+        'expiryDate': dateIn(190),
         'feeDue': 0,
         'trainerId': 'usr_trainer_1',
         'trainerName': 'Trainer 1',
-        'notes': 'Yearly VIP member, advanced strength lifting.',
+        'notes': 'Yearly member, advanced strength lifting.',
         'ptTotal': 24,
         'ptUsed': 10,
-        'autopayStatus': 'active',
-        'autopayAmount': 54990,
+        'autopayStatus': 'none',
+        'autopayAmount': 0,
         'status': 'active',
-        'daysLeft': 212,
+        'daysLeft': 190,
         'hasAppAccess': true,
         'createdAt': start,
         'workout': _sampleWorkout(),
@@ -1009,64 +1024,67 @@ class MockData {
     }
 
     return [
-      {'id': 'chk_1', 'memberId': 'mem_1', 'name': 'Test Member 1', 'memberCode': 'F-1001', 'time': timeAgo(15), 'method': 'qr'},
-      {'id': 'chk_2', 'memberId': 'mem_2', 'name': 'Test Member 2', 'memberCode': 'F-1002', 'time': timeAgo(45), 'method': 'manual'},
+      {'id': 'chk_1', 'memberId': 'mem_1', 'name': 'Member 1', 'memberCode': 'IP-1001', 'time': timeAgo(15), 'method': 'qr'},
+      {'id': 'chk_2', 'memberId': 'mem_2', 'name': 'Member 2', 'memberCode': 'IP-1002', 'time': timeAgo(45), 'method': 'qr'},
+      {'id': 'chk_3', 'memberId': 'mem_4', 'name': 'Member 4', 'memberCode': 'IP-1004', 'time': timeAgo(180), 'method': 'manual'},
     ];
   }
 
   static List<Json> _initPayments() {
     final now = DateTime.now();
     return [
-      {'id': 'pay_1', 'memberId': 'mem_1', 'memberName': 'Test Member 1', 'memberCode': 'F-1001', 'amount': 3799, 'method': 'upi', 'note': 'Quarterly Fit', 'createdAt': now.toIso8601String()},
-      {'id': 'pay_2', 'memberId': 'mem_2', 'memberName': 'Test Member 2', 'memberCode': 'F-1002', 'amount': 1499, 'method': 'cash', 'note': 'Single Month Renewal', 'createdAt': now.subtract(const Duration(days: 1)).toIso8601String()},
+      {'id': 'pay_1', 'memberId': 'mem_1', 'memberName': 'Member 1', 'memberCode': 'IP-1001', 'amount': 2999, 'method': 'upi', 'note': 'Pro Monthly fee', 'paidOn': now.subtract(const Duration(days: 15)).toIso8601String().substring(0, 10), 'createdAt': now.subtract(const Duration(days: 15)).toIso8601String()},
+      {'id': 'pay_2', 'memberId': 'mem_4', 'memberName': 'Member 4', 'memberCode': 'IP-1004', 'amount': 7999, 'method': 'upi', 'note': 'Pro Quarterly fee', 'paidOn': now.subtract(const Duration(days: 40)).toIso8601String().substring(0, 10), 'createdAt': now.subtract(const Duration(days: 40)).toIso8601String()},
+      {'id': 'pay_3', 'memberId': 'mem_5', 'memberName': 'Member 5', 'memberCode': 'IP-1005', 'amount': 54990, 'method': 'bank', 'note': 'Elite Yearly fee', 'paidOn': now.subtract(const Duration(days: 90)).toIso8601String().substring(0, 10), 'createdAt': now.subtract(const Duration(days: 90)).toIso8601String()},
     ];
   }
 
   static List<Json> _initLeads() => [
-    {'id': 'lead_1', 'name': 'Test Lead 1', 'phone': '+91 98000 00011', 'status': 'trial', 'notes': 'Attended trial today, interested in Annual plan', 'followUpDate': 'Tomorrow', 'createdAt': '2026-11-18'},
-    {'id': 'lead_2', 'name': 'Test Lead 2', 'phone': '+91 98000 00012', 'status': 'contacted', 'notes': 'Wants morning slot personal training', 'followUpDate': 'In 2 days', 'createdAt': '2026-11-17'},
+    {'id': 'lead_1', 'name': 'Lead 1', 'phone': '+91 99999 00020', 'source': 'website', 'status': 'new', 'interest': 'Pro plan', 'notes': 'Asked about the morning batch.', 'followUpDate': 'Today', 'createdAt': '2026-11-18'},
+    {'id': 'lead_2', 'name': 'Lead 2', 'phone': '+91 99999 00021', 'source': 'walk-in', 'status': 'contacted', 'interest': 'Personal training', 'notes': 'Wants a trial session with a trainer.', 'followUpDate': 'Tomorrow', 'createdAt': '2026-11-17'},
+    {'id': 'lead_3', 'name': 'Lead 3', 'phone': '+91 99999 00022', 'source': 'instagram', 'status': 'trial', 'interest': 'Basic or Pro plan', 'notes': 'Trial done on Saturday. Deciding between two plans.', 'followUpDate': 'Today', 'createdAt': '2026-11-16'},
   ];
 
   static List<Json> _initTeam() => [
-    {'id': 'usr_owner_1', 'name': 'Owner 1', 'role': 'owner', 'title': 'Founder & Head Coach', 'phone': '+91 98000 11111', 'email': 'owner1@gmail.com', 'active': true},
-    {'id': 'usr_staff_1', 'name': 'Staff 1', 'role': 'staff', 'title': 'Front Desk & Operations', 'phone': '+91 98000 22221', 'email': 'staff1@gmail.com', 'active': true},
-    {'id': 'usr_trainer_1', 'name': 'Trainer 1', 'role': 'trainer', 'title': 'Head Strength Coach', 'phone': '+91 98000 33331', 'email': 'trainer1@gmail.com', 'active': true},
-    {'id': 'usr_trainer_2', 'name': 'Trainer 2', 'role': 'trainer', 'title': 'Fitness & Nutrition Coach', 'phone': '+91 98000 33332', 'email': 'trainer2@gmail.com', 'active': true},
-    {'id': 'usr_trainer_3', 'name': 'Trainer 3', 'role': 'trainer', 'title': 'Conditioning Coach', 'phone': '+91 98000 33333', 'email': 'trainer3@gmail.com', 'active': true},
+    {'id': 'usr_owner_1', 'name': 'Owner 1', 'role': 'owner', 'title': 'Gym Owner', 'phone': '+91 99999 00001', 'email': 'owner1@gmail.com', 'active': true, 'members': 0},
+    {'id': 'usr_staff_1', 'name': 'Staff 1', 'role': 'staff', 'title': 'Front Desk & Operations', 'phone': '+91 99999 00002', 'email': 'staff1@gmail.com', 'active': true, 'members': 0},
+    {'id': 'usr_trainer_1', 'name': 'Trainer 1', 'role': 'trainer', 'title': 'Head Strength Coach', 'phone': '+91 99999 00003', 'email': 'trainer1@gmail.com', 'active': true, 'members': 2},
+    {'id': 'usr_trainer_2', 'name': 'Trainer 2', 'role': 'trainer', 'title': 'Fitness Coach', 'phone': '+91 99999 00004', 'email': 'trainer2@gmail.com', 'active': true, 'members': 2},
+    {'id': 'usr_trainer_3', 'name': 'Trainer 3', 'role': 'trainer', 'title': 'Conditioning Coach', 'phone': '+91 99999 00005', 'email': 'trainer3@gmail.com', 'active': true, 'members': 1},
   ];
 
   static List<Json> _initAnnouncements() => [
-    {'id': 'ann_1', 'title': 'New Eleiko Olympic Barbells Arrived!', 'body': '3 new competition barbells and bumper plates have been added to platforms 1-3.', 'postedBy': 'Test Owner 1', 'createdAt': 'Today'},
-    {'id': 'ann_2', 'title': 'Strength Workshop: Clean & Jerk Masterclass', 'body': 'Saturday at 10:00 AM with Test Trainer 1. Free entry for all active members.', 'postedBy': 'Test Trainer 1', 'createdAt': 'Yesterday'},
-    {'id': 'ann_3', 'title': 'Holiday Timings Reminder', 'body': 'Gym open from 06:00 AM to 01:00 PM on Sunday. Evening slots closed.', 'postedBy': 'Test Staff 1', 'createdAt': '3 days ago'},
+    {'id': 'ann_1', 'title': 'Sunday timings', 'body': 'From this Sunday the gym is open 7:00 AM to 1:00 PM. Evening slots stay closed on Sundays.', 'postedBy': 'Owner 1', 'createdAt': 'Yesterday'},
+    {'id': 'ann_2', 'title': 'New Saturday mobility class', 'body': 'Mobility class every Saturday at 10:30 AM. Open to all plans.', 'postedBy': 'Owner 1', 'createdAt': '4 days ago'},
+    {'id': 'ann_3', 'title': 'Please carry a towel', 'body': 'A quick reminder to carry a hand towel and wipe down equipment after use.', 'postedBy': 'Staff 1', 'createdAt': '9 days ago'},
   ];
 
   static List<Json> _initVideos() => [
-    {'id': 'vid_1', 'title': 'Flawless Barbell Squat Form', 'category': 'Workout Form', 'duration': '5:24', 'description': 'Hip drive, bracing and knee tracking breakdown.', 'videoUrl': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'},
-    {'id': 'vid_2', 'title': 'Bench Press Arch & Shoulder Safety', 'category': 'Workout Form', 'duration': '4:10', 'description': 'Protect your rotator cuffs while pressing heavy.', 'videoUrl': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4'},
-    {'id': 'vid_3', 'title': 'Conventional Deadlift Setup', 'category': 'Workout Form', 'duration': '6:45', 'description': 'Bar path, hip hinge and lats engagement.', 'videoUrl': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'},
-    {'id': 'vid_4', 'title': '10-Minute Full Body Mobility Flow', 'category': 'Workout Form', 'duration': '10:00', 'description': 'Hip flexors, thoracic spine and ankle mobility routine.', 'videoUrl': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4'},
+    {'id': 'vid_1', 'title': 'How To Deadlift with Perfect Form (Avoid Injury)', 'category': 'Workout Form', 'duration': '5:24', 'description': 'Master the barbell deadlift: hip hinge, bracing, foot stance, and bar path.', 'videoUrl': 'https://www.youtube.com/watch?v=op9kVnSso6Q', 'pinned': true},
+    {'id': 'vid_2', 'title': 'How to Squat Properly: Step by Step Guide', 'category': 'Legs & Glutes', 'duration': '6:45', 'description': 'Full barbell squat technique breakdown for knee safety and maximum quad growth.', 'videoUrl': 'https://www.youtube.com/watch?v=bEv6CCg2BC8', 'pinned': true},
+    {'id': 'vid_3', 'title': '10-Minute Full Body Warm-Up & Mobility Routine', 'category': 'Warmup & Mobility', 'duration': '10:00', 'description': 'Do this dynamic warmup before every gym session to prevent muscle strain.', 'videoUrl': 'https://www.youtube.com/watch?v=uA_Mbmw2yD4', 'pinned': false},
+    {'id': 'vid_4', 'title': 'Perfect Bench Press: Stop Hurting Your Shoulders', 'category': 'Chest & Arms', 'duration': '4:10', 'description': 'Scapular retraction, arch, leg drive, and bar tuck for a bigger, safer chest press.', 'videoUrl': 'https://www.youtube.com/watch?v=vcBig73ojpE', 'pinned': false},
   ];
 
   static List<Json> _initSlots() => [
-    {'id': 'slot_1', 'name': 'Morning HIIT & Conditioning', 'title': 'Morning HIIT & Conditioning', 'trainer': 'Test Trainer 1', 'trainerName': 'Test Trainer 1', 'time': '07:00 AM - 08:00 AM', 'day': 'Mon, Wed, Fri', 'spots': 15, 'enrolled': 12, 'durationMin': 60},
-    {'id': 'slot_2', 'name': 'Olympic Lifting Foundations', 'title': 'Olympic Lifting Foundations', 'trainer': 'Test Trainer 2', 'trainerName': 'Test Trainer 2', 'time': '09:00 AM - 10:30 AM', 'day': 'Tue, Thu, Sat', 'spots': 8, 'enrolled': 8, 'durationMin': 90},
-    {'id': 'slot_3', 'name': 'Evening Power Strength Hour', 'title': 'Evening Power Strength Hour', 'trainer': 'Test Trainer 1', 'trainerName': 'Test Trainer 1', 'time': '06:00 PM - 07:00 PM', 'day': 'Daily', 'spots': 20, 'enrolled': 16, 'durationMin': 60},
-    {'id': 'slot_4', 'name': 'Mobility & Recovery Flow', 'title': 'Mobility & Recovery Flow', 'trainer': 'Test Trainer 2', 'trainerName': 'Test Trainer 2', 'time': '07:30 PM - 08:15 PM', 'day': 'Tue, Thu', 'spots': 12, 'enrolled': 9, 'durationMin': 45},
+    {'id': 'slot_1', 'name': 'Strength', 'title': 'Strength', 'trainer': 'Trainer 1', 'trainerName': 'Trainer 1', 'time': '06:00 AM - 07:00 AM', 'day': 'MON', 'spots': 15, 'enrolled': 12, 'durationMin': 60},
+    {'id': 'slot_2', 'name': 'HIIT', 'title': 'HIIT', 'trainer': 'Trainer 2', 'trainerName': 'Trainer 2', 'time': '07:30 AM - 08:15 AM', 'day': 'MON', 'spots': 8, 'enrolled': 8, 'durationMin': 45},
+    {'id': 'slot_3', 'name': 'Boxing', 'title': 'Boxing', 'trainer': 'Trainer 3', 'trainerName': 'Trainer 3', 'time': '06:00 PM - 07:00 PM', 'day': 'MON', 'spots': 20, 'enrolled': 16, 'durationMin': 60},
+    {'id': 'slot_4', 'name': 'Mobility', 'title': 'Mobility', 'trainer': 'Trainer 2', 'trainerName': 'Trainer 2', 'time': '07:30 PM - 08:15 PM', 'day': 'TUE', 'spots': 12, 'enrolled': 9, 'durationMin': 45},
   ];
 
   static List<Json> _initSampleLogs(String memberName) => [
     {
       'id': 'log_1',
       'date': 'Yesterday',
-      'author': 'Test Trainer 1',
+      'author': 'Trainer 1',
       'note': 'Bench press hit 80kg x 6 cleanly (RPE 8). Form on overhead press was much tighter.',
       'metrics': {'weight': '74.2 kg', 'bodyFat': '14.8%'},
     },
     {
       'id': 'log_2',
       'date': 'Last week',
-      'author': 'Test Trainer 1',
+      'author': 'Trainer 1',
       'note': 'Squat depth was spot on. Increased working weight to 105kg for 4 sets of 6.',
       'metrics': {'weight': '74.5 kg'},
     },

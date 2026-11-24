@@ -5,34 +5,34 @@ const DAYS = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
 const SCHEDULE: Record<string, { time: string; name: string; coach: string }[]> = {
   MON: [
-    { time: '06:00', name: 'Strength', coach: 'Alex Rey' },
-    { time: '07:30', name: 'HIIT', coach: 'Priya Nair' },
-    { time: '18:00', name: 'Boxing', coach: 'Rahul Mehta' },
+    { time: '06:00', name: 'Strength', coach: 'Trainer 1' },
+    { time: '07:30', name: 'HIIT', coach: 'Trainer 2' },
+    { time: '18:00', name: 'Boxing', coach: 'Trainer 3' },
   ],
   TUE: [
-    { time: '06:30', name: 'Mobility', coach: 'Sara Kade' },
-    { time: '18:00', name: 'CrossFit', coach: 'Rahul Mehta' },
-    { time: '19:30', name: 'Yoga', coach: 'Sara Kade' },
+    { time: '06:30', name: 'Mobility', coach: 'Trainer 2' },
+    { time: '18:00', name: 'CrossFit', coach: 'Trainer 3' },
+    { time: '19:30', name: 'Yoga', coach: 'Trainer 2' },
   ],
   WED: [
-    { time: '06:00', name: 'Strength', coach: 'Alex Rey' },
-    { time: '18:00', name: 'HIIT', coach: 'Priya Nair' },
+    { time: '06:00', name: 'Strength', coach: 'Trainer 1' },
+    { time: '18:00', name: 'HIIT', coach: 'Trainer 2' },
   ],
   THU: [
-    { time: '06:30', name: 'Boxing', coach: 'Rahul Mehta' },
-    { time: '18:00', name: 'CrossFit', coach: 'Rahul Mehta' },
-    { time: '19:30', name: 'Mobility', coach: 'Sara Kade' },
+    { time: '06:30', name: 'Boxing', coach: 'Trainer 3' },
+    { time: '18:00', name: 'CrossFit', coach: 'Trainer 3' },
+    { time: '19:30', name: 'Mobility', coach: 'Trainer 2' },
   ],
   FRI: [
-    { time: '06:00', name: 'Strength', coach: 'Alex Rey' },
-    { time: '07:30', name: 'HIIT', coach: 'Priya Nair' },
-    { time: '18:00', name: 'Yoga', coach: 'Sara Kade' },
+    { time: '06:00', name: 'Strength', coach: 'Trainer 1' },
+    { time: '07:30', name: 'HIIT', coach: 'Trainer 2' },
+    { time: '18:00', name: 'Yoga', coach: 'Trainer 2' },
   ],
   SAT: [
-    { time: '08:00', name: 'CrossFit', coach: 'Rahul Mehta' },
-    { time: '09:30', name: 'Boxing', coach: 'Rahul Mehta' },
+    { time: '08:00', name: 'CrossFit', coach: 'Trainer 3' },
+    { time: '09:30', name: 'Boxing', coach: 'Trainer 3' },
   ],
-  SUN: [{ time: '09:00', name: 'Mobility', coach: 'Sara Kade' }],
+  SUN: [{ time: '09:00', name: 'Mobility', coach: 'Trainer 2' }],
 };
 
 export function Classes() {

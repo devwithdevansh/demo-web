@@ -37,9 +37,9 @@ void main() {
     });
 
     test('initials and firstName', () {
-      expect(initials('Aarav Shah'), 'AS');
-      expect(initials('Rhea'), 'R');
-      expect(firstName('  Imran Shaikh '), 'Imran');
+      expect(initials('Member 1'), 'M1');
+      expect(initials('Owner 1'), 'O1');
+      expect(firstName('  Staff 1 '), 'Staff');
     });
 
     test('relDays describes remaining days', () {

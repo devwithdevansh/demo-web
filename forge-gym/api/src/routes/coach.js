@@ -35,7 +35,7 @@ router.get('/timetable', async (req, res) => {
 
 router.post(
   '/timetable',
-  owner,
+  coaches,
   demoCap(ClassSlot, 80),
   body(
     z.object({
@@ -56,7 +56,35 @@ router.post(
   },
 );
 
-router.delete('/timetable/:id', owner, async (req, res) => {
+router.put(
+  '/timetable/:id',
+  coaches,
+  body(
+    z.object({
+      day: z.enum(WEEKDAYS).optional(),
+      time: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Use a time like 18:30.').optional(),
+      name: z.string().trim().min(2, 'Name the class.').max(60).optional(),
+      durationMin: z.number().int().min(10).max(180).optional(),
+      trainerId: zId.nullable().optional(),
+    }),
+  ),
+  async (req, res) => {
+    const slot = await findOwned(ClassSlot, req, req.params.id, 'Class');
+    const { trainerId, day, time, name, durationMin } = req.data;
+    if (trainerId && !(await User.exists({ _id: trainerId, gymId: req.gymId, role: 'trainer' }))) {
+      throw new HttpError(400, 'Choose a trainer from this gym.', 'invalid');
+    }
+    if (day !== undefined) slot.day = day;
+    if (time !== undefined) slot.time = time;
+    if (name !== undefined) slot.name = name;
+    if (durationMin !== undefined) slot.durationMin = durationMin;
+    if (trainerId !== undefined) slot.trainerId = trainerId || null;
+    await slot.save();
+    res.json({ slots: await timetableFor(req.gymId) });
+  },
+);
+
+router.delete('/timetable/:id', coaches, async (req, res) => {
   await (await findOwned(ClassSlot, req, req.params.id, 'Class')).deleteOne();
   res.json({ ok: true });
 });
@@ -226,6 +254,14 @@ router.put(
     res.json({ diet: member.toJSON().diet });
   },
 );
+
+router.put('/members/:id/timetable', coaches, async (req, res) => {
+  const member = await coachable(req, req.params.id);
+  const slots = Array.isArray(req.body?.slots) ? req.body.slots : [];
+  member.slots = slots;
+  await member.save();
+  res.json({ ok: true, slots: member.slots });
+});
 
 router.post(
   '/members/:id/logs',

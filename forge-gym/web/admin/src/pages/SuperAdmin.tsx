@@ -525,7 +525,7 @@ export default function SuperAdmin() {
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Vikram Sharma"
+                    placeholder="e.g. Owner 1"
                     value={ownerName}
                     onChange={(e) => setOwnerName(e.target.value)}
                     className="mt-1 w-full border border-line bg-ink px-3 py-2 text-bone focus:border-red focus:outline-none"

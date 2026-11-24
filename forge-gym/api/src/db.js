@@ -2,8 +2,25 @@ import path from 'node:path';
 import { mkdirSync, rmSync } from 'node:fs';
 import mongoose from 'mongoose';
 import { config, rootDir } from './config.js';
+import { User } from './models/index.js';
 
 let localServer = null;
+
+/**
+ * Older builds made the sample email addresses globally unique, which meant a
+ * second demo sandbox could not be created. Drop that index (the schema now
+ * scopes uniqueness to live accounts) and make sure the current indexes exist.
+ */
+async function ensureUserIndexes() {
+  try {
+    const indexes = await User.collection.indexes();
+    const legacy = indexes.find((i) => i.name === 'email_1' && !i.partialFilterExpression);
+    if (legacy) await User.collection.dropIndex('email_1');
+    await User.syncIndexes();
+  } catch (err) {
+    console.warn(`[api] could not update the user email index (${err?.message ?? err}).`);
+  }
+}
 
 /**
  * Connects to MongoDB Atlas via MONGODB_URI. When the variable is absent in
@@ -15,6 +32,7 @@ export async function connectDb({ ephemeral = false } = {}) {
 
   if (config.mongoUri && !ephemeral) {
     await mongoose.connect(config.mongoUri, { dbName: config.mongoDb, serverSelectionTimeoutMS: 10000 });
+    await ensureUserIndexes();
     return `MONGODB_URI (database "${config.mongoDb}")`;
   }
   if (config.isProd) throw new Error('MONGODB_URI must be set in production.');

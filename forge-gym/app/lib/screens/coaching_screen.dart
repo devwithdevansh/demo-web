@@ -55,6 +55,18 @@ class _CoachingScreenState extends State<CoachingScreen> {
     }
   }
 
+  Future<void> _editClass(ClassSlot slot) async {
+    final saved = await showForgeSheet<bool>(
+      context: context,
+      title: 'Edit class',
+      child: _ClassSheet(slot: slot),
+    );
+    if (saved == true && mounted) {
+      _reload();
+      showSnack(context, 'Class updated.');
+    }
+  }
+
   Future<void> _deleteClass(ClassSlot slot) async {
     final ok = await showConfirm(
       context,
@@ -125,7 +137,10 @@ class _CoachingScreenState extends State<CoachingScreen> {
   Widget build(BuildContext context) {
     final user = context.watch<AppState>().session?.user;
     final canPost = user?.isOwner == true || user?.isStaff == true;
-    return ForgePage(
+    final canEditTimetable = user?.isOwner == true || user?.isTrainer == true;
+    final isPushed = ModalRoute.of(context)?.canPop ?? false;
+
+    final content = ForgePage(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -135,7 +150,7 @@ class _CoachingScreenState extends State<CoachingScreen> {
             subtitle: 'The weekly class board, gym announcements and trainer assignments.',
             actions: [
               IconButton(tooltip: 'Refresh', onPressed: _reload, icon: const Icon(Icons.refresh, size: 19)),
-              if (user?.isOwner == true)
+              if (canEditTimetable)
                 FilledButton.icon(
                   onPressed: _addClass,
                   icon: const Icon(Icons.add, size: 17),
@@ -162,9 +177,10 @@ class _CoachingScreenState extends State<CoachingScreen> {
                       final timetable = _Timetable(
                         slots: data.slots,
                         today: data.today,
-                        canEdit: user?.isOwner == true,
+                        canEdit: canEditTimetable,
                         onDelete: _deleteClass,
                         onAdd: _addClass,
+                        onEdit: _editClass,
                       );
                       final notices = _Notices(
                         announcements: data.announcements,
@@ -194,6 +210,23 @@ class _CoachingScreenState extends State<CoachingScreen> {
         ],
       ),
     );
+
+    if (isPushed) {
+      return ForgeBackground(
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: ForgeColors.ink.withValues(alpha: 0.92),
+            surfaceTintColor: Colors.transparent,
+            elevation: 0,
+            title: Text('TIMETABLE & NOTICES', style: ForgeTheme.mono(11, letterSpacing: 2)),
+          ),
+          body: content,
+        ),
+      );
+    }
+
+    return content;
   }
 }
 
@@ -220,6 +253,7 @@ class _Timetable extends StatelessWidget {
     required this.canEdit,
     required this.onDelete,
     required this.onAdd,
+    this.onEdit,
   });
 
   final List<ClassSlot> slots;
@@ -227,6 +261,7 @@ class _Timetable extends StatelessWidget {
   final bool canEdit;
   final ValueChanged<ClassSlot> onDelete;
   final VoidCallback onAdd;
+  final ValueChanged<ClassSlot>? onEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -308,6 +343,12 @@ class _Timetable extends StatelessWidget {
                               ],
                             ),
                           ),
+                          if (canEdit && onEdit != null)
+                            IconButton(
+                              tooltip: 'Edit class',
+                              onPressed: () => onEdit!(slot),
+                              icon: const Icon(Icons.edit_outlined, size: 15, color: ForgeColors.boneDim),
+                            ),
                           if (canEdit)
                             IconButton(
                               tooltip: 'Remove class',
@@ -490,18 +531,20 @@ class _Assignments extends StatelessWidget {
 }
 
 class _ClassSheet extends StatefulWidget {
-  const _ClassSheet();
+  const _ClassSheet({this.slot});
+
+  final ClassSlot? slot;
 
   @override
   State<_ClassSheet> createState() => _ClassSheetState();
 }
 
 class _ClassSheetState extends State<_ClassSheet> {
-  final _name = TextEditingController();
-  final _time = TextEditingController(text: '18:30');
-  final _duration = TextEditingController(text: '45');
+  late final TextEditingController _name;
+  late final TextEditingController _time;
+  late final TextEditingController _duration;
   List<TeamMember> _trainers = const [];
-  String _day = _weekdays.first;
+  late String _day;
   String? _trainerId;
   bool _busy = false;
   String? _error;
@@ -509,6 +552,13 @@ class _ClassSheetState extends State<_ClassSheet> {
   @override
   void initState() {
     super.initState();
+    _name = TextEditingController(text: widget.slot?.name ?? '');
+    _time = TextEditingController(text: widget.slot?.time ?? '18:30');
+    _duration = TextEditingController(text: '${widget.slot?.durationMin ?? 45}');
+    _day = widget.slot != null && _weekdays.contains(widget.slot!.day.toUpperCase())
+        ? widget.slot!.day.toUpperCase()
+        : _weekdays.first;
+    _trainerId = widget.slot?.trainerId;
     _loadTrainers();
   }
 
@@ -546,13 +596,18 @@ class _ClassSheetState extends State<_ClassSheet> {
       _error = null;
     });
     try {
-      await context.read<AppState>().api.addClass({
+      final payload = {
         'day': _day,
         'time': time,
         'name': _name.text.trim(),
         'durationMin': int.tryParse(_duration.text.trim()) ?? 45,
-        if (_trainerId != null) 'trainerId': _trainerId,
-      });
+        'trainerId': _trainerId,
+      };
+      if (widget.slot != null) {
+        await context.read<AppState>().api.editClass(widget.slot!.id, payload);
+      } else {
+        await context.read<AppState>().api.addClass(payload);
+      }
       if (mounted) Navigator.pop(context, true);
     } catch (err) {
       if (mounted) setState(() => _error = '$err');

@@ -509,28 +509,28 @@ class _DemoPickerState extends State<DemoPicker> {
   static const _roles = [
     (
       'owner',
-      'Owner (Test Owner 1)',
+      'Owner (Owner 1)',
       'The whole gym: money, members, leads, reports, staff.',
       Icons.admin_panel_settings_outlined,
       ForgeColors.red,
     ),
     (
       'staff',
-      'Front desk (Test Staff 1)',
+      'Front desk (Staff 1)',
       'Check-ins, payments, dues, enquiries and renewals.',
       Icons.badge_outlined,
       ForgeColors.amber,
     ),
     (
       'trainer',
-      'Trainer (Test Trainer 1)',
+      'Trainer (Trainer 1)',
       'Assigned members, workouts, measurements and PT sessions.',
       Icons.fitness_center,
       ForgeColors.green,
     ),
     (
       'member',
-      'Member (Test Member 1)',
+      'Member (Member 1)',
       'Digital pass, check-in, workout, diet and gym videos.',
       Icons.qr_code_2,
       ForgeColors.blue,
@@ -560,7 +560,7 @@ class _DemoPickerState extends State<DemoPicker> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'A private sandbox of Ironpeak Fitness is created for you. Reset it any time; it never touches a real gym.',
+          'A private sandbox of Iron Forge Gym is created for you. Reset it any time; it never touches a real gym.',
           style: ForgeTheme.body(12.5, color: ForgeColors.mute),
         ),
         const SizedBox(height: 16),

@@ -339,7 +339,7 @@ export default function Home() {
           <div>
             <ForgeMark className="text-3xl" />
             <p className="mt-3 max-w-md text-xs leading-relaxed text-mute">
-              The demos use a fictional gym, Ironpeak Fitness. All members, payments and figures in them are sample data, and prices shown are proposals.
+              The demos use a fictional gym, Iron Forge Gym. All members, payments and figures in them are sample data, and prices shown are proposals.
             </p>
           </div>
           <nav aria-label="Demos" className="flex flex-wrap gap-x-6 gap-y-2">

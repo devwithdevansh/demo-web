@@ -90,7 +90,7 @@ const teamInput = z.object({
   phone: z.union([zPhone, z.literal('')]).optional(),
 });
 
-router.get('/team', desk, async (req, res) => {
+router.get('/team', requireRole('owner', 'staff', 'trainer'), async (req, res) => {
   const [team, members] = await Promise.all([
     User.find({ gymId: req.gymId, role: { $in: ['owner', 'staff', 'trainer'] } }).sort({ role: 1, name: 1 }),
     Member.find({ gymId: req.gymId, trainerId: { $ne: null } }).select('trainerId'),

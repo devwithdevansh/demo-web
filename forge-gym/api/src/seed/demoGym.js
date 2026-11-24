@@ -31,11 +31,11 @@ const phone = (n) => `+91 00000 ${String(10000 + n).slice(-5)}`;
 
 // name, plan, days until expiry, fee due, category, trainer, PT total, PT used, paid periods
 const MEMBERS = [
-  ['Member 1', 3, 18, 0, 'Strength', 0, 12, 7, 5],
-  ['Member 2', 1, 3, 1500, 'Weight loss', 1, 0, 0, 4],
+  ['Member 1', 1, 22, 0, 'Strength', 0, 12, 7, 5],
+  ['Member 2', 0, 3, 1500, 'Weight loss', 1, 0, 0, 4],
   ['Member 3', 0, -2, 0, 'General fitness', null, 0, 0, 3],
-  ['Member 4', 2, 41, 0, 'Weight loss', 1, 8, 3, 2],
-  ['Member 5', 4, 212, 0, 'Strength', 0, 24, 10, 1],
+  ['Member 4', 2, 43, 0, 'Weight loss', 1, 8, 3, 2],
+  ['Member 5', 4, 190, 0, 'Strength', 0, 24, 10, 1],
 ];
 
 const ex = (name, sets, reps, note = '', videoUrl = '') => ({ name, sets, reps, note, videoUrl });
@@ -265,9 +265,9 @@ export async function seedGym(gym) {
       gymId,
       title: '10-Minute Full Body Warm-Up & Mobility Routine',
       category: 'Warmup & Mobility',
-      videoUrl: 'https://www.youtube.com/watch?v=uA_Mbmw2yD4',
-      youtubeId: 'uA_Mbmw2yD4',
-      thumbnailUrl: 'https://img.youtube.com/vi/uA_Mbmw2yD4/hqdefault.jpg',
+      videoUrl: 'https://www.youtube.com/watch?v=X0S5L_W77Xw',
+      youtubeId: 'X0S5L_W77Xw',
+      thumbnailUrl: 'https://img.youtube.com/vi/X0S5L_W77Xw/hqdefault.jpg',
       description: 'Do this dynamic warmup before every gym session to prevent muscle strain.',
       pinned: false,
       postedBy: 'Trainer 2',
@@ -348,12 +348,7 @@ export async function findSandbox(key) {
 
 export async function purgeAllOldDemoSandboxes() {
   try {
-    const staleGyms = await Gym.find({
-      $or: [
-        { name: /Ironpeak/i },
-        { isDemo: true },
-      ],
-    }).select('_id');
+    const staleGyms = await Gym.find({ isDemo: true }).select('_id');
     for (const { _id } of staleGyms) {
       await purgeGym(_id);
       await Gym.deleteOne({ _id });

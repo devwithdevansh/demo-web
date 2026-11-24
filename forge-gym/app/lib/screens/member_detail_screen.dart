@@ -317,7 +317,7 @@ class _Hero extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '${member.memberCode} Â· ${member.phone}${member.email.isEmpty ? '' : ' Â· ${member.email}'}',
+                      '${member.memberCode} · ${member.phone}${member.email.isEmpty ? '' : ' · ${member.email}'}',
                       style: ForgeTheme.body(12, color: ForgeColors.mute),
                     ),
                     const SizedBox(height: 7),
@@ -327,7 +327,7 @@ class _Hero extends StatelessWidget {
                       children: [
                         StatusPill(label: member.category, color: ForgeColors.blue, dense: true),
                         if (member.trainerName != null && member.trainerName!.isNotEmpty)
-                          StatusPill(label: 'Coach Â· ${member.trainerName}', color: ForgeColors.violet, dense: true),
+                          StatusPill(label: 'Coach · ${member.trainerName}', color: ForgeColors.violet, dense: true),
                         if (member.hasAppAccess)
                           const StatusPill(label: 'app access', color: ForgeColors.green, dense: true),
                       ],
@@ -398,7 +398,7 @@ class _DetailsCard extends StatelessWidget {
             valueColor: member.daysLeft < 7 ? ForgeColors.amber : null,
           ),
           InfoRow(label: 'Remaining', value: relDays(member.daysLeft)),
-          InfoRow(label: 'Member since', value: member.createdAt.isEmpty ? 'â€”' : dayLabel(member.createdAt)),
+          InfoRow(label: 'Member since', value: member.createdAt.isEmpty ? '—' : dayLabel(member.createdAt)),
           if (member.notes.isNotEmpty) ...[
             const Divider(height: 24),
             Text('STAFF NOTES', style: ForgeTheme.mono(9, letterSpacing: 1.3)),
@@ -588,7 +588,7 @@ class _MoneyCard extends StatelessWidget {
           ],
           const Divider(height: 26),
           InfoRow(label: 'Autopay', value: titleCase(member.autopayStatus)),
-          InfoRow(label: 'Mandate', value: member.autopayAmount == 0 ? 'â€”' : inr(member.autopayAmount)),
+          InfoRow(label: 'Mandate', value: member.autopayAmount == 0 ? '—' : inr(member.autopayAmount)),
         ],
       ),
     );
@@ -684,7 +684,7 @@ class _PaymentsCard extends StatelessWidget {
                             style: ForgeTheme.body(12.5, weight: FontWeight.w600, color: ForgeColors.bone),
                           ),
                           Text(
-                            '${titleCase(payment.method)} Â· ${shortDay(payment.paidOn)}${payment.note.isEmpty ? '' : ' Â· ${payment.note}'}',
+                            '${titleCase(payment.method)} · ${shortDay(payment.paidOn)}${payment.note.isEmpty ? '' : ' · ${payment.note}'}',
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: ForgeTheme.body(10.5, color: ForgeColors.mute),
@@ -818,7 +818,7 @@ class _MessageSheetState extends State<_MessageSheet> {
             style: ForgeTheme.mono(9, color: ForgeColors.mute, letterSpacing: 0.3),
           ),
           const SizedBox(height: 8),
-          Text('TO Â· ${str(_preview?['to'], widget.member.phone)}', style: ForgeTheme.mono(9, letterSpacing: 1)),
+          Text('TO · ${str(_preview?['to'], widget.member.phone)}', style: ForgeTheme.mono(9, letterSpacing: 1)),
         ],
         const SizedBox(height: 18),
         LoadingButton(

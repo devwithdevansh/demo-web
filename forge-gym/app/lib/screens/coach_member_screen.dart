@@ -1131,11 +1131,11 @@ class _MemberTimetableSheetState extends State<_MemberTimetableSheet> {
   void initState() {
     super.initState();
     if (widget.member.slots.isEmpty) {
-      _slots.add(_SlotDraft(time: '07:00 AM - 08:00 AM', title: 'Strength & Conditioning', trainer: 'Test Trainer 1', capacity: 15));
-      _slots.add(_SlotDraft(time: '05:30 PM - 06:30 PM', title: 'Powerlifting / HIIT', trainer: 'Test Trainer 2', capacity: 10));
+      _slots.add(_SlotDraft(time: '07:00 AM - 08:00 AM', title: 'Strength & Conditioning', trainer: 'Trainer 1', capacity: 15));
+      _slots.add(_SlotDraft(time: '05:30 PM - 06:30 PM', title: 'Powerlifting / HIIT', trainer: 'Trainer 2', capacity: 10));
     } else {
       for (final s in widget.member.slots) {
-        _slots.add(_SlotDraft(time: s.time, title: s.name, trainer: s.trainerName ?? 'Test Trainer 1', capacity: 15));
+        _slots.add(_SlotDraft(time: s.time, title: s.name, trainer: s.trainerName ?? 'Trainer 1', capacity: 15));
       }
     }
   }
@@ -1156,7 +1156,7 @@ class _MemberTimetableSheetState extends State<_MemberTimetableSheet> {
               'id': 'custom_slot_${DateTime.now().millisecondsSinceEpoch}_${_slots.indexOf(s)}',
               'time': s.time.text.trim().isEmpty ? '07:00 AM' : s.time.text.trim(),
               'name': s.title.text.trim(),
-              'trainerName': s.trainer.text.trim().isEmpty ? 'Test Trainer 1' : s.trainer.text.trim(),
+              'trainerName': s.trainer.text.trim().isEmpty ? 'Trainer 1' : s.trainer.text.trim(),
               'day': 'Mon, Wed, Fri',
               'durationMin': 50,
             })
@@ -1208,19 +1208,19 @@ class _MemberTimetableSheetState extends State<_MemberTimetableSheet> {
               Text('Quick Presets: ', style: ForgeTheme.mono(10.5, color: ForgeColors.mute)),
               ActionChip(
                 label: const Text('Morning HIIT', style: TextStyle(fontSize: 11)),
-                onPressed: () => _addPreset('Morning HIIT', '06:30 AM - 07:30 AM', 'Test Trainer 1'),
+                onPressed: () => _addPreset('Morning HIIT', '06:30 AM - 07:30 AM', 'Trainer 1'),
                 visualDensity: VisualDensity.compact,
               ),
               const SizedBox(width: 6),
               ActionChip(
                 label: const Text('Hypertrophy', style: TextStyle(fontSize: 11)),
-                onPressed: () => _addPreset('Hypertrophy & Core', '05:00 PM - 06:15 PM', 'Test Trainer 2'),
+                onPressed: () => _addPreset('Hypertrophy & Core', '05:00 PM - 06:15 PM', 'Trainer 2'),
                 visualDensity: VisualDensity.compact,
               ),
               const SizedBox(width: 6),
               ActionChip(
                 label: const Text('Strength Camp', style: TextStyle(fontSize: 11)),
-                onPressed: () => _addPreset('Strength Camp', '07:00 PM - 08:00 PM', 'Test Trainer 1'),
+                onPressed: () => _addPreset('Strength Camp', '07:00 PM - 08:00 PM', 'Trainer 1'),
                 visualDensity: VisualDensity.compact,
               ),
             ],
@@ -1271,7 +1271,7 @@ class _MemberTimetableSheetState extends State<_MemberTimetableSheet> {
                       flex: 2,
                       child: TextField(
                         controller: _slots[i].trainer,
-                        decoration: const InputDecoration(labelText: 'Trainer', hintText: 'Test Trainer 1', isDense: true),
+                        decoration: const InputDecoration(labelText: 'Trainer', hintText: 'Trainer 1', isDense: true),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -1290,7 +1290,7 @@ class _MemberTimetableSheetState extends State<_MemberTimetableSheet> {
           ),
         TextButton.icon(
           onPressed: () => setState(() {
-            _slots.add(_SlotDraft(time: '06:00 PM - 07:00 PM', title: '', trainer: 'Test Trainer 1', capacity: 15));
+            _slots.add(_SlotDraft(time: '06:00 PM - 07:00 PM', title: '', trainer: 'Trainer 1', capacity: 15));
           }),
           icon: const Icon(Icons.add, size: 16),
           label: const Text('Add training slot'),

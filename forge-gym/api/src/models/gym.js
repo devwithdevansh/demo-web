@@ -21,7 +21,7 @@ const userSchema = new Schema(
   {
     gymId: gymRef,
     name: str(80, { required: true }),
-    email: str(160, { lowercase: true, index: { unique: true, sparse: true } }),
+    email: str(160, { lowercase: true }),
     passwordHash: String,
     role: { type: String, enum: ROLES, required: true },
     title: str(80),
@@ -32,6 +32,13 @@ const userSchema = new Schema(
     demoPrimary: { type: Boolean, default: false },
   },
   { timestamps: true },
+);
+
+// Live accounts must have a unique email. Demo sandboxes are throwaway copies of the
+// same sample gym, so they intentionally reuse the same sample addresses.
+userSchema.index(
+  { email: 1 },
+  { unique: true, partialFilterExpression: { isDemo: false } },
 );
 
 export const Gym = model('Gym', gymSchema);

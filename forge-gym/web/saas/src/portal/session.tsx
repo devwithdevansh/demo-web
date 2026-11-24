@@ -27,182 +27,6 @@ export function useSession() {
   return value;
 }
 
-function sanitizeSession(s: Session): Session {
-  let userName = s.user?.name || '';
-  if (!userName || userName.toLowerCase().includes('rhea')) userName = 'Owner 1';
-  else if (userName.toLowerCase().includes('imran')) userName = 'Staff 1';
-  else if (userName.toLowerCase().includes('alex')) userName = 'Trainer 1';
-  else if (userName.toLowerCase().includes('aarav')) userName = 'Member 1';
-
-  let gymName = s.gym?.name || '';
-  if (!gymName || gymName.toLowerCase().includes('ironpeak')) gymName = 'Iron Forge Gym';
-
-  return {
-    ...s,
-    user: { ...s.user, name: userName },
-    gym: { ...s.gym, name: gymName },
-  };
-}
-
-const CLEAN_5_MEMBERS = [
-  {
-    id: 'mem_1', memberCode: 'IP-1001', name: 'Member 1', phone: '+91 99999 00006', email: 'member1@gmail.com',
-    category: 'Strength', planId: 'p_pro', planName: 'Pro Monthly', planPrice: 2999,
-    startDate: '2026-10-01', expiryDate: '2026-12-15', feeDue: 0, status: 'active', daysLeft: 22,
-    hasAppAccess: true, pt: { total: 12, used: 7 }, autopay: { status: 'active' },
-  },
-  {
-    id: 'mem_2', memberCode: 'IP-1002', name: 'Member 2', phone: '+91 99999 00007', email: 'member2@gmail.com',
-    category: 'Weight loss', planId: 'p_basic', planName: 'Basic Monthly', planPrice: 1499,
-    startDate: '2026-10-20', expiryDate: '2026-11-26', feeDue: 1500, status: 'expiring', daysLeft: 3,
-    hasAppAccess: true, pt: { total: 0, used: 0 }, autopay: { status: 'none' },
-  },
-  {
-    id: 'mem_3', memberCode: 'IP-1003', name: 'Member 3', phone: '+91 99999 00008', email: 'member3@gmail.com',
-    category: 'General fitness', planId: 'p_basic', planName: 'Basic Monthly', planPrice: 1499,
-    startDate: '2026-09-20', expiryDate: '2026-11-21', feeDue: 0, status: 'expired', daysLeft: -2,
-    hasAppAccess: false, pt: { total: 0, used: 0 }, autopay: { status: 'none' },
-  },
-  {
-    id: 'mem_4', memberCode: 'IP-1004', name: 'Member 4', phone: '+91 99999 00009', email: 'member4@gmail.com',
-    category: 'Weight loss', planId: 'p_pro', planName: 'Pro Quarterly', planPrice: 7999,
-    startDate: '2026-08-15', expiryDate: '2027-01-05', feeDue: 0, status: 'active', daysLeft: 43,
-    hasAppAccess: true, pt: { total: 8, used: 3 }, autopay: { status: 'none' },
-  },
-  {
-    id: 'mem_5', memberCode: 'IP-1005', name: 'Member 5', phone: '+91 99999 00010', email: 'member5@gmail.com',
-    category: 'Strength', planId: 'p_elite', planName: 'Elite Yearly', planPrice: 54990,
-    startDate: '2026-06-01', expiryDate: '2027-06-01', feeDue: 0, status: 'active', daysLeft: 190,
-    hasAppAccess: true, pt: { total: 24, used: 10 }, autopay: { status: 'none' },
-  },
-];
-
-function sanitizeApiData<T>(path: string, raw: any): T {
-  if (!raw || typeof raw !== 'object') return raw;
-  const data = JSON.parse(JSON.stringify(raw));
-
-  if (path === '/members' && Array.isArray(data.members)) {
-    const hasOld = data.members.some((m: any) => m.name && (m.name.includes('Aarav') || m.name.includes('Aditya') || m.name.includes('Ananya')));
-    if (hasOld || data.members.length > 5) {
-      data.members = CLEAN_5_MEMBERS;
-    }
-  }
-
-  if (path === '/dashboard') {
-    if (data.counts) {
-      data.counts.activeMembers = 5;
-      data.counts.expiringSoon = 1;
-      data.counts.lapsed = 1;
-      data.counts.checkinsToday = 3;
-      data.counts.duesMembers = 1;
-      data.counts.duesTotal = 1500;
-    }
-    data.checkins = [
-      { id: 'c1', name: 'Member 1', time: '10:45 am', method: 'qr' },
-      { id: 'c2', name: 'Member 2', time: '09:30 am', method: 'qr' },
-      { id: 'c3', name: 'Member 4', time: '07:15 am', method: 'manual' },
-    ];
-    data.expiring = [CLEAN_5_MEMBERS[1]];
-  }
-
-  if (path === '/attendance' && Array.isArray(data.checkins)) {
-    const hasOld = data.checkins.some((c: any) => c.name && (c.name.includes('Aarav') || c.name.includes('Naina') || c.name.includes('Yash')));
-    if (hasOld) {
-      const today = new Date().toISOString().slice(0, 10);
-      data.checkins = [
-        { id: 'c1', memberId: 'mem_1', name: 'Member 1', day: today, time: '10:45 am', method: 'qr' },
-        { id: 'c2', memberId: 'mem_2', name: 'Member 2', day: today, time: '09:30 am', method: 'qr' },
-        { id: 'c3', memberId: 'mem_4', name: 'Member 4', day: today, time: '07:15 am', method: 'manual' },
-      ];
-    }
-  }
-
-  if (path === '/payments') {
-    return {
-      payments: [
-        {
-          id: 'pay_1',
-          memberId: 'mem_1',
-          memberName: 'Member 1',
-          amount: 2999,
-          method: 'upi',
-          paidOn: new Date().toISOString().slice(0, 10),
-          note: 'Pro Monthly fee',
-          recordedBy: 'Staff 1',
-        },
-        {
-          id: 'pay_2',
-          memberId: 'mem_4',
-          memberName: 'Member 4',
-          amount: 7999,
-          method: 'upi',
-          paidOn: new Date(Date.now() - 5 * 86400000).toISOString().slice(0, 10),
-          note: 'Pro Quarterly fee',
-          recordedBy: 'Staff 1',
-        },
-        {
-          id: 'pay_3',
-          memberId: 'mem_5',
-          memberName: 'Member 5',
-          amount: 54990,
-          method: 'bank',
-          paidOn: new Date(Date.now() - 25 * 86400000).toISOString().slice(0, 10),
-          note: 'Elite Yearly fee',
-          recordedBy: 'Staff 1',
-        },
-      ],
-      dues: [CLEAN_5_MEMBERS[1]],
-      totals: {
-        today: 2999,
-        month: 65988,
-        dues: 1500,
-      },
-    } as T;
-  }
-
-  if (path === '/coach/assignments') {
-    return {
-      members: CLEAN_5_MEMBERS,
-      trainers: [
-        { id: 'usr_trainer_1', name: 'Trainer 1', title: 'Head Strength Coach' },
-        { id: 'usr_trainer_2', name: 'Trainer 2', title: 'Fitness Coach' },
-        { id: 'usr_trainer_3', name: 'Trainer 3', title: 'Conditioning Coach' },
-      ],
-      categories: ['Strength', 'Weight loss', 'General fitness'],
-    } as T;
-  }
-
-  if (path === '/team') {
-    return {
-      team: [
-        { id: 'usr_owner_1', name: 'Owner 1', role: 'owner', title: 'Gym Owner', phone: '+91 99999 00001', active: true, members: 0 },
-        { id: 'usr_staff_1', name: 'Staff 1', role: 'staff', title: 'Front Desk & Operations', phone: '+91 99999 00002', active: true, members: 0 },
-        { id: 'usr_trainer_1', name: 'Trainer 1', role: 'trainer', title: 'Head Strength Coach', phone: '+91 99999 00003', active: true, members: 2 },
-        { id: 'usr_trainer_2', name: 'Trainer 2', role: 'trainer', title: 'Fitness Coach', phone: '+91 99999 00004', active: true, members: 2 },
-        { id: 'usr_trainer_3', name: 'Trainer 3', role: 'trainer', title: 'Conditioning Coach', phone: '+91 99999 00005', active: true, members: 1 },
-      ],
-    } as T;
-  }
-
-  if (path === '/leads') {
-    return {
-      leads: [
-        { id: 'lead_1', name: 'Lead 1', phone: '+91 99999 00020', source: 'website', status: 'new', interest: 'Pro plan', notes: 'Asked about morning slots.' },
-        { id: 'lead_2', name: 'Lead 2', phone: '+91 99999 00021', source: 'walk-in', status: 'contacted', interest: 'Personal training', notes: 'Trial session requested.' },
-        { id: 'lead_3', name: 'Lead 3', phone: '+91 99999 00022', source: 'instagram', status: 'trial', interest: 'Basic plan', notes: 'Completed trial on Saturday.' },
-      ],
-    } as T;
-  }
-
-  if (path === '/renewals' && Array.isArray(data.members)) {
-    if (data.members.length > 5 || data.members.some((m: any) => m.name && m.name.includes('Aarav'))) {
-      data.members = [CLEAN_5_MEMBERS[1], CLEAN_5_MEMBERS[2]];
-    }
-  }
-
-  return data as T;
-}
-
 export function SessionProvider({
   tier: propTier,
   role: propRole,
@@ -231,9 +55,8 @@ export function SessionProvider({
       try {
         const stored = JSON.parse(storedRaw) as Session;
         if (stored.token) {
-          const sanitized = sanitizeSession(stored);
-          tokenRef.current = sanitized.token;
-          setSession(sanitized);
+          tokenRef.current = stored.token;
+          setSession(stored);
           return;
         }
       } catch {
@@ -249,9 +72,8 @@ export function SessionProvider({
     startDemoSession(activeTier, activeRole)
       .then((s) => {
         if (!live) return;
-        const sanitized = sanitizeSession(s);
-        tokenRef.current = sanitized.token;
-        setSession(sanitized);
+        tokenRef.current = s.token;
+        setSession(s);
       })
       .catch((err: unknown) => {
         if (!live) return;
@@ -270,15 +92,13 @@ export function SessionProvider({
   }, [propTier, propRole, attempt, navigate]);
 
   const api = useCallback<SessionValue['api']>(async (path, options = {}) => {
-    const raw = await request(path, { ...options, token: tokenRef.current });
-    return sanitizeApiData(path, raw);
+    return request(path, { ...options, token: tokenRef.current });
   }, []);
 
   const resetDemo = useCallback(async () => {
     const fresh = await request<Session>('/demo/reset', { method: 'POST', token: tokenRef.current });
-    const sanitized = sanitizeSession(fresh);
-    tokenRef.current = sanitized.token;
-    setSession((current) => ({ ...sanitized, sandboxKey: current?.sandboxKey }));
+    tokenRef.current = fresh.token;
+    setSession((current) => ({ ...fresh, sandboxKey: current?.sandboxKey }));
     setVersion((v) => v + 1);
   }, []);
 

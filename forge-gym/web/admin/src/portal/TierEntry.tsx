@@ -35,7 +35,7 @@ const TRY: Record<Tier, string[]> = {
     'Send an enquiry from the sample gym website, then find it under Leads.',
   ],
   performance: [
-    'As the trainer, change Aarav’s workout plan. Switch to the member view and open Workout.',
+    'As the trainer, change Member 1’s workout plan. Switch to the member view and open Workout.',
     'As the trainer, record a check-in and a weight. They appear in the member’s Progress.',
     'Log a PT session and see the pack count go down for both trainer and member.',
     'As the owner, move a member to a different trainer under Coaching.',
@@ -95,7 +95,7 @@ export default function TierEntry({ tier }: { tier: Tier }) {
           <section className="border border-line p-5 sm:p-6">
             <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-bone">About this demo</h2>
             <ul className="mt-4 space-y-3 text-sm leading-relaxed text-bone-dim">
-              <li>Ironpeak Fitness is a made-up gym. Every member, number and payment is sample data.</li>
+              <li>Iron Forge Gym is a made-up gym. Every member, number and payment is sample data.</li>
               <li>You get your own private copy. What you change is saved for you and is not visible to anyone else.</li>
               <li>"Reset demo data" inside the demo puts everything back to the start.</li>
               <li>Payments are test or practice payments, so no real money moves. WhatsApp messages never go to the sample members.</li>

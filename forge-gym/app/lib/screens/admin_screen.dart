@@ -643,7 +643,7 @@ class _GymSheetState extends State<_GymSheet> {
           child: TextField(
             controller: _name,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(hintText: 'e.g. Ironpeak Fitness'),
+            decoration: const InputDecoration(hintText: 'e.g. Iron Forge Gym'),
           ),
         ),
         const SizedBox(height: 13),

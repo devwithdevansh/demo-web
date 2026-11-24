@@ -86,7 +86,7 @@ test('payment link: Razorpay test-mode order, signature check, payment recorded 
   const o = { token: owner.token };
   assert.equal((await call('/addons', o)).data.providers.payments, 'razorpay_test');
 
-  const member = (await call('/members?q=Meera', o)).data.members[0];
+  const member = (await call('/members?q=Member 2', o)).data.members[0];
   const link = (await call('/addons/upi-link', { ...o, method: 'POST', body: { memberId: member.id, amount: 400 } })).data;
   assert.equal(link.gateway, 'razorpay_test');
   assert.equal(link.simulated, false);

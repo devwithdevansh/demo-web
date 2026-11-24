@@ -202,7 +202,7 @@ test('add-ons are simulated, and Autopay needs the member\'s explicit approval',
   const owner = await enter('performance', 'owner');
   const member = await enter('performance', 'member', owner.sandboxKey);
   const o = { token: owner.token };
-  const me = (await call('/members?q=Aarav', o)).data.members[0];
+  const me = (await call('/members?q=Member 1', o)).data.members[0];
 
   const msg = await call('/addons/message', { ...o, method: 'POST', body: { template: 'renewal', memberId: me.id, send: true } });
   assert.equal(msg.data.delivered, false);
@@ -218,7 +218,7 @@ test('add-ons are simulated, and Autopay needs the member\'s explicit approval',
   assert.equal((await call('/portal/autopay', { token: member.token, method: 'POST', body: { action: 'cancel' } })).data.autopay.status, 'cancelled');
 
   // Payment link: only the demo pay page settles it, and only once.
-  const due = (await call('/members?q=Meera', o)).data.members[0];
+  const due = (await call('/members?q=Member 2', o)).data.members[0];
   const link = (await call('/addons/upi-link', { ...o, method: 'POST', body: { memberId: due.id, amount: 400 } })).data;
   assert.equal((await call(`/public/pay/${link.token}`)).data.status, 'pending');
   assert.equal((await call(`/public/pay/${link.token}`, { method: 'POST', body: { outcome: 'success' } })).data.status, 'paid');

@@ -46,6 +46,7 @@ const memberSchema = new Schema(
     },
     workout: { title: str(80), updatedAt: Date, updatedBy: str(80), days: [workoutDaySchema] },
     diet: { title: str(80), note: str(600), updatedAt: Date, updatedBy: str(80), meals: [mealSchema] },
+    slots: [{ time: str(40), name: str(80), trainerName: str(80), day: str(40), durationMin: Number }],
   },
   { timestamps: true },
 );

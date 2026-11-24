@@ -156,7 +156,7 @@ Deploy each frontend folder as an independent static site:
 ## 5. Post-Deployment Verification Checklist
 
 1. [ ] Check `GET /api/health` returns `{"ok":true,"database":"connected"}`.
-2. [ ] Test Owner sign-in on SaaS portal (`rhea@forge.demo` / `forge1234`).
+2. [ ] Test Owner sign-in on SaaS portal (`owner1@gmail.com` / `forge1234`).
 3. [ ] Verify QR code check-in flow from Member PWA to Front Desk console.
 4. [ ] Confirm CORS configuration allows cross-origin requests between all 4 web frontends and the API.
 5. [ ] Ensure demo sandboxes auto-expire according to `DEMO_SANDBOX_TTL_HOURS`.

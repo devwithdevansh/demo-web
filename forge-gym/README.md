@@ -10,7 +10,6 @@ One gym product, five surfaces and one API:
 | [`web/admin/`](./web/admin) | Installation admin console | `http://localhost:5175` |
 | [`web/member/`](./web/member) | Member PWA (pass, check-in, plans) | `http://localhost:5176` |
 | [`app/`](./app) | Flutter gym app for owner, front desk, trainer and member | Android, iOS, web, Windows |
-| [`legacy/`](./legacy) | Earlier single-app site, kept for reference only | — |
 
 ## Quick start
 

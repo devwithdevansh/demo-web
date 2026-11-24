@@ -100,7 +100,7 @@ export async function ensureDefaultLiveUsers() {
     const memberUsers = [];
 
     for (const u of usersToEnsure) {
-      let user = await User.findOne({ email: u.email });
+      let user = await User.findOne({ email: u.email, isDemo: false });
       if (!user) {
         user = await User.create({
           gymId: gym._id,

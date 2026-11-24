@@ -6,7 +6,6 @@ import { Gym, User, Member, Lead, ROLES } from '../models/index.js';
 import { signToken, requireAuth } from '../middleware/auth.js';
 import { body, HttpError, zName, zPhone, zText } from '../middleware/http.js';
 import { createSandbox, findSandbox, resetSandbox } from '../seed/demoGym.js';
-import { ensureDefaultLiveUsers } from '../seed/ensureUsers.js';
 import { dayKey } from '../lib/dates.js';
 import { unseal } from '../lib/secretbox.js';
 
@@ -68,7 +67,6 @@ router.post('/demo/reset', limiter(20), requireAuth, async (req, res) => {
   resetting.add(id);
   try {
     await resetSandbox(req.gym);
-    await ensureDefaultLiveUsers();
   } finally {
     resetting.delete(id);
   }
@@ -126,13 +124,27 @@ router.post(
     // 1. Try real database user first
     const cleanPhone = id.replace(/\D/g, '');
     const escaped = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    let emailVariant = id;
+    if (id.endsWith('@forge.demo')) {
+      emailVariant = id.replace('@forge.demo', '@gmail.com');
+    } else if (id.endsWith('@gmail.com')) {
+      emailVariant = id.replace('@gmail.com', '@forge.demo');
+    }
+    const escapedVariant = emailVariant.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
     let user = await User.findOne({
       $or: [
         { email: new RegExp(`^${escaped}$`, 'i') },
+        { email: new RegExp(`^${escapedVariant}$`, 'i') },
         { phone: id },
         ...(cleanPhone.length >= 10 ? [{ phone: { $regex: cleanPhone + '$' } }] : []),
+        ...(id === 'admin' || id === 'owner' ? [{ role: 'owner' }] : []),
+        ...(id === 'staff' ? [{ role: 'staff' }] : []),
+        ...(id === 'trainer' ? [{ role: 'trainer' }] : []),
+        ...(id === 'member' ? [{ role: 'member' }] : []),
       ],
       active: true,
+      isDemo: false,
     });
 
     if (!user) {

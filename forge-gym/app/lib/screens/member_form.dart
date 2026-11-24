@@ -301,7 +301,7 @@ class _MemberFormScreenState extends State<MemberFormScreen> {
             child: TextField(
               controller: _name,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(hintText: 'e.g. Aarav Shah'),
+              decoration: const InputDecoration(hintText: 'e.g. Member 6'),
             ),
           ),
           const SizedBox(height: 13),
