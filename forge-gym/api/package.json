@@ -10,6 +10,7 @@
     "dev": "node --watch-path=src server.js",
     "build": "node -e \"console.log('No build step: this is a plain Node.js API.')\"",
     "test": "node --test \"src/test/*.test.js\"",
+    "db:wipe": "node src/seed/wipeDatabase.js",
     "demo:clear": "node src/scripts/clear-demo.js",
     "gym:create": "node src/scripts/create-gym.js"
   },
